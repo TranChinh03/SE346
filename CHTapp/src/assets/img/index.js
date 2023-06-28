@@ -1,0 +1,22 @@
+export {default as IMG_AUTHBACKGROUND} from './AuthBackground.png';
+export {default as IMG_CPP} from './cpp_img.jpg';
+export {default as IMG_LOADING} from './Loading.png';
+export {default as IMG_INTROBACKGROUND} from './IntroBackground.png';
+export {default as IMG_INTRO1} from './Intro1.png';
+export {default as IMG_INTRO2} from './Intro2.png';
+export {default as IMG_INTRO3} from './Intro3.png';
+export {default as IMG_COURSEBACKGROUND} from './CourseBackground.png';
+export {default as IMG_JAVASCRIPT} from './javascript.png';
+export {default as IMG_CPPBACKGROUND} from './Cpp_Background.png';
+export {default as IMG_LECTURERAVA} from './lecturerAva.png';
+export {default as IMG_PROFILEBACKGROUND} from './profile_bg.png';
+export {default as IMG_AVT} from './avt.png';
+export {default as IMG_DECORHOMESCREEN} from './decorHomeScreen.png';
+export {default as IMG_VIDEO} from './Video.png';
+export {default as IMG_TODOBG1} from './TodoBG1.jpg';
+export {default as IMG_TODOEMPTY} from './TodoEmpty.png';
+export {default as IMG_BG1} from './BG1.png';
+export {default as IMG_CSHARP} from './csharp_img.jpg';
+export {default as IMG_PYTHON} from './python_img.jpg';
+export {default as IMG_RUBY} from './ruby_img.jpg';
+
