@@ -189,7 +189,7 @@ const ProfileStack = () => {
     <Stack.Navigator initialRouteName="Profile">
       <Stack.Screen
         name="Profile"
-        component={SettingScreen}
+        component={ProfileScreen}
         options={{headerShown: false}}
       />
       <Stack.Screen
