@@ -36,6 +36,7 @@ import AddCourseScreen from './screens/AddCourseScreen';
 import AddChapterScreen from './screens/AddChapterScreen';
 import AddLessonScreen from './screens/AddLessonScreen';
 import AddOptionScreen from './screens/AddCourseScreen';
+import SearchScreen from './screens/SearchScreen';
 
 export default function App() {
   return (
@@ -50,7 +51,7 @@ export default function App() {
     // <IntroScreen/>
     // <SwitchButton />
     //<CourseScreen />
-    <AppNavigation />
+    //<AppNavigation />
     // <AddOptionScreen/>
     // <ProfileEditScreen/>
     // <ProfileScreen/>
@@ -61,7 +62,7 @@ export default function App() {
     // <DropDown/>
     // <Evaluation/>
     // <LessonDetailScreen/>
-    // <HomeScreen/>
+    //<HomeScreen />
     // <IntroScreen/>
     // <HomeScreen1/>
     // <NoticationScreen />
@@ -72,5 +73,6 @@ export default function App() {
     //<AddCourseScreen />
     //<AddChapterScreen />
     //<AddLessonScreen />
+    <SearchScreen />
   );
 }

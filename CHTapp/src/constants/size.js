@@ -1,9 +1,11 @@
+import scale from './responsive';
+
 const CUSTOM_SIZES = {
-  xSmall: 10,
-  small: 14,
-  medium: 16,
-  large: 20,
-  xLarge: 24,
-  xxLarge: 40,
+  xSmall: scale(10, 'w'),
+  small: scale(14, 'w'),
+  medium: scale(16, 'w'),
+  large: scale(20, 'w'),
+  xLarge: scale(24, 'w'),
+  xxLarge: scale(40, 'w'),
 };
 export default CUSTOM_SIZES;

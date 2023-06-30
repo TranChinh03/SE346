@@ -4,8 +4,8 @@
 // import * as firebase from "firebase"
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
-import 'firebase/compat/firestore'
-import 'firebase/compat/storage'
+import 'firebase/compat/firestore';
+import 'firebase/compat/storage';
 // import 'firebase/storage'
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -13,13 +13,13 @@ import 'firebase/compat/storage'
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAq7LhFQGWkSNuu649gQ8pncXVOXkmB_bY",
-  authDomain: "chtapp-3a342.firebaseapp.com",
-  projectId: "chtapp-3a342",
-  storageBucket: "chtapp-3a342.appspot.com",
-  messagingSenderId: "725147749269",
-  appId: "1:725147749269:web:36dbc134601c43ecf0449c",
-  measurementId: "G-Y5SNGX8WXV"
+  apiKey: 'AIzaSyDk89Et_vVlZj-HazHSszs59zBr0RbWApQ',
+  authDomain: 'se346-cht.firebaseapp.com',
+  projectId: 'se346-cht',
+  storageBucket: 'se346-cht.appspot.com',
+  messagingSenderId: '156771911745',
+  appId: '1:156771911745:web:4cc3d0c9e15a7affe71ec0',
+  measurementId: 'G-FMXLSRRV5Q',
 };
 
 // Initialize Firebase
