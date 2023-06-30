@@ -33,7 +33,10 @@ const LoginScreen = () => {
 
   loginUser = async (email, password) => {
     try {
-      await firebase.auth().signInWithEmailAndPassword(email, password);
+      const user = await firebase.auth().signInWithEmailAndPassword(email, password)
+      if(user)
+        navigation.navigate('HomeTabs'
+        );
     } catch (error) {
       Alert.alert('Email or password is incorrect!');
     }

@@ -27,18 +27,19 @@ export default class CourseItem extends Component {
       <TouchableOpacity
         style={[styles.container, this.props.style]}
         onPress={this.props.onPress}>
-        <Image
-        // source={this.props.language === 'c++' ? IMG_CPP : (
-        //   this.props.language === 'c#' ? IMG_CSHARP : (
-        //     this.props.language === 'ruby' ? IMG_RUBY : (
-        //       this.props.language === 'python' ? IMG_PYTHON : IMG_JAVASCRIPT
-        //     )
-        //   )
-        // )}
-        source = {{uri : this.props.image}}
+        {this.props.image === '' ? (
+          <Image 
+          source={IMG_CPP}
+          resizeMode="contain"
+          style={styles.logoImage}
+          />
+        ) : (
+          <Image
+          source = {{uri : this.props.image}}
           resizeMode="contain"
           style={styles.logoImage}
         />
+        )}
         <View style={styles.infoContainer}>
           <Text style={styles.courseName}>{this.props.title}</Text>
           <Text style={styles.lecturerName}>{this.props.author}</Text>

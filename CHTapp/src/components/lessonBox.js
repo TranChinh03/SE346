@@ -48,7 +48,7 @@ import DropDown from './dropDown';
             <View style={styles.textContainer}>
                 <View style={styles.titleContainer}>
                     <Text style={styles.title}>{this.props.title}</Text>
-                    <Text style={styles.duration}>{this.props.duration}</Text>
+                    {/* <Text style={styles.duration}>{this.props.duration}</Text> */}
                 </View>
                 <View style={styles.docsContainer}>
                     <Text style={styles.docs}>PDF</Text>

@@ -92,7 +92,7 @@ import {
       }
   
       getData();
-    });
+    },[inProgress]);
   
     useEffect(() => {
       async function getData() {
@@ -101,7 +101,7 @@ import {
       }
   
       getData();
-    });
+    },[completed]);
   
     useEffect(() => {
       async function getData() {
@@ -110,7 +110,7 @@ import {
       }
   
       getData();
-    });
+    }, [favorite]);
   
     const renderCourses = data => {
       return (
