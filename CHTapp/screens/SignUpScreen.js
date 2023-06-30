@@ -38,13 +38,15 @@ const SignUpScreen = () => {
           .auth()
           .currentUser.sendEmailVerification({
             handleCodeInApp: true,
-            url: 'https://chtapp-3a342.firebaseapp.com',
+            // url: 'https://chtapp-3a342.firebaseapp.com',
+            url: 'https://se346-cht.firebaseapp.com',
           })
           .then(() => {
             Alert.alert('Verification email sent');
           })
           .catch(error => {
             Alert.alert(error.message);
+            console.log(error.message)
           })
           .then(() => {
             firebase
@@ -58,10 +60,12 @@ const SignUpScreen = () => {
           })
           .catch(error => {
             Alert.alert(error.message);
+            console.log(error.message)
           });
       })
       .catch(error => {
         Alert.alert(error.message);
+        console.log(error.message)
       });
   };
   return (

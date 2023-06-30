@@ -117,14 +117,14 @@ const ProfileScreen = () => {
             </View>
           ) : null}
 
-          <View style={{display: 'flex', flexDirection: 'row'}}>
+          {/* <View style={{display: 'flex', flexDirection: 'row'}}>
             <View style={styles.contentRow}>
               <TextDisplayBox label="Last name" text={profile.lastname} />
             </View>
             <View style={styles.contentRow}>
               <TextDisplayBox label="First name" text={profile.firstname} />
             </View>
-          </View>
+          </View> */}
 
           <View style={{display: 'flex', flexDirection: 'row'}}>
             <View style={styles.contentRow}>
@@ -133,9 +133,9 @@ const ProfileScreen = () => {
                 text={profile.birthday}
               />
             </View>
-            <View style={styles.contentRow}>
+            {/* <View style={styles.contentRow}>
               <TextDisplayBox label="Job" text={profile.job} />
-            </View>
+            </View> */}
           </View>
 
           <View style={{display: 'flex', flexDirection: 'row'}}>

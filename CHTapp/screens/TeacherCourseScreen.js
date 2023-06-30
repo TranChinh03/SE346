@@ -87,7 +87,7 @@ import {
               const courses = querySnapshot.docs.map((doc) => doc.data());
               setCourseList(courses);
             });
-        });
+        }, [courseList]);
     
         return unsubscribe;
       }, [navigation]);
