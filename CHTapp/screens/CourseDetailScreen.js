@@ -60,6 +60,23 @@ const CourseDetailScreen = ({route}) => {
   const [twoStar, setTwoStar] = useState(0);
   const [oneStar, setOneStar] = useState(0);
 
+  const [name, setName] = useState('')
+
+  useEffect(() => {
+    firebase
+      .firestore()
+      .collection('users')
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(snapshot => {
+        if (snapshot.exists) {
+          setName(snapshot.data());
+        } else {
+          console.log('User does not exist');
+        }
+      });
+  }, [name.email]);
+
   useEffect(() => {
     ChapterList().then(data => setChapters(data));
     LessonList().then(data => setLessons(data));
@@ -263,18 +280,20 @@ const CourseDetailScreen = ({route}) => {
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.container1}>
-          <ImageBackground
-            style={styles.image}
-            source={item.programLanguage === 'c++' ? IMG_CPP : (
-              item.programLanguage === 'c#' ? IMG_CSHARP : (
-                item.programLanguage === 'ruby' ? IMG_RUBY : (
-                  item.programLanguage === 'python' ? IMG_PYTHON : IMG_JAVASCRIPT
-            )
-          )
-        )}
-            resizeMode="contain"
+        {item.image === '' ? (
+          <Image 
+          source={IMG_CPPBACKGROUND}
+          resizeMode="contain"
+          style={styles.image}
           />
-          <BackButton onPress={() => navigation.navigate('Course')} type={1} />
+        ) : (
+          <Image
+          source = {{uri : item.image}}
+          resizeMode="contain"
+          style={styles.image}
+        />
+        )}
+          <BackButton onPress={() => navigation.goBack()} type={1} />
         </View>
         <View style={styles.container2}>
           <Text style={styles.title}>{item.title}</Text>
@@ -407,7 +426,7 @@ const CourseDetailScreen = ({route}) => {
         </View>
       </ScrollView>
       {
-        item.job === 'Teacher' ? (
+        item.author === name.email ? (
           <TouchableOpacity
         style={styles.fixedBtnEdit}
         onPress={() =>

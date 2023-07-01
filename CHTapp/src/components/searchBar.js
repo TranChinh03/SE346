@@ -27,11 +27,12 @@ export class SearchBar extends Component {
         <TextInput
           style={styles.input}
           placeholder={this.props.placeholder}
-          placeholderTextColor={CUSTOM_COLOR.DarkGray}></TextInput>
+          placeholderTextColor={CUSTOM_COLOR.DarkGray}
+          onChangeText={this.props.onChangeText}></TextInput>
 
-        <TouchableOpacity style={styles.searchButton}>
+        <View style={styles.searchButton}>
           <IC_Search />
-        </TouchableOpacity>
+        </View>
 
         {/* <TouchableOpacity
           style={styles.heartButton}

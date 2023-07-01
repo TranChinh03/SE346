@@ -10,6 +10,7 @@ import {
   Image,
 } from 'react-native';
 import React, {Component, useState, useEffect} from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {IMG_AUTHBACKGROUND, IMG_COURSEBACKGROUND} from '../src/assets/img';
 import CUSTOM_COLORS from '../src/constants/colors';
 import scale from '../src/constants/responsive';
@@ -20,8 +21,9 @@ import CourseItem from '../src/components/courseItem';
 import {useNavigation} from '@react-navigation/native';
 import {firebase} from '../configs/FirebaseConfig';
 
-const StudentCourseScreen = () => {
-  const [currentPage, setCurrentPage] = useState('AllCourses');
+const CourseScreen = ({route}) => {
+  const {item} = route.params;
+  const [currentPage, setCurrentPage] = useState(item);
   const [allCourses, setAllCourses] = useState([]);
   const [myCourses, setMyCourses] = useState([]);
   const [favorite, setFavorite] = useState([]);
@@ -69,10 +71,6 @@ const StudentCourseScreen = () => {
   }
 
   async function joinedMyFavorite(curEmail) {
-    const favoriteRef = firebase.firestore().collection('favorite');
-    const favoriteSnapshot = await favoriteRef.get();
-    const favoriteData = favoriteSnapshot.docs.map(doc => ({id: doc.id , ...doc.data()}));
-
     const courseRef = firebase.firestore().collection('courses');
     const courseSnapshot = await courseRef.get();
     const courseData = courseSnapshot.docs.map(doc => ({id: doc.id , ...doc.data()}));
@@ -81,18 +79,36 @@ const StudentCourseScreen = () => {
     const authorSnapshot = await authorRef.get();
     const authorData = authorSnapshot.docs.map(doc => doc.data());
   
-    const joinedData = favoriteData
-    .filter(filter => filter.viewer === curEmail)
-    .map (firstItem => {
-      const secondItem = courseData.find(item => item.title === firstItem.courseTitle && item.author === firstItem.courseAuthor)
-
-      const thirdItem = authorData.find(item => item.email === secondItem.author)
-
-      return {... firstItem, ...secondItem, ...thirdItem };
-    })
+    const joinedData = authorData
+    .filter((filter) => filter.email === curEmail)
+    .map((firstItem) => {
+      let secondItem;
+      firstItem.favoriteCourses.find((subItem) => {
+        if (subItem.isFavor === true) {
+          secondItem = courseData.find(
+            (item) =>
+              item.title === subItem.courseTitle && item.author === subItem.courseAuthor
+          );
+        }
+      });
+  
+      return { ...firstItem, ...secondItem };
+    });
   
     return joinedData;
   }
+
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     // Fetch new data and update state here
+  //     const fetchData = async () => {
+  //       const response = await fetch('https://se346-cht.firebaseapp.com');
+  //       const data = await response.json();
+  //       setData(data);
+  //     };
+  //     fetchData();
+  //   }, [])
+  // );
 
   useEffect(() => {
     firebase
@@ -129,7 +145,7 @@ const StudentCourseScreen = () => {
 
   useEffect(() => {
     async function getData() {
-      const favorite = await joinedMyFavorite(curEmail);
+      const favorite = await joinedMyFavorite(name.email);
       setFavorite(favorite);
     }
 
@@ -251,7 +267,7 @@ const StudentCourseScreen = () => {
   );
 };
 
-export default StudentCourseScreen;
+export default CourseScreen;
 
 const styles = StyleSheet.create({
   container: {
