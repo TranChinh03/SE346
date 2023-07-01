@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
   courseName: {
     flex: 2,
-    fontSize: CUSTOM_SIZES.small,
+    fontSize: scale(12, 'w'),
     fontFamily: CUSTOM_FONTS.medium,
     color: CUSTOM_COLORS.gray,
   },

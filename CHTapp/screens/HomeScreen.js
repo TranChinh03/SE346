@@ -29,7 +29,7 @@ import CUSTOM_FONTS from '../src/constants/fonts';
 
 var titles = ['Python', 'SQL', 'Java', 'Ruby', 'Go', 'C#', 'C++'];
 
-// const navigation = useNavigation();
+
 
 const renderTitles = (data, containerStyle, layoutStyle, textStyle) => {
   return (
@@ -68,8 +68,14 @@ const HomeScreen = () => {
             style={styles.loadAllPart}
             onPress={() =>
               category === 'MY COURSES'
-                ? navigation.navigate('CourseStack', {screen: 'Course'})
-                : navigation.navigate('CourseStack', {screen: 'AllCourse'})
+                ?  navigation.navigate('CourseStack', {
+                    screen: 'Course',
+                    params: {item: 'MyCourses'},
+                })
+                : navigation.navigate('CourseStack', {
+                    screen: 'Course',
+                    params: {item: 'AllCourses'},
+                })
             }>
             <Text style={styles.loadAll}>View All </Text>
             <Image source={IC_VIEW_MORE} />
@@ -92,9 +98,8 @@ const HomeScreen = () => {
               style={{marginRight: scale(20, 'w')}}
               image={item.image}
               onPress={() =>
-                navigation.navigate('CourseStack', {
-                  screen: 'CourseDetail',
-                  params: {item: item},
+                navigation.navigate('CourseDetail', {
+                  item: item
                 })
               }
             />
@@ -204,7 +209,7 @@ const HomeScreen = () => {
           console.log('User does not exist');
         }
       });
-  }, []);
+  }, [name.email]);
 
   // useEffect(() => {
   //   const unsubcribe = firebase.firestore()
@@ -229,7 +234,7 @@ const HomeScreen = () => {
     }
 
     getData();
-  }, [name.email]);
+  }, [myCourse]);
 
   useEffect(() => {
     async function getData() {
@@ -240,7 +245,7 @@ const HomeScreen = () => {
     }
 
     getData();
-  }, [name.email]);
+  }, [popularCourse]);
 
   useEffect(() => {
     async function getData() {
@@ -251,7 +256,7 @@ const HomeScreen = () => {
     }
 
     getData();
-  }, []);
+  }, [newCourse]);
 
   // useEffect(() => {
   //   async function getData() {
@@ -261,6 +266,7 @@ const HomeScreen = () => {
 
   //   getData();
   // });
+  const navigation = useNavigation();
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.introPart}>
@@ -281,7 +287,9 @@ const HomeScreen = () => {
       {/* <View style={styles.searchPart}>
         <SearchBar />
       </View> */}
-      <TouchableOpacity style={styles.input} onPress={() => {}}>
+      <TouchableOpacity style={styles.input} onPress={() => {navigation.navigate('HomeStack' , {
+        screen: 'Search'
+      })}}>
         <Text>Search Course</Text>
         <TouchableOpacity style={styles.searchButton}>
           <Image source={IC_SEARCH}></Image>

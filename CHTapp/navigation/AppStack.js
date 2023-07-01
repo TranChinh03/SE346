@@ -21,7 +21,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import ProfileEditScreen from '../screens/ProfileEditScreen';
 import LessonDetailScreen from '../screens/LessonDetailScreen';
 import TodoScreen from '../screens/TodoScreen';
-import {firebase} from '../configs/FirebaseConfig';
+import {firebase} from '../configs/FirebaseConfig'
 import AddCourseScreen from '../screens/AddCourseScreen';
 import AddChapterScreen from '../screens/AddChapterScreen';
 import AddLessonScreen from '../screens/AddLessonScreen';
@@ -31,6 +31,7 @@ import EditCourseScreen from '../screens/EditCourseScreen';
 import MeetingScreen from '../screens/MeetingScreen';
 import CreateMeeting from '../screens/CreateMeeting';
 import SettingScreen from '../screens/SettingScreen';
+import SearchScreen from '../screens/SearchScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -50,8 +51,8 @@ const HomeTabs = () => {
         },
       }}>
       <Tab.Screen
-        name="Home"
-        component={HomeScreen}
+        name="HomeStack"
+        component={HomeStack}
         options={{
           tabBarIcon: ({focused}) => (
             <View>
@@ -129,6 +130,28 @@ const HomeTabs = () => {
 };
 
 const Stack = createNativeStackNavigator();
+
+const HomeStack = () => {
+  return (
+    <Stack.Navigator initialRouteName="Home">
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="CourseDetail"
+        component={CourseDetailScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Search"
+        component={SearchScreen}
+        options={{headerShown: false}}
+      />
+    </Stack.Navigator>
+  );
+};
 
 const CourseStack = () => {
   return (

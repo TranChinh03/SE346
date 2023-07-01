@@ -32,6 +32,11 @@ import BtnDelete from '../src/components/BtnDelete';
 import BtnTick from '../src/components/BtnTick';
 import {firebase} from '../configs/FirebaseConfig'
 import ItemPdf from '../src/components/ItemPdf';
+import DocumentPicker from 'react-native-document-picker'
+import {utils} from '@react-native-firebase/app'
+import storage from '@react-native-firebase/storage'
+// import RNFetchBlob from 'rn-fetch-blob'
+import { PermissionsAndroid } from 'react-native';
 
 var titles = [
   'Python.pdf',
@@ -54,6 +59,8 @@ const AddLessonScreen = () => {
 
 
   const [course, setCourse] = useState([]);
+  const [files, setFiles] = useState([])
+  const [documents, setDocuments] = useState([])
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -281,15 +288,20 @@ const AddLessonScreen = () => {
           </View> */}
           <Text style={styles.txtTiltle}>Material</Text>
             <View style={{marginLeft: scale(15, 'w'), flexDirection: 'row'}}>
-              <TouchableOpacity style={styles.btnBorder}>
+              {/* <TouchableOpacity style={styles.btnBorder}>
                 <Text style={styles.txtDelete}>-</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+              <TouchableOpacity
+            onPress = {pickDocument}
+            style={styles.fixedButton}>
+            <Text style={styles.start}>+</Text>
+          </TouchableOpacity>
               <FlatList
                 horizontal
                 numColumns={1}
-                data={titles}
+                data={documents}
                 renderItem={({item, index}) => {
-                  return <ItemPdf title={item} />;
+                  return <ItemPdf title={item.name} />;
                 }}
               />
             </View>
@@ -336,20 +348,139 @@ const AddLessonScreen = () => {
     })
   }, [])
 
+  // async function normalizePath(path) {
+  //   if(Platform.OS === 'ios' || Platform.OS === 'android')
+  //   {
+  //     const filePrefix = 'file://';
+  //     if (path.startsWith(filePrefix))
+  //   }
+  // }
+
+  async function pickDocument() {
+    try {
+      let index = 0
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
+
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
+
+      //   console.log(newResult)
+      setDocuments(prevData => [
+        ...prevData,
+        result[0]
+      ]);
+
+      index++;
+
+      console.log(documents)
+
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
+
+
+
+async function requestStoragePermission() {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      {
+        title: "Storage Permission",
+        message:
+          "This app needs access to your storage " +
+          "so you can upload files.",
+        buttonNeutral: "Ask Me Later",
+        buttonNegative: "Cancel",
+        buttonPositive: "OK"
+      }
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log("You can now access storage");
+    } else {
+      console.log("Storage permission denied");
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+}
+
+async function uriToBlob(uri) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      resolve(xhr.response);
+    };
+    xhr.onerror = function() {
+      reject(new Error('uriToBlob failed'));
+    };
+    xhr.responseType = 'blob';
+    xhr.open('GET', uri, true);
+    xhr.send(null);
+  });
+}
+
+  const handleUpload = async () => {
+
+    await requestStoragePermission()
+
+    if (documents) {
+      try {
+
+        const urls = [];
+        for (const document of documents) {
+        
+          const blob = await uriToBlob(document.uri);
+          console.log(blob)
+          const reference = storage().ref().child(`files/${Date.now()}`);
+          const task = reference.put(blob);
+
+          task.on('state_changed', (snapshot) => {
+            console.log(document)
+            console.log(
+              `${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}% completed`
+            );
+          });
+  
+          await task;
+          const url = await reference.getDownloadURL();
+          console.log('File uploaded to Firebase storage:', url);
+          urls.push(url);
+        }
+        return urls;
+      } catch (error) {
+        Alert.alert(error.message);
+      }
+    }
+  };
+
   const now = firebase.firestore.Timestamp.now()
 
-  const addChapter = () => {
-    firebase
+  const addLesson = async () => {
+
+    const fileUrls = await handleUpload()
+
+
+    await firebase
     .firestore()
-    .collection('chapters')
+    .collection('lessons')
     .add ({
       courseAuthor: name.email,
       courseTitle: myCourse,
-      number: myChapter,
-      title: title,
+      chapterTitle: myChapter,
+      lessonTitle: title,
+      files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
     })
     .then(() => {
-      Alert.alert('Add Chapter Successfully!')
+      Alert.alert('Add Lesson Successfully!')
       navigation.navigate('Course')
     })
   }
@@ -373,7 +504,7 @@ const AddLessonScreen = () => {
       </View>
 
       <BtnTick onPress={() => {
-        addChapter()
+        addLesson()
       }} />
     </SafeAreaView>
   );
@@ -567,5 +698,21 @@ const styles = StyleSheet.create({
   space: {
     height: scale(200, 'h'),
     // backgroundColor: 'pink',
+  },
+  fixedButton: {
+    width: scale(40, 'w'),
+    height: scale(40, 'w'),
+    borderRadius: scale(70 / 2, 'w'),
+    backgroundColor: CUSTOM_COLORS.PictionBlue,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+    elevation: 7,
+  },
+  start: {
+    fontSize: scale(25, 'w'),
+    fontWeight: '300',
+    color: CUSTOM_COLORS.white,
   },
 });
