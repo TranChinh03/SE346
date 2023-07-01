@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   FlatList,
   Image,
+  TextInput,
 } from 'react-native';
 import React, {Component, useEffect, useState} from 'react';
-import {IC_VIEW_MORE} from '../src/assets/icons';
+import {IC_SEARCH, IC_VIEW_MORE} from '../src/assets/icons';
 import {IMG_DECORHOMESCREEN} from '../src/assets/img';
 import CUSTOM_COLORS from '../src/constants/colors';
 import scale from '../src/constants/responsive';
@@ -18,13 +19,13 @@ import TextBox from '../src/components/textBox';
 import BottomTab from '../src/components/bottomTab';
 import CourseItem from '../src/components/courseItem';
 import SearchBar from '../src/components/searchBar';
-import { IC_Notification, IC_NotificationBing } from '../src/assets/iconsvg';
-import {firebase} from '../configs/FirebaseConfig'
-import { ListItem } from '@rneui/base';
-import { useNavigation, useNavigationState } from '@react-navigation/native';
+import {IC_Notification, IC_NotificationBing} from '../src/assets/iconsvg';
+import {firebase} from '../configs/FirebaseConfig';
+import {ListItem} from '@rneui/base';
+import {useNavigation, useNavigationState} from '@react-navigation/native';
 import CourseDetailScreen from './CourseDetailScreen';
 import CourseCompletedBox from '../src/components/courseCompletedBox';
-
+import CUSTOM_FONTS from '../src/constants/fonts';
 
 var titles = ['Python', 'SQL', 'Java', 'Ruby', 'Go', 'C#', 'C++'];
 
@@ -50,16 +51,12 @@ const renderTitles = (data, containerStyle, layoutStyle, textStyle) => {
   );
 };
 
-
-
 const HomeScreen = () => {
-
-  const [name, setName] = useState('')
+  const [name, setName] = useState('');
   const [myCourse, setMyCourse] = useState([]);
   const [popularCourse, setPopularCourse] = useState([]);
   const [newCourse, setNewCourse] = useState([]);
   const [favoriteCourse, setFavoriteCourse] = useState([]);
-
 
   const renderCourses = (data, category) => {
     const navigation = useNavigation();
@@ -67,9 +64,13 @@ const HomeScreen = () => {
       <View>
         <View style={styles.titlePartCourses}>
           <Text style={styles.categoryName}>{category}</Text>
-          <TouchableOpacity style={styles.loadAllPart}
-          onPress = {() => category === 'MY COURSES' ? navigation.navigate('CourseStack', {screen : 'Course'}) : 
-          navigation.navigate('CourseStack', {screen : 'AllCourse'})}>
+          <TouchableOpacity
+            style={styles.loadAllPart}
+            onPress={() =>
+              category === 'MY COURSES'
+                ? navigation.navigate('CourseStack', {screen: 'Course'})
+                : navigation.navigate('CourseStack', {screen: 'AllCourse'})
+            }>
             <Text style={styles.loadAll}>View All </Text>
             <Image source={IC_VIEW_MORE} />
           </TouchableOpacity>
@@ -82,100 +83,128 @@ const HomeScreen = () => {
           keyExtractor={item => item.id}
           renderItem={({item}) => (
             <CourseItem
-              key = {item.key}
+              key={item.key}
               language={item.programLanguage}
               title={item.title}
               author={item.name}
               rating={item.rate}
               view={item.numofAttendants}
               style={{marginRight: scale(20, 'w')}}
-              image = {item.image}
-              onPress = {() => navigation.navigate('CourseStack', {screen : 'CourseDetail', params: {item: item}})}
+              image={item.image}
+              onPress={() =>
+                navigation.navigate('CourseStack', {
+                  screen: 'CourseDetail',
+                  params: {item: item},
+                })
+              }
             />
           )}
         />
       </View>
     );
   };
-  
+
   async function joinedMyCourse(curEmail) {
     const courseRef = firebase.firestore().collection('courses');
     const courseSnapshot = await courseRef.get();
-    const courseData = courseSnapshot.docs.map(doc => ({id: doc.id , ...doc.data()}));
-  
-    const authorRef = firebase.firestore().collection('users');
-    const authorSnapshot = await authorRef.get();
-    const authorData = authorSnapshot.docs.map(doc => doc.data());
-  
-    const studyRef = firebase.firestore().collection('study');
-    const studySnapshot = await studyRef.get();
-    const studyData = studySnapshot.docs.map(doc => ({id: doc.id , ...doc.data()}));
-  
-    const joinedData = studyData
-    .filter(firstItem => firstItem.student === curEmail)
-    .map(firstItem => {
-      const  secondItem = courseData.find(item => item.author === firstItem.courseAuthor && item.title === firstItem.courseTitle);
-  
-      const thirdItem = authorData.find(item => item.email === secondItem.author)
-  
-      return {...firstItem, ...secondItem, ...thirdItem};
-    })
-  
-    return joinedData;
-  }
-  
-  async function joinedMyCourse2(curEmail) {
-    const courseRef = firebase.firestore().collection('courses');
-    const courseSnapshot = await courseRef.get();
-    const courseData = courseSnapshot.docs.map(doc => ({id: doc.id , ...doc.data()}));
+    const courseData = courseSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
     const authorRef = firebase.firestore().collection('users');
     const authorSnapshot = await authorRef.get();
     const authorData = authorSnapshot.docs.map(doc => doc.data());
-  
+
+    const studyRef = firebase.firestore().collection('study');
+    const studySnapshot = await studyRef.get();
+    const studyData = studySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    const joinedData = studyData
+      .filter(firstItem => firstItem.student === curEmail)
+      .map(firstItem => {
+        const secondItem = courseData.find(
+          item =>
+            item.author === firstItem.courseAuthor &&
+            item.title === firstItem.courseTitle,
+        );
+
+        const thirdItem = authorData.find(
+          item => item.email === secondItem.author,
+        );
+
+        return {...firstItem, ...secondItem, ...thirdItem};
+      });
+
+    return joinedData;
+  }
+
+  async function joinedMyCourse2(curEmail) {
+    const courseRef = firebase.firestore().collection('courses');
+    const courseSnapshot = await courseRef.get();
+    const courseData = courseSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    const authorRef = firebase.firestore().collection('users');
+    const authorSnapshot = await authorRef.get();
+    const authorData = authorSnapshot.docs.map(doc => doc.data());
+
     const joinedData = courseData
-    .filter(item => item.author === curEmail)
-    .map(firstItem => {
-      const  secondItem = authorData.find(item => item.email === firstItem.author);
-  
-      return {...firstItem, ...secondItem};
-    })
-  
+      .filter(item => item.author === curEmail)
+      .map(firstItem => {
+        const secondItem = authorData.find(
+          item => item.email === firstItem.author,
+        );
+
+        return {...firstItem, ...secondItem};
+      });
+
     return joinedData;
   }
 
   async function joinedCourse() {
+    //const navigation = useNavigation();
     const courseRef = firebase.firestore().collection('courses');
     const courseSnapshot = await courseRef.get();
-    const courseData = courseSnapshot.docs.map(doc => ({id: doc.id , ...doc.data()}));
+    const courseData = courseSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
     const authorRef = firebase.firestore().collection('users');
     const authorSnapshot = await authorRef.get();
     const authorData = authorSnapshot.docs.map(doc => doc.data());
-  
-    const joinedData = courseData
-    .map(firstItem => {
-      const  secondItem = authorData.find(item => item.email === firstItem.author);
-  
+
+    const joinedData = courseData.map(firstItem => {
+      const secondItem = authorData.find(
+        item => item.email === firstItem.author,
+      );
+
       return {...firstItem, ...secondItem};
-    })
-  
+    });
+
     return joinedData;
   }
 
   useEffect(() => {
-    firebase.firestore().collection('users')
-    .doc(firebase.auth().currentUser.uid).get()
-    .then((snapshot) => {
-      if(snapshot.exists)
-      {
-        setName(snapshot.data())
-      }
-      else {
-        console.log('User does not exist')
-      }
-    })
-  }, [])
+    firebase
+      .firestore()
+      .collection('users')
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(snapshot => {
+        if (snapshot.exists) {
+          setName(snapshot.data());
+        } else {
+          console.log('User does not exist');
+        }
+      });
+  }, []);
 
   // useEffect(() => {
   //   const unsubcribe = firebase.firestore()
@@ -184,19 +213,16 @@ const HomeScreen = () => {
   //     const myCourse = querySnapshot.docs.map(doc => doc.data());
   //     setMyCourse(myCourse);
   //   });
-    
+
   //   return () => unsubcribe();
   // }, []);
 
   useEffect(() => {
     async function getData() {
-    
-      if(name.job === 'Student')
-      {
+      if (name.job === 'Student') {
         const myCourse = (await joinedMyCourse(name.email)).slice(0, 5);
         setMyCourse(myCourse);
-      }
-      else {
+      } else {
         const myCourse = (await joinedMyCourse2(name.email)).slice(0, 5);
         setMyCourse(myCourse);
       }
@@ -207,7 +233,9 @@ const HomeScreen = () => {
 
   useEffect(() => {
     async function getData() {
-      const popularCourse = (await joinedCourse()).sort((a, b) => b.numofAttendants - a.numofAttendants).slice(0, 5);
+      const popularCourse = (await joinedCourse())
+        .sort((a, b) => b.numofAttendants - a.numofAttendants)
+        .slice(0, 5);
       setPopularCourse(popularCourse);
     }
 
@@ -216,7 +244,9 @@ const HomeScreen = () => {
 
   useEffect(() => {
     async function getData() {
-      const newCourse = (await joinedCourse()).sort((a, b) => b.openDate - a.openDate).slice(0,5);
+      const newCourse = (await joinedCourse())
+        .sort((a, b) => b.openDate - a.openDate)
+        .slice(0, 5);
       setNewCourse(newCourse);
     }
 
@@ -251,14 +281,19 @@ const HomeScreen = () => {
       {/* <View style={styles.searchPart}>
         <SearchBar />
       </View> */}
-      <Image
+      <TouchableOpacity style={styles.input} onPress={() => {}}>
+        <Text>Search Course</Text>
+        <TouchableOpacity style={styles.searchButton}>
+          <Image source={IC_SEARCH}></Image>
+        </TouchableOpacity>
+      </TouchableOpacity>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Image
           source={IMG_DECORHOMESCREEN}
           resizeMode="cover"
           style={styles.decorImage}
         />
-
-      <ScrollView showsVerticalScrollIndicator={false}>
-      
 
         {/* {renderTitles(
           titles,
@@ -274,20 +309,18 @@ const HomeScreen = () => {
 
         <View style={styles.footerContent}>
           <Text style={styles.cht}>CHT</Text>
-          <Text style={styles.explainCHT}>
-            Courses - Homework - Technical
-          </Text>
+          <Text style={styles.explainCHT}>Courses - Homework - Technical</Text>
         </View>
 
         <View style={styles.space}>
           <View style={[styles.space]}></View>
-         </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
-}
+};
 
-export default HomeScreen
+export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -302,6 +335,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: scale(5, 'h'),
     justifyContent: 'space-between',
+    paddingBottom: scale(10, 'h'),
   },
   helloUser: {
     fontWeight: '700',
@@ -321,7 +355,10 @@ const styles = StyleSheet.create({
   decorImage: {
     width: scale(325, 'w'),
     marginTop: scale(20, 'h'),
+    alignSelf: 'center',
     borderRadius: 20,
+    backgroundColor: 'red',
+    marginRight: scale(20, 'w'),
   },
   titleList: {
     marginTop: scale('40', 'h'),
@@ -370,20 +407,52 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: scale(50, 'w'),
   },
   cht: {
     color: CUSTOM_COLORS.stateBlue,
-    fontSize: scale(30, 'w'),
-    fontWeight: '900',
+    fontSize: scale(50, 'w'),
+    fontFamily: CUSTOM_FONTS.bold,
   },
   explainCHT: {
     color: CUSTOM_COLORS.stateBlue,
     fontSize: scale(12, 'w'),
-    fontStyle: 'italic',
+    fontFamily: CUSTOM_FONTS.italic,
   },
   space: {
     height: scale(200, 'h'),
     // backgroundColor: 'pink',
   },
-});
+  input: {
+    height: scale(40, 'h'),
+    width: scale(330, 'w'),
+    borderWidth: 1,
+    borderColor: CUSTOM_COLORS.FrenchViolet,
+    borderRadius: scale(17, 'w'),
+    alignItems: 'center',
+    paddingHorizontal: scale(20, 'w'),
+    // /alignSelf: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+  },
 
+  txtPlace: {
+    alignSelf: 'center',
+  },
+  searchButton: {
+    //position: 'absolute',
+    //right: scale(50, 'w'),
+    height: scale(34, 'h'),
+    width: scale(40, 'w'),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  containerSearch: {
+    flexDirection: 'row',
+    height: scale(40, 'h'),
+    marginBottom: scale(15, 'h'),
+    width: scale(300, 'w'),
+    alignItems: 'center',
+    //backgroundColor: 'red',
+  },
+});

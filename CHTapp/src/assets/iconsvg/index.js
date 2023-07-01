@@ -19,3 +19,5 @@ export {default as IC_Tick} from './IC_Tick';
 export {default as IC_Tick2} from './IC_Tick2';
 export {default as IC_Line} from './IC_Line';
 export {default as IC_Edit} from './IC_Edit';
+export {default as IC_Star} from './IC_Star';
+export {default as IC_Search} from './IC_Search';

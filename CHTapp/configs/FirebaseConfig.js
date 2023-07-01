@@ -35,4 +35,3 @@ if (!firebase.apps.length) {
 //   useFetchStreams: false,
 // });
 
-export {firebase};
