@@ -26,8 +26,8 @@ import BackButton from '../src/components/backButton';
 const ProfileEditScreen = () => {
   const [profile, setProfile] = useState('');
   const [name, setName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [firstName, setFirstName] = useState('');
+  // const [lastName, setLastName] = useState('');
+  // const [firstName, setFirstName] = useState('');
   const [birthday, setBirthday] = useState('');
   // const [job, setJob] = useState('');
   const [email, setEmail] = useState('');
@@ -47,8 +47,8 @@ const ProfileEditScreen = () => {
         if (snapshot.exists) {
           setProfile(snapshot.data());
           setName(profile.name);
-          setFirstName(profile.firstname);
-          setLastName(profile.lastname);
+          // setFirstName(profile.firstname);
+          // setLastName(profile.lastname);
           setBirthday(profile.birthday);
           // setJob(profile.job);
           setEmail(profile.email);
@@ -65,12 +65,12 @@ const ProfileEditScreen = () => {
     if (name !== undefined) {
       updateData.name = name;
     }
-    if (lastName !== undefined) {
-      updateData.lastname = lastName;
-    }
-    if (firstName !== undefined) {
-      updateData.firstname = firstName;
-    }
+    // if (lastName !== undefined) {
+    //   updateData.lastname = lastName;
+    // }
+    // if (firstName !== undefined) {
+    //   updateData.firstname = firstName;
+    // }
     if (birthday !== undefined) {
       updateData.birthday = birthday;
     }
@@ -197,7 +197,7 @@ const ProfileEditScreen = () => {
                   </ScrollView> */}
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {profile.job === 'Student' ? (
+          {/* {profile.job === 'Student' ? (
             <View style={{display: 'flex', flexDirection: 'row'}}>
               <View style={styles.contentRow}>
                 <CourseAttendedBox courses={profile.attendedCourses} />
@@ -206,9 +206,9 @@ const ProfileEditScreen = () => {
                 <CourseCompletedBox courses={profile.completedCourses} />
               </View>
             </View>
-          ) : null}
+          ) : null} */}
 
-          <View style={{display: 'flex', flexDirection: 'row'}}>
+          {/* <View style={{display: 'flex', flexDirection: 'row'}}>
             <View style={styles.contentRow}>
               <TextInputDisplayBox
                 label="Last name"
@@ -223,7 +223,7 @@ const ProfileEditScreen = () => {
                 onChangeText={myFirstName => setFirstName(myFirstName)}
               />
             </View>
-          </View>
+          </View> */}
 
           <View style={{display: 'flex', flexDirection: 'row'}}>
             <View style={styles.contentRow}>
@@ -232,9 +232,9 @@ const ProfileEditScreen = () => {
                 text={profile.birthday}
               />
             </View>
-            <View style={styles.contentRow}>
+            {/* <View style={styles.contentRow}>
               <TextDisplayBox label="Job" text={profile.job} />
-            </View>
+            </View> */}
           </View>
 
           <View style={{display: 'flex', flexDirection: 'row'}}>

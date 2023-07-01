@@ -8,8 +8,7 @@ import { IC_RightArrow, IC_Help, IC_Language, IC_Moon, IC_Notification, IC_LOGOU
 import SwitchButton from '../src/components/switch'
 import { IMG_LOGOUTBACKGROUND } from '../src/assets/imgsvg'
 
-export class SettingScreen extends Component {
-  render() {
+const  SettingScreen = ()  => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.backContainer} >
@@ -185,8 +184,9 @@ export class SettingScreen extends Component {
             </View>
         </SafeAreaView>
     )
-  }
 }
+
+export default SettingScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -298,4 +298,3 @@ const styles = StyleSheet.create({
     }
 })
 
-export default SettingScreen
