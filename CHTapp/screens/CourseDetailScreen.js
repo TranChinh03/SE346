@@ -20,7 +20,7 @@ import {
   IMG_CSHARP,
   IMG_RUBY,
   IMG_JAVASCRIPT,
-  IMG_PYTHON
+  IMG_PYTHON,
 } from '../src/assets/img';
 import CUSTOM_COLORS from '../src/constants/colors';
 import scale from '../src/constants/responsive';
@@ -29,12 +29,17 @@ import TextBox from '../src/components/textBox';
 import BottomTab from '../src/components/bottomTab';
 import CourseItem from '../src/components/courseItem';
 import StarRating from 'react-native-star-rating-widget';
-import {IC_GLOBAL, IC_INFORMATION, IC_NEXT} from '../src/assets/icons';
+import {
+  IC_GLOBAL,
+  IC_HEART,
+  IC_INFORMATION,
+  IC_NEXT,
+} from '../src/assets/icons';
 import LessonBox from '../src/components/lessonBox';
 import {IMG_LECTURERAVA} from '../src/assets/img';
 import Evaluation from '../src/components/evaluation';
 import BackButton from '../src/components/backButton';
-import {IC_Edit, IC_LeftArrow} from '../src/assets/iconsvg';
+import {IC_Edit, IC_Heart, IC_LeftArrow} from '../src/assets/iconsvg';
 import {firebase} from '../configs/FirebaseConfig';
 import formatDuration from '../src/constants/formatDuration';
 import {useNavigation} from '@react-navigation/native';
@@ -49,6 +54,7 @@ const CourseDetailScreen = ({route}) => {
 
   const [chapters, setChapters] = useState([]);
   const [lessons, setLessons] = useState([]);
+  const [favorite, setFavorite] = useState(false);
 
   const [myTitle, setMyTitle] = useState([]);
 
@@ -60,7 +66,7 @@ const CourseDetailScreen = ({route}) => {
   const [twoStar, setTwoStar] = useState(0);
   const [oneStar, setOneStar] = useState(0);
 
-  const [name, setName] = useState('')
+  const [name, setName] = useState('');
 
   useEffect(() => {
     firebase
@@ -102,7 +108,7 @@ const CourseDetailScreen = ({route}) => {
   //       {
   //         const title = querrySnapshot.docs[0].title;
   //         setMyTitle(title);
-          
+
   //       }
   //     })
   //   });
@@ -280,20 +286,27 @@ const CourseDetailScreen = ({route}) => {
     <SafeAreaView style={styles.container}>
       <ScrollView>
         <View style={styles.container1}>
-        {item.image === '' ? (
-          <Image 
-          source={IMG_CPPBACKGROUND}
-          resizeMode="contain"
-          style={styles.image}
-          />
-        ) : (
-          <Image
-          source = {{uri : item.image}}
-          resizeMode="contain"
-          style={styles.image}
-        />
-        )}
-          <BackButton onPress={() => navigation.goBack()} type={1} />
+          {item.image === '' ? (
+            <Image
+              source={IMG_CPPBACKGROUND}
+              resizeMode="contain"
+              style={styles.image}
+            />
+          ) : (
+            <Image
+              source={{uri: item.image}}
+              resizeMode="contain"
+              style={styles.image}
+            />
+          )}
+          <View style={styles.conOperator}>
+            <BackButton onPress={() => navigation.goBack()} type={1} />
+            <TouchableOpacity onPress={() => setFavorite(!favorite)}>
+              <IC_Heart
+                fillH={favorite ? CUSTOM_COLORS.sunsetOrange : 'transparent'}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.container2}>
           <Text style={styles.title}>{item.title}</Text>
@@ -387,6 +400,22 @@ const CourseDetailScreen = ({route}) => {
             </View>
           </View>
           <Text style={[styles.categoryText, {marginTop: scale(20, 'h')}]}>
+            Rate this course
+          </Text>
+          <Text style={styles.infoText}>
+            Tell others how do you like this course
+          </Text>
+          <StarRating
+            onChange={() => navigation.navigate('RatingScreen')}
+            maxStars={5}
+            starSize={scale(40, 'w')}
+            rating={0}
+            starStyle={[
+              styles.star,
+              {marginHorizontal: scale(7, 'w'), marginTop: scale(10, 'w')},
+            ]}
+          />
+          <Text style={[styles.categoryText, {marginTop: scale(20, 'h')}]}>
             Reviews
           </Text>
           <Text
@@ -425,20 +454,18 @@ const CourseDetailScreen = ({route}) => {
           </View>
         </View>
       </ScrollView>
-      {
-        item.author === name.email ? (
-          <TouchableOpacity
-        style={styles.fixedBtnEdit}
-        onPress={() =>
-          navigation.navigate('CourseStack', {
-            screen: 'EditCourse',
-            params: {preItem: item},
-          })
-        }>
-        <IC_Edit />
-      </TouchableOpacity>
-        ) : null
-      }
+      {item.author === name.email ? (
+        <TouchableOpacity
+          style={styles.fixedBtnEdit}
+          onPress={() =>
+            navigation.navigate('CourseStack', {
+              screen: 'EditCourse',
+              params: {preItem: item},
+            })
+          }>
+          <IC_Edit />
+        </TouchableOpacity>
+      ) : null}
 
       <TouchableOpacity style={styles.fixedButton}>
         <Text style={styles.start}>Start</Text>
@@ -463,6 +490,12 @@ const styles = StyleSheet.create({
   container2: {
     height: '100%',
     marginHorizontal: scale(20, 'w'),
+  },
+  conOperator: {
+    marginRight: scale(20, 'w'),
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
   },
   image: {
     flex: 1,

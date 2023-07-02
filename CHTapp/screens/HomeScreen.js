@@ -29,8 +29,6 @@ import CUSTOM_FONTS from '../src/constants/fonts';
 
 var titles = ['Python', 'SQL', 'Java', 'Ruby', 'Go', 'C#', 'C++'];
 
-
-
 const renderTitles = (data, containerStyle, layoutStyle, textStyle) => {
   return (
     <FlatList
@@ -68,14 +66,14 @@ const HomeScreen = () => {
             style={styles.loadAllPart}
             onPress={() =>
               category === 'MY COURSES'
-                ?  navigation.navigate('CourseStack', {
+                ? navigation.navigate('CourseStack', {
                     screen: 'Course',
                     params: {item: 'MyCourses'},
-                })
+                  })
                 : navigation.navigate('CourseStack', {
                     screen: 'Course',
                     params: {item: 'AllCourses'},
-                })
+                  })
             }>
             <Text style={styles.loadAll}>View All </Text>
             <Image source={IC_VIEW_MORE} />
@@ -99,7 +97,7 @@ const HomeScreen = () => {
               image={item.image}
               onPress={() =>
                 navigation.navigate('CourseDetail', {
-                  item: item
+                  item: item,
                 })
               }
             />
@@ -287,9 +285,13 @@ const HomeScreen = () => {
       {/* <View style={styles.searchPart}>
         <SearchBar />
       </View> */}
-      <TouchableOpacity style={styles.input} onPress={() => {navigation.navigate('HomeStack' , {
-        screen: 'Search'
-      })}}>
+      <TouchableOpacity
+        style={styles.input}
+        onPress={() => {
+          navigation.navigate('HomeStack', {
+            screen: 'Search',
+          });
+        }}>
         <Text>Search Course</Text>
         <TouchableOpacity style={styles.searchButton}>
           <Image source={IC_SEARCH}></Image>
@@ -442,6 +444,7 @@ const styles = StyleSheet.create({
     // /alignSelf: 'center',
     justifyContent: 'space-between',
     flexDirection: 'row',
+    marginBottom: scale(15, 'h'),
   },
 
   txtPlace: {

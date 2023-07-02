@@ -10,7 +10,7 @@ import {
   Image,
 } from 'react-native';
 import React, {Component, useState, useEffect} from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
 import {IMG_AUTHBACKGROUND, IMG_COURSEBACKGROUND} from '../src/assets/img';
 import CUSTOM_COLORS from '../src/constants/colors';
 import scale from '../src/constants/responsive';
@@ -34,67 +34,80 @@ const CourseScreen = ({route}) => {
   async function joinedAllCourses() {
     const courseRef = firebase.firestore().collection('courses');
     const courseSnapshot = await courseRef.get();
-    const courseData = courseSnapshot.docs.map(doc => ({id: doc.id , ...doc.data()}));
+    const courseData = courseSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
     const authorRef = firebase.firestore().collection('users');
     const authorSnapshot = await authorRef.get();
     const authorData = authorSnapshot.docs.map(doc => doc.data());
-  
-    const joinedData = courseData
-    .map(firstItem => {
-      const  secondItem = authorData.find(item => item.email === firstItem.author);
-  
+
+    const joinedData = courseData.map(firstItem => {
+      const secondItem = authorData.find(
+        item => item.email === firstItem.author,
+      );
+
       return {...firstItem, ...secondItem};
-    })
-  
+    });
+
     return joinedData;
   }
 
   async function joinedMyCourses(curEmail) {
     const courseRef = firebase.firestore().collection('courses');
     const courseSnapshot = await courseRef.get();
-    const courseData = courseSnapshot.docs.map(doc => ({id: doc.id , ...doc.data()}));
+    const courseData = courseSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
     const authorRef = firebase.firestore().collection('users');
     const authorSnapshot = await authorRef.get();
     const authorData = authorSnapshot.docs.map(doc => doc.data());
-  
+
     const joinedData = courseData
-    .filter(filter => filter.author === curEmail)
-    .map(firstItem => {
-      const  secondItem = authorData.find(item => item.email === firstItem.author);
-  
-      return {...firstItem, ...secondItem};
-    })
-  
+      .filter(filter => filter.author === curEmail)
+      .map(firstItem => {
+        const secondItem = authorData.find(
+          item => item.email === firstItem.author,
+        );
+
+        return {...firstItem, ...secondItem};
+      });
+
     return joinedData;
   }
 
   async function joinedMyFavorite(curEmail) {
     const courseRef = firebase.firestore().collection('courses');
     const courseSnapshot = await courseRef.get();
-    const courseData = courseSnapshot.docs.map(doc => ({id: doc.id , ...doc.data()}));
+    const courseData = courseSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
     const authorRef = firebase.firestore().collection('users');
     const authorSnapshot = await authorRef.get();
     const authorData = authorSnapshot.docs.map(doc => doc.data());
-  
+
     const joinedData = authorData
-    .filter((filter) => filter.email === curEmail)
-    .map((firstItem) => {
-      let secondItem;
-      firstItem.favoriteCourses.find((subItem) => {
-        if (subItem.isFavor === true) {
-          secondItem = courseData.find(
-            (item) =>
-              item.title === subItem.courseTitle && item.author === subItem.courseAuthor
-          );
-        }
+      .filter(filter => filter.email === curEmail)
+      .map(firstItem => {
+        let secondItem;
+        firstItem.favoriteCourses.find(subItem => {
+          if (subItem.isFavor === true) {
+            secondItem = courseData.find(
+              item =>
+                item.title === subItem.courseTitle &&
+                item.author === subItem.courseAuthor,
+            );
+          }
+        });
+
+        return {...firstItem, ...secondItem};
       });
-  
-      return { ...firstItem, ...secondItem };
-    });
-  
+
     return joinedData;
   }
 
@@ -132,7 +145,7 @@ const CourseScreen = ({route}) => {
     }
 
     getData();
-  },[allCourses]);
+  }, [allCourses]);
 
   useEffect(() => {
     async function getData() {
@@ -141,7 +154,7 @@ const CourseScreen = ({route}) => {
     }
 
     getData();
-  },[myCourses]);
+  }, [myCourses]);
 
   useEffect(() => {
     async function getData() {
@@ -255,13 +268,10 @@ const CourseScreen = ({route}) => {
           <View style={styles.courseContainer}>{renderMyCourses()}</View>
         </View>
         <TouchableOpacity
-            style={styles.fixedButton}
-            onPress={() =>
-              navigation.navigate('AddOption'
-              )
-            }>
-            <Text style={styles.start}>+</Text>
-          </TouchableOpacity>
+          style={styles.fixedButton}
+          onPress={() => navigation.navigate('AddOption')}>
+          <Text style={styles.start}>+</Text>
+        </TouchableOpacity>
       </ImageBackground>
     </SafeAreaView>
   );

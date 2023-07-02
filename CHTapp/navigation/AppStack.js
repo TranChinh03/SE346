@@ -21,7 +21,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import ProfileEditScreen from '../screens/ProfileEditScreen';
 import LessonDetailScreen from '../screens/LessonDetailScreen';
 import TodoScreen from '../screens/TodoScreen';
-import {firebase} from '../configs/FirebaseConfig'
+import {firebase} from '../configs/FirebaseConfig';
 import AddCourseScreen from '../screens/AddCourseScreen';
 import AddChapterScreen from '../screens/AddChapterScreen';
 import AddLessonScreen from '../screens/AddLessonScreen';
@@ -32,6 +32,7 @@ import MeetingScreen from '../screens/MeetingScreen';
 import CreateMeeting from '../screens/CreateMeeting';
 import SettingScreen from '../screens/SettingScreen';
 import SearchScreen from '../screens/SearchScreen';
+import RatingScreen from '../screens/RatingScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -160,6 +161,7 @@ const CourseStack = () => {
         name="Course"
         component={CourseScreen}
         options={{headerShown: false}}
+        initialParams={{item: 'AllCourses'}}
       />
       <Stack.Screen
         name="AllCourse"
@@ -201,6 +203,11 @@ const CourseStack = () => {
       <Stack.Screen
         name="EditCourse"
         component={EditCourseScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="RatingScreen"
+        component={RatingScreen}
         options={{headerShown: false}}
       />
     </Stack.Navigator>
@@ -255,7 +262,7 @@ export default function AppStack() {
     const subcriber = firebase.auth().onAuthStateChanged(onAuthStateChanged);
     // console.log(user);
     return subcriber;
-  },[user]);
+  }, [user]);
 
   if (initializing) return null;
 
@@ -298,15 +305,12 @@ export default function AppStack() {
   }
 
   return (
-    <Stack.Navigator
-      initialRouteName="Login"
-      options={{headerShown: false}}>
-
+    <Stack.Navigator initialRouteName="Login" options={{headerShown: false}}>
       <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{headerShown: false}}
-        />
+        name="Login"
+        component={LoginScreen}
+        options={{headerShown: false}}
+      />
       <Stack.Screen
         name="HomeTabs"
         component={HomeTabs}
