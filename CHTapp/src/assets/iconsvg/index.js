@@ -21,3 +21,4 @@ export {default as IC_Line} from './IC_Line';
 export {default as IC_Edit} from './IC_Edit';
 export {default as IC_Star} from './IC_Star';
 export {default as IC_Search} from './IC_Search';
+export {default as IC_Heart} from './IC_Heart';
