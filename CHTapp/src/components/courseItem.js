@@ -51,10 +51,10 @@ export default class CourseItem extends Component {
               rating={this.props.rating}
               starStyle={styles.star}
             />
-            <View style={styles.viewContainer}>
+            {/* <View style={styles.viewContainer}>
               <Text style={styles.view}>{this.props.view}</Text>
               <Image source={IC_EYE} style={styles.icon} />
-            </View>
+            </View> */}
           </View>
         </View>
       </TouchableOpacity>

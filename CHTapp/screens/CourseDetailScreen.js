@@ -44,6 +44,7 @@ import {firebase} from '../configs/FirebaseConfig';
 import formatDuration from '../src/constants/formatDuration';
 import {useNavigation} from '@react-navigation/native';
 import percentage from '../src/constants/percentage';
+import uuid from 'react-native-uuid';
 
 const CourseDetailScreen = ({route}) => {
   const {item} = route.params;
@@ -87,13 +88,13 @@ const CourseDetailScreen = ({route}) => {
     ChapterList().then(data => setChapters(data));
     LessonList().then(data => setLessons(data));
     EvaluationList().then(data => setEvaluation(data));
-    getStarPercentage('5').then(data => setFiveStar(data));
-    getStarPercentage('4').then(data => setFourStar(data));
-    getStarPercentage('3').then(data => setThreeStar(data));
-    getStarPercentage('2').then(data => setTwoStar(data));
-    getStarPercentage('1').then(data => setOneStar(data));
+    getStarPercentage(5).then(data => setFiveStar(data));
+    getStarPercentage(4).then(data => setFourStar(data));
+    getStarPercentage(3).then(data => setThreeStar(data));
+    getStarPercentage(2).then(data => setTwoStar(data));
+    getStarPercentage(1).then(data => setOneStar(data));
     // GetEvaluation().then((data) => setEvaluation(data))
-  }, [item.title]);
+  }, [item.title, item.rate]);
 
   // useEffect(() => {
   //   // Listen for when the screen is focused again
@@ -118,7 +119,7 @@ const CourseDetailScreen = ({route}) => {
 
   const renderLessonItem = ({item: lesson}) => {
     return (
-      <TouchableOpacity onPress={() => navigation.navigate('LessonDetail')}>
+      <TouchableOpacity onPress={() => navigation.navigate('LessonDetail', {item: lesson, item1: item})}>
         <LessonBox
           title={lesson.lessonTitle}
           duration={formatDuration(lesson.duration)}
@@ -143,7 +144,7 @@ const CourseDetailScreen = ({route}) => {
       <View>
         <View style={styles.horizontalContainer}>
           <Text style={[styles.normalText2, {fontWeight: '500'}]}>
-            Chapter {chapter.number}:{' '}
+            Chapter:
           </Text>
           <Text style={styles.normalText2}>{chapter.title}</Text>
         </View>
@@ -151,7 +152,7 @@ const CourseDetailScreen = ({route}) => {
           data={lessons}
           horizontal
           showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.id = uuid.v4()}
           renderItem={renderLessonItem}
         />
       </View>
@@ -207,7 +208,7 @@ const CourseDetailScreen = ({route}) => {
           item =>
             item.courseAuthor === firstItem.courseAuthor &&
             item.courseTitle === firstItem.courseTitle &&
-            item.number === firstItem.numofChapter,
+            item.title === firstItem.chapterTitle
         );
 
         return {...firstItem, ...secondItem};
@@ -259,7 +260,7 @@ const CourseDetailScreen = ({route}) => {
   //     return evaluationData;
   // }
 
-  const getStarPercentage = async rate => {
+  const getStarPercentage = async (rate) => {
     const evaluationsRef = firebase.firestore().collection('evaluate');
     const allEvaluationsSnapshot = await evaluationsRef
       .where('courseTitle', '==', item.title)
@@ -279,7 +280,7 @@ const CourseDetailScreen = ({route}) => {
 
     // const formatStarPercentage = `${starPercentage}%`
 
-    return starPercentage;
+    return starPercentage.toFixed(1);
   };
 
   return (
@@ -322,9 +323,9 @@ const CourseDetailScreen = ({route}) => {
                 starStyle={styles.star}
               />
             </View>
-            <Text style={styles.viewerNum}>
+            {/* <Text style={styles.viewerNum}>
               {Number(item.numofAttendants)} học viên
-            </Text>
+            </Text> */}
           </View>
           <View style={styles.horizontalContainer}>
             <Text style={styles.normalText}>Create by </Text>
@@ -377,7 +378,7 @@ const CourseDetailScreen = ({route}) => {
             data={chapters}
             horizontal
             showsHorizontalScrollIndicator={false}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.id = uuid.v4()}
             renderItem={renderChapterItem}
           />
           <Text style={[styles.categoryText, {marginTop: scale(50, 'h')}]}>
@@ -406,7 +407,7 @@ const CourseDetailScreen = ({route}) => {
             Tell others how do you like this course
           </Text>
           <StarRating
-            onChange={() => navigation.navigate('RatingScreen')}
+            onChange={() => navigation.navigate('RatingScreen', {item: item})}
             maxStars={5}
             starSize={scale(40, 'w')}
             rating={0}
@@ -423,7 +424,7 @@ const CourseDetailScreen = ({route}) => {
               styles.categoryText,
               {marginTop: scale(-5, 'h'), color: CUSTOM_COLORS.yellow},
             ]}>
-            {AverageRate(fiveStar, fourStar, threeStar, twoStar, oneStar)}
+            {item.rate}
           </Text>
           <View>
             <CusProgressBar percent={fiveStar} rating="5" />
@@ -446,7 +447,7 @@ const CourseDetailScreen = ({route}) => {
             data={evaluation}
             horizontal
             showsHorizontalScrollIndicator={false}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.id = uuid.v4()}
             renderItem={renderEvaluationItem}
           />
           <View style={styles.space}>
