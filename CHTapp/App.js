@@ -39,6 +39,8 @@ import AddOptionScreen from './screens/AddCourseScreen';
 import SearchScreen from './screens/SearchScreen';
 import EditCourseScreen from './screens/EditCourseScreen';
 import RatingScreen from './screens/RatingScreen';
+import EditChapterScreen from './screens/EditChapterScreen';
+import EditLessonScreen from './screens/EditLessonScreen';
 
 export default function App() {
   return (
@@ -76,7 +78,10 @@ export default function App() {
     //<AddChapterScreen />
     //<AddLessonScreen />
     // <SearchScreen />
-    //<EditCourseScreen/>
-    // <RatingScreen />
+    //<EditCourseScreen />
+    //<RatingScreen />
+    //<EditChapterScreen />
+    <EditLessonScreen />
+
   );
 }

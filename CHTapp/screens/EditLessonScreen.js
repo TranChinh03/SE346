@@ -47,9 +47,29 @@ var titles = [
   'C#.pdf',
   'C++.pdf',
 ];
+const data = [
+  {
+    id: 'content1',
+    time: '20h',
+    title: 'C++ for beginers 2023',
+    lectureName: 'Tran Minh Chinh',
+  },
+  {
+    id: 'dropdown',
+    time: '20h',
+    title: 'C++ for beginers 2023',
+    lectureName: 'Tran ',
+  },
+  {
+    id: 'content2',
+    time: '20h',
+    title: 'C++ for beginers 2023',
+    lectureName: 'Tran Minh Chinh',
+  },
+];
 
-const AddLessonScreen = () => {
-  const navigation = useNavigation();
+const EditLessonScreen = () => {
+  //const navigation = useNavigation();
   const [shouldShow, setShouldShow] = useState(false);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
@@ -69,70 +89,70 @@ const AddLessonScreen = () => {
 
   const [name, setName] = useState('');
 
-  useEffect(() => {
-    firebase
-      .firestore()
-      .collection('users')
-      .doc(firebase.auth().currentUser.uid)
-      .get()
-      .then(snapshot => {
-        if (snapshot.exists) {
-          setName(snapshot.data());
-        } else {
-          console.log('User does not exist');
-        }
-      });
-  }, []);
+  //   useEffect(() => {
+  //     firebase
+  //       .firestore()
+  //       .collection('users')
+  //       .doc(firebase.auth().currentUser.uid)
+  //       .get()
+  //       .then(snapshot => {
+  //         if (snapshot.exists) {
+  //           setName(snapshot.data());
+  //         } else {
+  //           console.log('User does not exist');
+  //         }
+  //       });
+  //   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      // Check if name.email is defined
-      if (name.email) {
-        // Fetch data from Firestore and filter the results
-        const querySnapshot = await firebase
-          .firestore()
-          .collection('courses')
-          .where('author', '==', name.email)
-          .get();
+  //   useEffect(() => {
+  //     const fetchData = async () => {
+  //       // Check if name.email is defined
+  //       if (name.email) {
+  //         // Fetch data from Firestore and filter the results
+  //         const querySnapshot = await firebase
+  //           .firestore()
+  //           .collection('courses')
+  //           .where('author', '==', name.email)
+  //           .get();
 
-        // Update the state with the new data
-        let index = 0;
-        querySnapshot.forEach(documentSnapshot => {
-          const fieldValue = documentSnapshot.get('title');
-          setCourse(prevData => [
-            ...prevData,
-            {label: fieldValue, value: index.toString()},
-          ]);
-          index++;
-        });
-      }
-    };
+  //         // Update the state with the new data
+  //         let index = 0;
+  //         querySnapshot.forEach(documentSnapshot => {
+  //           const fieldValue = documentSnapshot.get('title');
+  //           setCourse(prevData => [
+  //             ...prevData,
+  //             {label: fieldValue, value: index.toString()},
+  //           ]);
+  //           index++;
+  //         });
+  //       }
+  //     };
 
-    fetchData();
-  }, [name.email]);
+  //     fetchData();
+  //   }, [name.email]);
 
-  const chapterList = async curCourse => {
-    if (curCourse) {
-      // Fetch data from Firestore and filter the results
-      const querySnapshot = await firebase
-        .firestore()
-        .collection('chapters')
-        .where('courseAuthor', '==', name.email)
-        .where('courseTitle', '==', curCourse)
-        .get();
+  //   const chapterList = async curCourse => {
+  //     if (curCourse) {
+  //       // Fetch data from Firestore and filter the results
+  //       const querySnapshot = await firebase
+  //         .firestore()
+  //         .collection('chapters')
+  //         .where('courseAuthor', '==', name.email)
+  //         .where('courseTitle', '==', curCourse)
+  //         .get();
 
-      // Update the state with the new data
-      let index = 0;
-      querySnapshot.forEach(documentSnapshot => {
-        const fieldValue = documentSnapshot.get('title');
-        setChapter(prevData => [
-          ...prevData,
-          {label: fieldValue, value: index.toString()},
-        ]);
-        index++;
-      });
-    }
-  };
+  //       // Update the state with the new data
+  //       let index = 0;
+  //       querySnapshot.forEach(documentSnapshot => {
+  //         const fieldValue = documentSnapshot.get('title');
+  //         setChapter(prevData => [
+  //           ...prevData,
+  //           {label: fieldValue, value: index.toString()},
+  //         ]);
+  //         index++;
+  //       });
+  //     }
+  //   };
 
   const renderItem = ({item}) => {
     if (item.type === 'content1') {
@@ -142,7 +162,8 @@ const AddLessonScreen = () => {
           <TextInput
             multiline
             style={styles.txtInput}
-            onChangeText={myTitle => setTitle(myTitle)}></TextInput>
+            // onChangeText={myTitle => setTitle(myTitle)}
+          />
         </View>
       );
     } else if (item.type === 'dropdown') {
@@ -153,7 +174,7 @@ const AddLessonScreen = () => {
             <DropDownPicker
               style={styles.dropDown}
               textStyle={styles.txtDropDown}
-              dropDownDirection="TOP"
+              dropDownDirection="BOTTOM"
               dropDownContainerStyle={styles.condropdown2}
               open={open1}
               value={value1}
@@ -164,16 +185,16 @@ const AddLessonScreen = () => {
               multiple={false}
               mode="BADGE"
               badgeDotColors={['#e76f51', '#00b4d8']}
-              onChangeValue={value => {
-                setChapter([]);
-                // Find the selected item
-                const selectedItem = course.find(item => item.value === value);
-                // Set the myCourse state to the label of the selected item
-                if (selectedItem) {
-                  setMyCourse(selectedItem.label);
-                  chapterList(selectedItem.label);
-                }
-              }}
+              //   onChangeValue={value => {
+              //     setChapter([]);
+              //     // Find the selected item
+              //     const selectedItem = course.find(item => item.value === value);
+              //     // Set the myCourse state to the label of the selected item
+              //     if (selectedItem) {
+              //       setMyCourse(selectedItem.label);
+              //       chapterList(selectedItem.label);
+              //     }
+              //   }}
             />
           </View>
 
@@ -182,7 +203,7 @@ const AddLessonScreen = () => {
             <DropDownPicker
               style={styles.dropDown}
               textStyle={styles.txtDropDown}
-              dropDownDirection="TOP"
+              dropDownDirection="BOTTOM"
               dropDownContainerStyle={styles.condropdown2}
               open={open}
               value={value}
@@ -196,14 +217,7 @@ const AddLessonScreen = () => {
               scrollViewProps={{nestedScrollEnabled: true}}
               // mode="BADGE"
               // badgeDotColors={['#e76f51', '#00b4d8']}
-              onChangeValue={(value) => {
-                // Find the selected item
-                const selectedItem = chapter.find(item => item.value === value);
-                // Set the myCourse state to the label of the selected item
-                if (selectedItem) {
-                  setMyChapter(selectedItem.label)
-                }
-              }}
+              //onChangeValue={mychapter => setMyChapter(mychapter)}
             />
           </View>
         </View>
@@ -211,100 +225,18 @@ const AddLessonScreen = () => {
     } else {
       return (
         <View>
-          {/* <Text style={styles.txtTiltle}>Chapter</Text> */}
-          {/* <View style={styles.conSpeedDial}>
-            <SpeedDial
-              DropDownPicker="left"
-              flexDirection="right"
-              color={CUSTOM_COLORS.usBlue}
-              style={styles.btnSd}
-              isOpen={openSpeedDial}
-              icon={{name: 'edit', color: '#fff'}}
-              openIcon={{name: 'close', color: '#fff'}}
-              onOpen={() => setOpenSpeedDial(!openSpeedDial)}
-              onClose={() => setOpenSpeedDial(!openSpeedDial)}>
-              <SpeedDial.Action
-                color={CUSTOM_COLORS.usBlue}
-                icon={{name: 'add', color: '#fff'}}
-                title="Chapter"
-
-                //onPress={() => console.log('Add Something')}
-              />
-              <SpeedDial.Action
-                color={CUSTOM_COLORS.usBlue}
-                icon={{name: 'delete', color: '#fff'}}
-                title="Lesson"
-                //onPress={() => console.log('Delete Something')}
-              />
-            </SpeedDial>
-          </View> */}
-          {/* <View style={styles.conSpeedDial}>
-            <TouchableOpacity
-              style={styles.btnSD}
-              onPress={() => setShouldShow(!shouldShow)}>
-              <Text style={styles.txtSD}>+</Text>
-            </TouchableOpacity>
-            {shouldShow ? (
-              <View
-                style={{
-                  height: '100%',
-                  justifyContent: 'space-between',
-                  backfaceVisibility: 'hidden',
-                }}>
-                <TouchableOpacity
-                  style={styles.spAction}
-                  onPress={() =>
-                    navigation.navigate('AddChapterScreen', {
-                      txtHeader: 'Add Chapter',
-                    })
-                  }>
-                  <Text style={styles.txtSDAction}>Chapter</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.spAction}
-                  onPress={() => navigation.navigate('AddLessonScreen')}>
-                  <Text style={styles.txtSDAction}>Lesson</Text>
-                </TouchableOpacity>
-              </View>
-            ) : null}
-          </View> */}
-          {/* <View
-            style={{
-              width: scale(320, 'w'),
-              alignSelf: 'center',
-              marginBottom: scale(15, 'h'),
-              flexDirection: 'row',
-            }}>
-            <FlatList
-              scrollEnabled={false}
-              numColumns={1}
-              data={lesson}
-              renderItem={({item, index}) => {
-                return <LessonBoxAdd title={item.title} time={item.time} />;
-              }}
-            />
-            <FlatList
-              style={{marginTop: scale(10, 'h'), marginLeft: scale(5, 'h')}}
-              scrollEnabled={false}
-              numColumns={1}
-              data={lesson}
-              renderItem={({item, index}) => {
-                return <BtnDelete />;
-              }}
-            />
-          </View> */}
           <Text style={styles.txtTiltle}>Material</Text>
           <View style={{marginLeft: scale(15, 'w'), flexDirection: 'row'}}>
             {/* <TouchableOpacity style={styles.btnBorder}>
-                <Text style={styles.txtDelete}>-</Text>
-              </TouchableOpacity> */}
-            <TouchableOpacity onPress={pickDocument} style={styles.fixedButton}>
+                  <Text style={styles.txtDelete}>-</Text>
+                </TouchableOpacity> */}
+            <TouchableOpacity style={styles.fixedButton}>
               <Text style={styles.start}>+</Text>
             </TouchableOpacity>
             <FlatList
               horizontal
               numColumns={1}
-              data={documents}
+              data={data}
               renderItem={({item, index}) => {
                 return <ItemPdf title={item.name} />;
               }}
@@ -326,8 +258,8 @@ const AddLessonScreen = () => {
           </View>
           <View style={{marginBottom: scale(30, 'h')}}></View>
           {/* <View style={styles.space}>
-            <View style={[styles.space]}></View>
-         </View> */}
+              <View style={[styles.space]}></View>
+           </View> */}
         </View>
       );
     }
@@ -339,20 +271,20 @@ const AddLessonScreen = () => {
     {id: 'content2', type: 'content2'},
   ];
 
-  useEffect(() => {
-    firebase
-      .firestore()
-      .collection('users')
-      .doc(firebase.auth().currentUser.uid)
-      .get()
-      .then(snapshot => {
-        if (snapshot.exists) {
-          setName(snapshot.data());
-        } else {
-          console.log('User does not exist');
-        }
-      });
-  }, []);
+  //   useEffect(() => {
+  //     firebase
+  //       .firestore()
+  //       .collection('users')
+  //       .doc(firebase.auth().currentUser.uid)
+  //       .get()
+  //       .then(snapshot => {
+  //         if (snapshot.exists) {
+  //           setName(snapshot.data());
+  //         } else {
+  //           console.log('User does not exist');
+  //         }
+  //       });
+  //   }, []);
 
   // async function normalizePath(path) {
   //   if(Platform.OS === 'ios' || Platform.OS === 'android')
@@ -362,132 +294,132 @@ const AddLessonScreen = () => {
   //   }
   // }
 
-  async function pickDocument() {
-    try {
-      let index = 0;
-      const result = await DocumentPicker.pick({
-        type: [DocumentPicker.types.allFiles],
-      });
+  //   async function pickDocument() {
+  //     try {
+  //       let index = 0;
+  //       const result = await DocumentPicker.pick({
+  //         type: [DocumentPicker.types.allFiles],
+  //       });
 
-      // const newResult = result.map(item =>({
-      //   ...item,
-      //   key: index.toString()
-      //   }))
+  //       // const newResult = result.map(item =>({
+  //       //   ...item,
+  //       //   key: index.toString()
+  //       //   }))
 
-      //   console.log(newResult)
-      setDocuments(prevData => [...prevData, result[0]]);
+  //       //   console.log(newResult)
+  //       setDocuments(prevData => [...prevData, result[0]]);
 
-      index++;
+  //       index++;
 
-      console.log(documents);
-    } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        // User cancelled the picker
-      } else {
-        throw err;
-      }
-    }
-  }
+  //       console.log(documents);
+  //     } catch (err) {
+  //       if (DocumentPicker.isCancel(err)) {
+  //         // User cancelled the picker
+  //       } else {
+  //         throw err;
+  //       }
+  //     }
+  //   }
 
-  async function requestStoragePermission() {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        {
-          title: 'Storage Permission',
-          message:
-            'This app needs access to your storage ' +
-            'so you can upload files.',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('You can now access storage');
-      } else {
-        console.log('Storage permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  }
+  //   async function requestStoragePermission() {
+  //     try {
+  //       const granted = await PermissionsAndroid.request(
+  //         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+  //         {
+  //           title: 'Storage Permission',
+  //           message:
+  //             'This app needs access to your storage ' +
+  //             'so you can upload files.',
+  //           buttonNeutral: 'Ask Me Later',
+  //           buttonNegative: 'Cancel',
+  //           buttonPositive: 'OK',
+  //         },
+  //       );
+  //       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //         console.log('You can now access storage');
+  //       } else {
+  //         console.log('Storage permission denied');
+  //       }
+  //     } catch (err) {
+  //       console.warn(err);
+  //     }
+  //   }
 
-  async function uriToBlob(uri) {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        resolve(xhr.response);
-      };
-      xhr.onerror = function () {
-        reject(new Error('uriToBlob failed'));
-      };
-      xhr.responseType = 'blob';
-      xhr.open('GET', uri, true);
-      xhr.send(null);
-    });
-  }
+  //   async function uriToBlob(uri) {
+  //     return new Promise((resolve, reject) => {
+  //       const xhr = new XMLHttpRequest();
+  //       xhr.onload = function () {
+  //         resolve(xhr.response);
+  //       };
+  //       xhr.onerror = function () {
+  //         reject(new Error('uriToBlob failed'));
+  //       };
+  //       xhr.responseType = 'blob';
+  //       xhr.open('GET', uri, true);
+  //       xhr.send(null);
+  //     });
+  //   }
 
-  const handleUpload = async () => {
-    await requestStoragePermission();
+  //   const handleUpload = async () => {
+  //     await requestStoragePermission();
 
-    if (documents) {
-      try {
-        const urls = [];
-        for (const document of documents) {
-          const blob = await uriToBlob(document.uri);
-          console.log(blob);
-          const reference = storage().ref().child(`files/${Date.now()}`);
-          const task = reference.put(blob);
+  //     if (documents) {
+  //       try {
+  //         const urls = [];
+  //         for (const document of documents) {
+  //           const blob = await uriToBlob(document.uri);
+  //           console.log(blob);
+  //           const reference = storage().ref().child(`files/${Date.now()}`);
+  //           const task = reference.put(blob);
 
-          task.on('state_changed', snapshot => {
-            console.log(document);
-            console.log(
-              `${
-                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-              }% completed`,
-            );
-          });
+  //           task.on('state_changed', snapshot => {
+  //             console.log(document);
+  //             console.log(
+  //               `${
+  //                 (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+  //               }% completed`,
+  //             );
+  //           });
 
-          await task;
-          const url = await reference.getDownloadURL();
-          console.log('File uploaded to Firebase storage:', url);
-          urls.push(url);
-        }
-        return urls;
-      } catch (error) {
-        Alert.alert(error.message);
-      }
-    }
-  };
+  //           await task;
+  //           const url = await reference.getDownloadURL();
+  //           console.log('File uploaded to Firebase storage:', url);
+  //           urls.push(url);
+  //         }
+  //         return urls;
+  //       } catch (error) {
+  //         Alert.alert(error.message);
+  //       }
+  //     }
+  //   };
 
-  const now = firebase.firestore.Timestamp.now();
+  //   const now = firebase.firestore.Timestamp.now();
 
-  const addLesson = async () => {
-    const fileUrls = await handleUpload();
+  //   const addLesson = async () => {
+  //     const fileUrls = await handleUpload();
 
-    await firebase
-      .firestore()
-      .collection('lessons')
-      .add({
-        courseAuthor: name.email,
-        courseTitle: myCourse,
-        chapterTitle: myChapter,
-        lessonTitle: title,
-        files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
-      })
-      .then(() => {
-        Alert.alert('Add Lesson Successfully!');
-        navigation.navigate('Course');
-      });
-  };
+  //     await firebase
+  //       .firestore()
+  //       .collection('lessons')
+  //       .add({
+  //         courseAuthor: name.email,
+  //         courseTitle: myCourse,
+  //         chapterTitle: myChapter,
+  //         lessonTitle: title,
+  //         files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
+  //       })
+  //       .then(() => {
+  //         Alert.alert('Add Lesson Successfully!');
+  //         //navigation.navigate('Course');
+  //       });
+  //   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          <BackButton onPress={() => navigation.goBack()} />
-          <Text style={styles.txtHeader}>Add Lesson</Text>
+          <BackButton />
+          <Text style={styles.txtHeader}>Edit Lesson</Text>
         </View>
       </ImageBackground>
       <View style={styles.content}>
@@ -500,14 +432,13 @@ const AddLessonScreen = () => {
 
       <BtnTick
         onPress={() => {
-          addLesson();
+          //addLesson();
         }}
       />
     </SafeAreaView>
   );
 };
-
-export default AddLessonScreen;
+export default EditLessonScreen;
 
 const styles = StyleSheet.create({
   container: {
