@@ -6,8 +6,9 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  Alert
 } from 'react-native';
-import React, {Component} from 'react';
+import React, {Component, useState, useEffect} from 'react';
 import BackButton from '../src/components/backButton';
 import CUSTOM_SIZES from '../src/constants/size';
 import CUSTOM_COLORS from '../src/constants/colors';
@@ -20,68 +21,165 @@ import {
   IMG_CSHARP,
 } from '../src/assets/img';
 import StarRating from 'react-native-star-rating-widget';
+import { useNavigation } from '@react-navigation/native';
+import {firebase} from '../configs/FirebaseConfig';
+// import StarRating from 'react-native-star-rating';
 
-export default class RatingScreen extends Component {
-  render() {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.conHeader}>
-          <View style={styles.conTitle}>
-            <BackButton type={1} onPress={() => {}} />
-            <TouchableOpacity style={styles.conPost}>
-              <Text style={styles.txtPost}>Post</Text>
-            </TouchableOpacity>
-            {/* <Text style={styles.header}>Rating Couse</Text> */}
+const  RatingScreen = ({route}) => {
+  const [rating, setRating] = useState(0);
+  const [name, setName] = useState('');
+
+  useEffect(() => {
+    firebase
+      .firestore()
+      .collection('users')
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(snapshot => {
+        if (snapshot.exists) {
+          setName(snapshot.data());
+        } else {
+          console.log('User does not exist');
+        }
+      });
+  }, [name.email]);
+
+
+  async function updateCourseRating(courseId) {
+    // Step 1: Retrieve all the ratings for the course
+    const ratingsSnapshot = await firebase.firestore().collection('evaluate')
+      .where('courseAuthor', '==', item.author)
+      .where('courseTitle', '==', item.title)
+      .get();
+  
+    const ratings = ratingsSnapshot.docs.map(doc => doc.data().rate);
+
+    console.log("ratings", ratings)
+  
+    const totalRating = ratings.reduce((sum, rate) => sum + rate, 0);
+    console.log("totalRating", totalRating)
+    const averageRating = (totalRating / ratings.length).toFixed(1);
+    console.log("averageRating", averageRating)
+  
+    await firebase
+    .firestore()
+    .collection('courses')
+    .where('title', '==', item.title)
+    .where('author', '==', item.author)
+    .get().then((querrySnapshot) => {
+      if(!querrySnapshot.empty)
+      {
+        const documentId = querrySnapshot.docs[0].id
+        firebase
+        .firestore()
+        .collection('courses')
+        .doc(documentId)
+        .update({
+          rate: averageRating,
+        })
+      }
+    })
+  }
+
+const now = firebase.firestore.Timestamp.now();
+
+ const addEvaluate = async () => {
+    try {
+       if(rating !== 0)
+       {
+        await firebase.firestore().collection('evaluate').add({
+          courseAuthor: item.author,
+          courseTitle: item.title,
+          date: now,
+          rate: rating,
+          student: name.email,
+        });
+
+        updateCourseRating();
+    
+        Alert.alert('Thank you for rating!');
+        navigation.goBack();
+       }
+       else {
+        Alert.alert('You have not rated!');
+       }
+    } catch (error) {
+      console.log('Error adding course:', error);
+    }
+  };
+
+
+  const {item} = route.params;
+  const navigation = useNavigation()
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.conHeader}>
+        <View style={styles.conTitle}>
+          <BackButton type={1} onPress={() => {navigation.goBack()}} />
+          <TouchableOpacity style={styles.conPost} onPress={() => addEvaluate()}>
+            <Text style={styles.txtPost}>Post</Text>
+          </TouchableOpacity>
+          {/* <Text style={styles.header}>Rating Couse</Text> */}
+        </View>
+        <View style={styles.conCourse}>
+          <View style={styles.conSub}>
+            <Text style={styles.courseName}>
+              {item.title}
+            </Text>
+            <Text style={styles.lecturer}>{item.name}</Text>
           </View>
-          <View style={styles.conCourse}>
-            <View style={styles.conSub}>
-              <Text style={styles.courseName}>
-                JavaScript for Beginners 2023
-              </Text>
-              <Text style={styles.lecturer}>Bich Hang Le</Text>
-            </View>
-            <View style={styles.conImg}>
+          <View style={styles.conImg}>
+            {item.image === '' ? (
               <Image
+                source={IMG_CPPBACKGROUND}
                 resizeMode="contain"
                 style={styles.img}
-                source={IMG_CPPBACKGROUND}
               />
-            </View>
+            ) : (
+              <Image
+                source={{uri: item.image}}
+                resizeMode="contain"
+                style={styles.img}
+              />
+            )}
           </View>
         </View>
-        <View
-          style={{
-            borderBottomWidth: 1,
-            borderColor: CUSTOM_COLORS.lightGray,
-            margin: scale(20, 'h'),
-          }}
+      </View>
+      <View
+        style={{
+          borderBottomWidth: 1,
+          borderColor: CUSTOM_COLORS.lightGray,
+          margin: scale(20, 'h'),
+        }}
+      />
+      <View style={styles.conRate}>
+        <View style={styles.conUsr}>
+          <Image style={styles.imgAvt} source={IMG_AVT} />
+          <Text style={styles.txtUsrName}>{name.name}</Text>
+        </View>
+        <StarRating
+          //onChange={() => navigation.navigate('RatingScreen')}
+          onChange={setRating}
+          maxStars={5}
+          starSize={scale(40, 'w')}
+          rating={rating}
+          enableHalfStar={false}
+          starStyle={[
+            styles.star,
+            {marginHorizontal: scale(7, 'w'), marginTop: scale(10, 'w')},
+          ]}
         />
-        <View style={styles.conRate}>
-          <View style={styles.conUsr}>
-            <Image style={styles.imgAvt} source={IMG_AVT} />
-            <Text style={styles.txtUsrName}>Xuan Thao</Text>
-          </View>
-          <StarRating
-            //onChange={() => navigation.navigate('RatingScreen')}
-            onChange={() => {}}
-            maxStars={5}
-            starSize={scale(40, 'w')}
-            rating={0}
-            starStyle={[
-              styles.star,
-              {marginHorizontal: scale(7, 'w'), marginTop: scale(10, 'w')},
-            ]}
-          />
 
-          {/* <TextInput
-            placeholder="Tell us more (optional)"
-            style={styles.txtInput}
-          /> */}
-        </View>
-      </SafeAreaView>
-    );
-  }
+        {/* <TextInput
+          placeholder="Tell us more (optional)"
+          style={styles.txtInput}
+        /> */}
+      </View>
+    </SafeAreaView>
+  );
 }
+
+export default RatingScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -111,6 +209,7 @@ const styles = StyleSheet.create({
     fontSize: CUSTOM_SIZES.large,
     color: CUSTOM_COLORS.gray,
     fontFamily: CUSTOM_FONTS.medium,
+    width: scale(210, 'w'),
     marginLeft: scale(15, 'w'),
     //marginBottom: scale(5, 'w'),
   },

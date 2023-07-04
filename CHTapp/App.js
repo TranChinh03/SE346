@@ -55,7 +55,7 @@ export default function App() {
     // <IntroScreen/>
     // <SwitchButton />
     //<CourseScreen />
-    //<AppNavigation />
+    <AppNavigation />
     // <AddOptionScreen/>
     // <ProfileEditScreen/>
     // <ProfileScreen/>
@@ -82,5 +82,6 @@ export default function App() {
     //<RatingScreen />
     //<EditChapterScreen />
     <EditLessonScreen />
+
   );
 }
