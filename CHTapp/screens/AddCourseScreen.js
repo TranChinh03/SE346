@@ -51,14 +51,15 @@ const AddCourseScreen = ({route}) => {
     {label: 'C++', value: 'c++'},
     {label: 'JavaScript', value: 'javascript'},
   ]);
-
+  
   const [items, setItems] = useState([
     {label: 'English', value: 'english'},
     {label: 'VietNamese', value: 'vietnamese'},
   ]);
-
+  
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [meetingLink, setMeetingLink] = useState('');
   const [language, setLanguage] = useState('');
 
   const [myProgramLanguage, setMyProgramLanguage] = useState('');
@@ -167,6 +168,13 @@ const AddCourseScreen = ({route}) => {
             style={styles.txtInput2}
             onChangeText={myDescription =>
               setDescription(myDescription)
+            }></TextInput>
+                      <Text style={styles.txtTiltle}>Meeting Link</Text>
+          <TextInput
+            multiline
+            style={styles.txtInput}
+            onChangeText={myLink =>
+              setMeetingLink(myLink)
             }></TextInput>
           <Text style={styles.txtTiltle}>Program Language</Text>
         </View>
@@ -338,6 +346,10 @@ const AddCourseScreen = ({route}) => {
         const imageUrl = await handleUpload();
 
         console.log('imageUrl', imageUrl)
+        console.log('description', description)
+        console.log('title', title)
+        console.log('programLanguage', programLanguage)
+        console.log('meetingLink', meetingLink)
     
         // Add a new course document to the 'courses' collection
         await firebase.firestore().collection('courses').add({
@@ -351,13 +363,14 @@ const AddCourseScreen = ({route}) => {
           openDate: now,
           lastUpdate: now,
           image: imageUrl,
+          meeting: meetingLink,
         });
     
         Alert.alert('Add Course Successfully!');
         navigation.navigate('Course');
        }
        else {
-        Alert.alert('Please fill full enough information!');
+        Alert.alert('Please fill full information!');
        }
     } catch (error) {
       console.log('Error adding course:', error);

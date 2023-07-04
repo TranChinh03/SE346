@@ -1,18 +1,49 @@
 import { Text, View, StyleSheet, SafeAreaView, Image, TouchableOpacity } from 'react-native'
-import React, { Component } from 'react'
+import React, { Component, useState, useEffect } from 'react'
 import BackButton from '../src/components/backButton'
 import scale from '../src/constants/responsive'
 import CUSTOM_COLORS from '../src/constants/colors'
 import { IMG_AVT } from '../src/assets/img'
 import { IC_RightArrow, IC_Help, IC_Language, IC_Moon, IC_Notification, IC_LOGOUT } from '../src/assets/iconsvg'
-import SwitchButton from '../src/components/switch'
+// import SwitchButton from '../src/components/switch'
+import {firebase} from '../configs/FirebaseConfig';
+import {useNavigation} from '@react-navigation/native';
 import { IMG_LOGOUTBACKGROUND } from '../src/assets/imgsvg'
 
-const  SettingScreen = ()  => {
+const SettingScreen = ()  => {
+    const navigation = useNavigation();
+
+    const handleSignOut = () => {
+        firebase.auth()
+          .signOut()
+          .then(() => {
+            navigation.replace("Loading")
+          })
+          .catch(error => alert(error.message))
+      }
+    
+      const [profile, setProfile] = useState('');
+    
+    
+      useEffect(() => {
+        firebase
+          .firestore()
+          .collection('users')
+          .doc(firebase.auth().currentUser.uid)
+          .get()
+          .then(snapshot => {
+            if (snapshot.exists) {
+              setProfile(snapshot.data());
+            } else {
+              console.log('User does not exist');
+            }
+          });
+        });
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.backContainer} >
-                <BackButton type={1}/>
+                {/* <BackButton type={1}/> */}
             </View>
             <View style={styles.titleContainer} >
                 <Text style={styles.title}>Setting</Text>
@@ -28,24 +59,23 @@ const  SettingScreen = ()  => {
                         </View>
                     </View>
                     <View style={{flex: 5, padding: scale(20, 'w')}}>
-                        <Text style={styles.name}>Nhu Huynh</Text>
-                        <Text style={styles.subName}>Hyu</Text>
+                        <Text style={styles.name}>{profile.name}</Text>
                     </View>
                     <View style={{flex: 2, padding: scale(10, 'w')}}>
-                        <TouchableOpacity style={styles.arrowContainer}>
+                        <TouchableOpacity
+                         onPress={() => navigation.navigate('Profile')}
+                         style={styles.arrowContainer}>
                             <IC_RightArrow/>
                         </TouchableOpacity>
                     </View>
                 </View>
             </View>
-
-            <View style={styles.settingContainer} >
+            {/* <View style={styles.settingContainer} >
                 <View style={styles.settingLabel}>
                     <Text style={styles.label}>Setting</Text>
                 </View>
 
                 <View style={[styles.settingContent, {display: 'flex'}]}>
-                    {/* Language */}
                     <TouchableOpacity style={styles.settingItem}>
                         <View style={{flex: 2.5}}>
                             <View style={[styles.icFrame, {backgroundColor: CUSTOM_COLORS.FrenchViolet}]}>
@@ -77,7 +107,7 @@ const  SettingScreen = ()  => {
                         </View>
                     </TouchableOpacity>
                     
-                    {/* Notification */}
+
                     <TouchableOpacity style={styles.settingItem}>
                         <View style={{flex: 2.5}}>
                             <View style={[styles.icFrame, {backgroundColor: CUSTOM_COLORS.PictionBlue}]}>
@@ -105,8 +135,7 @@ const  SettingScreen = ()  => {
                                 </View>
                             </View>
                     </TouchableOpacity>
-                    
-                    {/* Dark Mode */}
+
                     <View style={styles.settingItem}>
                         <View style={{flex: 2.5}}>
                             <View style={[styles.icFrame, {backgroundColor: CUSTOM_COLORS.stateBlue}]}>
@@ -130,12 +159,10 @@ const  SettingScreen = ()  => {
                             </View>
                             <View style={{flex: 1.5, padding: scale(10, 'w')}}>
                                 <View style={{width: '100%', height: scale(36-14, 'w'), justifyContent: 'center'}}>
-                                    <SwitchButton/>
                                 </View>
                             </View>
                     </View>
 
-                    {/* Help */}
                     <TouchableOpacity style={styles.settingItem}>
                         <View style={{flex: 2.5}}>
                             <View style={[styles.icFrame, {backgroundColor: CUSTOM_COLORS.Aquamarine}]}>
@@ -164,16 +191,16 @@ const  SettingScreen = ()  => {
                             </View>
                     </TouchableOpacity>
                 </View>
-
-            </View>
+            </View> */}
+            <View style={{flex: 3}}/>
             <View style={styles.logOutContainer}>
-                <TouchableOpacity style={{
-                    flex: 6,
-                    padding: scale(10, 'w'),
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexDirection: 'row',
-                    }}>
+                <TouchableOpacity onPress={handleSignOut} style={{
+                  flex: 6,
+                  padding: scale(10, 'w'),
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                }}>
                     <Text style={styles.logouttext}>Log Out  </Text>
                     <IC_LOGOUT></IC_LOGOUT>
                 </TouchableOpacity>
@@ -182,9 +209,10 @@ const  SettingScreen = ()  => {
                     <IMG_LOGOUTBACKGROUND/>
                 </View>
             </View>
+            <View style={{height: scale(100, 'h')}} />
         </SafeAreaView>
-    )
-}
+    );
+};
 
 export default SettingScreen;
 
@@ -282,6 +310,7 @@ const styles = StyleSheet.create({
         flex: 2,
         display: 'flex',
         flexDirection: 'row',
+        
     },
     label: {
         fontSize: scale(20, 'w'),

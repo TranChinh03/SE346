@@ -82,17 +82,17 @@ export default class BottomTab extends Component {
         <TouchableOpacity
           style={styles.tabButton}
           onPress={() => {
-            this.setState({nav_selected: 'Profile'});
+            this.setState({nav_selected: 'Setting'});
           }}>
           <IC_Profile
             style={styles.iconStyle}
             fill={
-              this.state.nav_selected === 'Profile'
+              this.state.nav_selected === 'Setting'
                 ? CUSTOM_COLORS.primary
                 : CUSTOM_COLORS.lightGray
             }
             fill2={
-              this.state.nav_selected === 'Profile'
+              this.state.nav_selected === 'Setting'
                 ? CUSTOM_COLORS.primary
                 : 'transparent'
             }
