@@ -33,6 +33,7 @@ import CreateMeeting from '../screens/CreateMeeting';
 import SettingScreen from '../screens/SettingScreen';
 import SearchScreen from '../screens/SearchScreen';
 import RatingScreen from '../screens/RatingScreen';
+import EditChapterScreen from '../screens/EditChapterScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -203,6 +204,16 @@ const CourseStack = () => {
       <Stack.Screen
         name="EditCourse"
         component={EditCourseScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="EditChapter"
+        component={EditChapterScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="EditLesson"
+        component={EditLessonScreen}
         options={{headerShown: false}}
       />
       <Stack.Screen

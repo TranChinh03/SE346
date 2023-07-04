@@ -34,7 +34,7 @@ export class LessonBox2 extends Component {
 
   render() {
     return (
-      <SafeAreaView style={styles.container}>
+      <TouchableOpacity style={styles.container} onPress={this.props.onPress}>
         <TouchableOpacity style={styles.playIcon} onPress={this.props.onPress}>
           <Image source={IC_PLAYCIRCLE}></Image>
         </TouchableOpacity>
@@ -50,7 +50,7 @@ export class LessonBox2 extends Component {
             </Text>
           </View>
         </View>
-      </SafeAreaView>
+      </TouchableOpacity>
     );
   }
 }
