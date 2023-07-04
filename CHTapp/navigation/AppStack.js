@@ -140,11 +140,11 @@ const HomeStack = () => {
         component={HomeScreen}
         options={{headerShown: false}}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="CourseDetail"
         component={CourseDetailScreen}
         options={{headerShown: false}}
-      />
+      /> */}
       <Stack.Screen
         name="Search"
         component={SearchScreen}

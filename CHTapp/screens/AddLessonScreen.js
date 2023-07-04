@@ -194,7 +194,14 @@ const AddLessonScreen = () => {
               scrollViewProps={{nestedScrollEnabled: true}}
               // mode="BADGE"
               // badgeDotColors={['#e76f51', '#00b4d8']}
-              onChangeValue={(mychapter) => setMyChapter(mychapter) }
+              onChangeValue={(value) => {
+                // Find the selected item
+                const selectedItem = chapter.find(item => item.value === value);
+                // Set the myCourse state to the label of the selected item
+                if (selectedItem) {
+                  setMyChapter(selectedItem.label)
+                }
+              }}
             />
           </View>
           

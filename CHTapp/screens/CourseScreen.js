@@ -170,11 +170,10 @@ const CourseScreen = ({route}) => {
       <FlatList
         numColumns={2}
         columnWrapperStyle={{justifyContent: 'space-between'}}
-        data={data}
+        data={data}      
         renderItem={({item, index}) => {
           return (
             <CourseItem
-              key={item.key}
               language={item.programLanguage}
               title={item.title}
               author={item.name}
@@ -191,7 +190,8 @@ const CourseScreen = ({route}) => {
           );
         }}
         ItemSeparatorComponent={() => <View style={{height: scale(20, 'h')}} />}
-        showsVerticalScrollIndicator={false}></FlatList>
+        showsVerticalScrollIndicator={false}
+        keyExtractor={item => item.id}></FlatList>
     );
   };
 

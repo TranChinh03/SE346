@@ -43,95 +43,86 @@ import {IC_Edit, IC_LeftArrow} from '../src/assets/iconsvg';
 import {IC_EYE, IC_VIEW} from '../src/assets/icons';
 import CusRatingBar from '../src/components/CusRatingBar';
 
-export class LessonDetailScreen extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      addFavor: false,
-    };
-  }
-
-  render() {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ScrollView>
-          <View style={styles.container1}>
-            <ImageBackground
-              style={styles.image}
-              source={IMG_VIDEO}
-              resizeMode="contain"
-            />
+const LessonDetailScreen = ({route}) => {
+  const {item, item1} = route.params;
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
+        <View style={styles.container1}>
+          <ImageBackground
+            style={styles.image}
+            source={IMG_VIDEO}
+            resizeMode="contain"
+          />
+        </View>
+        <View style={styles.container2}>
+          <Text style={styles.lessonTitle}>{item.lessonTitle}</Text>
+          <View style={styles.infoContainer}>
+            <Text style={styles.infoText}>{item1.name}</Text>
+            {/* <Text style={[styles.infoText, {marginLeft: scale(20, 'w')}]}>
+              Times: 30 mins
+            </Text> */}
+            {/* <View style={styles.numOfView}>
+              <Text style={styles.infoText}>320</Text>
+              <Image style={{marginLeft: scale(5, 'w')}} source={IC_VIEW} />
+            </View> */}
           </View>
-
-          <View style={styles.container2}>
-            <Text style={styles.lessonTitle}>Environment Setup</Text>
-            <View style={styles.infoContainer}>
-              <Text style={styles.infoText}>Hau Nguyen</Text>
-              <Text style={[styles.infoText, {marginLeft: scale(20, 'w')}]}>
-                Times: 30 mins
-              </Text>
-              <View style={styles.numOfView}>
-                <Text style={styles.infoText}>320</Text>
-                <Image style={{marginLeft: scale(5, 'w')}} source={IC_VIEW} />
-              </View>
+          {/* <Text style={styles.description}>
+            This is the first lesson in the course C++ for beginners. The goal
+            of this lesson is to help you get familiar with CodeLearn and
+            setting up the C++ programming environment.
+          </Text> */}
+          <View style={styles.downloadContainer}>
+            <View style={styles.infoTextContainer}>
+              <Text style={styles.infoText}>Material:</Text>
             </View>
-            <Text style={styles.description}>
-              This is the first lesson in the course C++ for beginners. The goal
-              of this lesson is to help you get familiar with CodeLearn and
-              setting up the C++ programming environment.
-            </Text>
-            <View style={styles.downloadContainer}>
-              <View style={styles.infoTextContainer}>
-                <Text style={styles.infoText}>Material:</Text>
-              </View>
-              <TouchableOpacity style={styles.downloadBox}>
-                <Text style={styles.downloadText}>Download</Text>
-                <Image source={IC_DOWNLOAD} />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.downloadContainer}>
-              <View style={styles.infoTextContainer}>
-                <Text style={styles.infoText}>Test:</Text>
-              </View>
-              <TouchableOpacity style={styles.downloadBox}>
-                <Text style={styles.downloadText}>Download</Text>
-                <Image source={IC_DOWNLOAD} />
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity style={styles.nextButton}>
-              <Text style={styles.nextBtnText}>Next</Text>
+            <TouchableOpacity style={styles.downloadBox}>
+              <Text style={styles.downloadText}>Download</Text>
+              <Image source={IC_DOWNLOAD} />
             </TouchableOpacity>
-
-            <View style={styles.evaluataionBar}>
-              <CusRatingBar />
-              <TouchableOpacity
-                style={styles.iconFavor}
-                onPress={() => {
-                  this.setState({addFavor: !this.state.addFavor});
-                }}>
-                <Image
-                  source={
-                    this.state.addFavor === true
-                      ? IC_FILLEDFAVORITE
-                      : IC_FAVORITE
-                  }></Image>
-              </TouchableOpacity>
-            </View>
           </View>
-        </ScrollView>
-        <TouchableOpacity
-          style={styles.fixedBtnEdit}
-          onPress={() =>
-            this.props.navigation.navigate('AddChapterScreen', {
-              txtHeader: 'Edit Chapter',
-            })
-          }>
-          <IC_Edit />
-        </TouchableOpacity>
-      </SafeAreaView>
-    );
-  }
+          <View style={styles.downloadContainer}>
+            <View style={styles.infoTextContainer}>
+              <Text style={styles.infoText}>Test:</Text>
+            </View>
+            <TouchableOpacity style={styles.downloadBox}>
+              <Text style={styles.downloadText}>Download</Text>
+              <Image source={IC_DOWNLOAD} />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.nextButton}>
+            <Text style={styles.nextBtnText}>Next</Text>
+          </TouchableOpacity>
+
+          {/* <View style={styles.evaluataionBar}>
+            <CusRatingBar />
+            <TouchableOpacity
+              style={styles.iconFavor}
+              onPress={() => {
+                this.setState({addFavor: !this.state.addFavor});
+              }}>
+              <Image
+                source={
+                  this.state.addFavor === true
+                    ? IC_FILLEDFAVORITE
+                    : IC_FAVORITE
+                }></Image>
+            </TouchableOpacity>
+          </View> */}
+        </View>
+      </ScrollView>
+      <TouchableOpacity
+        style={styles.fixedBtnEdit}
+        onPress={() =>
+          this.props.navigation.navigate('AddChapterScreen', {
+            txtHeader: 'Edit Chapter',
+          })
+        }>
+        <IC_Edit />
+      </TouchableOpacity>
+    </SafeAreaView>
+  );
 }
 
 export default LessonDetailScreen;
