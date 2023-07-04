@@ -91,6 +91,7 @@ const AddChapterScreen = ({route}) => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setCourse([])
       // Check if name.email is defined
       if (name.email) {
         // Fetch data from Firestore and filter the results
@@ -98,11 +99,13 @@ const AddChapterScreen = ({route}) => {
           .collection('courses')
           .where('author', '==', name.email)
           .get();
+      
   
         // Update the state with the new data
         let index = 0;
         querySnapshot.forEach(documentSnapshot => {
           const fieldValue = documentSnapshot.get('title');
+          console.log(fieldValue)
           setCourse(prevData => [
             ...prevData,
             {label: fieldValue, value: index.toString()},
@@ -110,6 +113,7 @@ const AddChapterScreen = ({route}) => {
           index++;
         });
       }
+      console.log(course)
     };
   
     fetchData();
@@ -131,7 +135,7 @@ const AddChapterScreen = ({route}) => {
     {
       return (
         <View>
-          <Text style={styles.txtTiltle}>Chapter</Text>
+          {/* <Text style={styles.txtTiltle}>Chapter</Text>
           <View style={styles.conDropDown}>
             <DropDownPicker
               style={styles.dropDown}
@@ -152,7 +156,7 @@ const AddChapterScreen = ({route}) => {
               // badgeDotColors={['#e76f51', '#00b4d8']}
               onChangeValue={(mychapter) => setMyChapter(mychapter) }
             />
-          </View>
+          </View> */}
           <Text style={styles.txtTiltle}>Course</Text>
           <View style={styles.conDropDown}>
             <DropDownPicker
@@ -298,14 +302,13 @@ const AddChapterScreen = ({route}) => {
   const now = firebase.firestore.Timestamp.now()
 
   const addChapter = () => {
-    if (myCourse !== '' && myChapter !== '' && title !== '') {
+    if (myCourse !== '' && title !== '') {
       firebase
       .firestore()
       .collection('chapters')
       .add ({
         courseAuthor: name.email,
         courseTitle: myCourse,
-        number: myChapter,
         title: title,
       })
       .then(() => {

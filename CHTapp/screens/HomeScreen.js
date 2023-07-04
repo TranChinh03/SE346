@@ -96,9 +96,10 @@ const HomeScreen = () => {
               style={{marginRight: scale(20, 'w')}}
               image={item.image}
               onPress={() =>
-                navigation.navigate('CourseDetail', {
-                  item: item,
-                })
+                navigation.navigate('CourseStack', {
+                    screen: 'CourseDetail',
+                    params: {item: item}
+                  })
               }
             />
           )}

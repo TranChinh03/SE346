@@ -30,10 +30,10 @@ import LessonBoxAdd from '../src/components/LessonBoxAdd';
 import {useNavigation} from '@react-navigation/native';
 import BtnDelete from '../src/components/BtnDelete';
 import BtnTick from '../src/components/BtnTick';
-import {firebase} from '../configs/FirebaseConfig';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {utils} from '@react-native-firebase/app';
-import storage from '@react-native-firebase/storage';
+import {firebase} from '../configs/FirebaseConfig'
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker'
+import {utils} from '@react-native-firebase/app'
+import storage from '@react-native-firebase/storage'
 const EditCourseScreen = ({route}) => {
   const {preItem} = route.params;
   const navigation = useNavigation();
@@ -62,111 +62,95 @@ const EditCourseScreen = ({route}) => {
 
   const [myProgramLanguage, setMyProgramLanguage] = useState('');
 
-  const [name, setName] = useState('');
+  const [name, setName] = useState('')
 
-  const [imageUri, setImageUri] = useState(null);
+  const [imageUri, setImageUri] = useState(null)
 
-  const handleButtonPress = () => {
-    const options = {
-      mediaType: 'photo',
-      includeBase64: false,
-      maxHeight: 200,
-      maxWidth: 200,
-    };
-
-    launchImageLibrary(options, response => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
-      } else {
-        setImageUri(response.assets[0].uri);
-        console.log('imageUri', imageUri);
-      }
-    });
+const handleButtonPress = () => {
+  const options = {
+    mediaType: 'photo',
+    includeBase64: false,
+    maxHeight: 200,
+    maxWidth: 200,
   };
 
-  const handleUpload = async () => {
-    if (imageUri) {
-      try {
-        const reference = storage().ref(`images/${Date.now()}.jpg`);
-        const task = reference.putFile(imageUri);
-        task.on('state_changed', snapshot => {
-          console.log(
-            `${
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-            }% completed`,
-          );
-        });
-
-        await task;
-        const url = await reference.getDownloadURL();
-        console.log('Image uploaded to Firebase storage:', url);
-        return url;
-
-        // const pathToFile = `${utils.FilePath.imageUri}`
-
-        // reference.put(imageUri).then((snapshot) => {
-        //   console.log('test',snapshot.ref.getDownloadURL())
-        //   return snapshot.ref.getDownloadURL();
-        // });
-      } catch (error) {
-        Alert.alert(error.message);
-      }
+  launchImageLibrary(options, (response) => {
+    if (response.didCancel) {
+      console.log('User cancelled image picker');
+    } else if (response.error) {
+      console.log('ImagePicker Error: ', response.error);
+    } else {
+      setImageUri(response.assets[0].uri);
+      console.log('imageUri', imageUri)
     }
-  };
+  });
+};
+
+const handleUpload = async () => {
+  if (imageUri) {
+    try {
+      const reference = storage().ref(`images/${Date.now()}.jpg`);
+      const task = reference.putFile(imageUri);
+      task.on('state_changed', (snapshot) => {
+        console.log(
+          `${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}% completed`
+        );
+      });
+
+      await task;
+      const url = await reference.getDownloadURL();
+      console.log('Image uploaded to Firebase storage:', url);
+      return url;
+
+      // const pathToFile = `${utils.FilePath.imageUri}`
+
+      // reference.put(imageUri).then((snapshot) => {
+      //   console.log('test',snapshot.ref.getDownloadURL())
+      //   return snapshot.ref.getDownloadURL();
+      // });
+    } catch (error) {
+      Alert.alert(error.message);
+    }
+  }
+};
+
+
 
   const renderItem = ({item}) => {
-    if (item.type === 'content1') {
-      return (
+    if(item.type ==='content1'){
+      return  (
         <View>
           <Text style={styles.txtTiltle}>Thumbnail</Text>
           <View style={styles.vwThumnail}>
-            <TouchableOpacity
-              style={styles.btnThumnail}
-              onPress={handleButtonPress}>
+            <TouchableOpacity style={styles.btnThumnail}
+            onPress = {handleButtonPress}>
               <IC_Camera style={styles.icCamera} />
               <Text style={styles.txtThumnail}>Upload from your device</Text>
             </TouchableOpacity>
             <View style={styles.currentThumnail}>
               {/* <Image
-                      style={styles.imgThumnail}
-                      source={{uri: preItem.image}}
-                      resizeMode="cover"
-                    /> */}
-              {imageUri ? (
-                <Image
-                  source={{uri: imageUri}}
-                  style={styles.imgThumnail}
-                  resizeMode="cover"
-                />
-              ) : (
-                <Image
-                  source={{uri: preItem.image}}
-                  style={styles.imgThumnail}
-                  resizeMode="cover"
-                />
+                    style={styles.imgThumnail}
+                    source={{uri: preItem.image}}
+                    resizeMode="cover"
+                  /> */}
+              {imageUri ? <Image source={{ uri: imageUri }} style={styles.imgThumnail} resizeMode='cover'/> : 
+              (
+                preItem.image === '' ? 
+                <Image source={IMG_CPP} style={styles.imgThumnail} resizeMode='cover'/> : 
+                <Image source={{uri: preItem.image}} style={styles.imgThumnail} resizeMode='cover'/>
               )}
             </View>
           </View>
           <Text style={styles.txtTiltle}>Title</Text>
-          <TextInput
-            multiline
-            style={styles.txtInput}
-            onChangeText={myTitle => setTitle(myTitle)}>
-            {preItem.title}
-          </TextInput>
+          <TextInput multiline style={styles.txtInput} onChangeText={(myTitle) => setTitle(myTitle)}>{preItem.title}</TextInput>
           <Text style={styles.txtTiltle}>Description</Text>
-          <TextInput
-            multiline
-            style={styles.txtInput2}
-            onChangeText={myDescription => setDescription(myDescription)}>
-            {preItem.description}
-          </TextInput>
+          <TextInput multiline style={styles.txtInput2} onChangeText={(myDescription) => setDescription(myDescription)}>{preItem.description}</TextInput>
           <Text style={styles.txtTiltle}>Program Language</Text>
         </View>
-      );
-    } else if (item.type === 'dropdown') {
+      )
+    }
+    else if(item.type === 'dropdown')
+    {
       return (
         <View>
           <View style={styles.conDropDown}>
@@ -182,12 +166,10 @@ const EditCourseScreen = ({route}) => {
               setValue={setValue}
               setItems={setProgramLanguage}
               multiple={false}
-              defaultValue={preItem.programLanguage}
+              defaultValue= {preItem.programLanguage}
               // mode="BADGE"
               // badgeDotColors={['#e76f51', '#00b4d8']}
-              onChangeValue={myProgramLanguage =>
-                setMyProgramLanguage(myProgramLanguage)
-              }
+              onChangeValue={(myProgramLanguage) => setMyProgramLanguage(myProgramLanguage) }
             />
           </View>
           <Text style={styles.txtTiltle}>Language</Text>
@@ -207,254 +189,282 @@ const EditCourseScreen = ({route}) => {
               mode="BADGE"
               defaultValue={preItem.language}
               badgeDotColors={['#e76f51', '#00b4d8']}
-              onChangeValue={myLanguage => setLanguage(myLanguage)}
+              onChangeValue={(myLanguage) => setLanguage(myLanguage) }
             />
           </View>
         </View>
-      );
-    } else {
+      )
+    }
+    else {
       return (
         <View>
           {/* <Text style={styles.txtTiltle}>Chapter</Text> */}
           {/* <View style={styles.conSpeedDial}>
-              <SpeedDial
-                DropDownPicker="left"
-                flexDirection="right"
+            <SpeedDial
+              DropDownPicker="left"
+              flexDirection="right"
+              color={CUSTOM_COLORS.usBlue}
+              style={styles.btnSd}
+              isOpen={openSpeedDial}
+              icon={{name: 'edit', color: '#fff'}}
+              openIcon={{name: 'close', color: '#fff'}}
+              onOpen={() => setOpenSpeedDial(!openSpeedDial)}
+              onClose={() => setOpenSpeedDial(!openSpeedDial)}>
+              <SpeedDial.Action
                 color={CUSTOM_COLORS.usBlue}
-                style={styles.btnSd}
-                isOpen={openSpeedDial}
-                icon={{name: 'edit', color: '#fff'}}
-                openIcon={{name: 'close', color: '#fff'}}
-                onOpen={() => setOpenSpeedDial(!openSpeedDial)}
-                onClose={() => setOpenSpeedDial(!openSpeedDial)}>
-                <SpeedDial.Action
-                  color={CUSTOM_COLORS.usBlue}
-                  icon={{name: 'add', color: '#fff'}}
-                  title="Chapter"
-  
-                  //onPress={() => console.log('Add Something')}
-                />
-                <SpeedDial.Action
-                  color={CUSTOM_COLORS.usBlue}
-                  icon={{name: 'delete', color: '#fff'}}
-                  title="Lesson"
-                  //onPress={() => console.log('Delete Something')}
-                />
-              </SpeedDial>
-            </View> */}
+                icon={{name: 'add', color: '#fff'}}
+                title="Chapter"
+
+                //onPress={() => console.log('Add Something')}
+              />
+              <SpeedDial.Action
+                color={CUSTOM_COLORS.usBlue}
+                icon={{name: 'delete', color: '#fff'}}
+                title="Lesson"
+                //onPress={() => console.log('Delete Something')}
+              />
+            </SpeedDial>
+          </View> */}
           {/* <View style={styles.conSpeedDial}>
-              <TouchableOpacity
-                style={styles.btnSD}
-                onPress={() => setShouldShow(!shouldShow)}>
-                <Text style={styles.txtSD}>+</Text>
-              </TouchableOpacity>
-              {shouldShow ? (
-                <View
-                  style={{
-                    height: '100%',
-                    justifyContent: 'space-between',
-                    backfaceVisibility: 'hidden',
-                  }}>
-                  <TouchableOpacity
-                    style={styles.spAction}
-                    onPress={() =>
-                      navigation.navigate('AddChapterScreen', {
-                        txtHeader: 'Add Chapter',
-                      })
-                    }>
-                    <Text style={styles.txtSDAction}>Chapter</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.spAction}
-                    onPress={() => navigation.navigate('AddLessonScreen')}>
-                    <Text style={styles.txtSDAction}>Lesson</Text>
-                  </TouchableOpacity>
-                </View>
-              ) : null}
-            </View> */}
+            <TouchableOpacity
+              style={styles.btnSD}
+              onPress={() => setShouldShow(!shouldShow)}>
+              <Text style={styles.txtSD}>+</Text>
+            </TouchableOpacity>
+            {shouldShow ? (
+              <View
+                style={{
+                  height: '100%',
+                  justifyContent: 'space-between',
+                  backfaceVisibility: 'hidden',
+                }}>
+                <TouchableOpacity
+                  style={styles.spAction}
+                  onPress={() =>
+                    navigation.navigate('AddChapterScreen', {
+                      txtHeader: 'Add Chapter',
+                    })
+                  }>
+                  <Text style={styles.txtSDAction}>Chapter</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.spAction}
+                  onPress={() => navigation.navigate('AddLessonScreen')}>
+                  <Text style={styles.txtSDAction}>Lesson</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </View> */}
           {/* <View
-              style={{
-                width: scale(320, 'w'),
-                alignSelf: 'center',
-                marginBottom: scale(15, 'h'),
-                flexDirection: 'row',
-              }}>
-              <FlatList
-                scrollEnabled={false}
-                numColumns={1}
-                data={lesson}
-                renderItem={({item, index}) => {
-                  return <LessonBoxAdd title={item.title} time={item.time} />;
-                }}
-              />
-              <FlatList
-                style={{marginTop: scale(10, 'h'), marginLeft: scale(5, 'h')}}
-                scrollEnabled={false}
-                numColumns={1}
-                data={lesson}
-                renderItem={({item, index}) => {
-                  return <BtnDelete />;
-                }}
-              />
-            </View> */}
+            style={{
+              width: scale(320, 'w'),
+              alignSelf: 'center',
+              marginBottom: scale(15, 'h'),
+              flexDirection: 'row',
+            }}>
+            <FlatList
+              scrollEnabled={false}
+              numColumns={1}
+              data={lesson}
+              renderItem={({item, index}) => {
+                return <LessonBoxAdd title={item.title} time={item.time} />;
+              }}
+            />
+            <FlatList
+              style={{marginTop: scale(10, 'h'), marginLeft: scale(5, 'h')}}
+              scrollEnabled={false}
+              numColumns={1}
+              data={lesson}
+              renderItem={({item, index}) => {
+                return <BtnDelete />;
+              }}
+            />
+          </View> */}
           <View style={styles.space}>
             <View style={[styles.space]}></View>
-          </View>
+         </View>
         </View>
-      );
+      )
     }
-  };
+  }
 
   const data = [
-    {id: 'content1', type: 'content1'},
-    {id: 'dropdown', type: 'dropdown'},
-    {id: 'content2', type: 'content2'},
+    { id: 'content1', type: 'content1' },
+    { id: 'dropdown', type: 'dropdown' },
+    { id: 'content2', type: 'content2' },
   ];
 
   useEffect(() => {
-    firebase
-      .firestore()
-      .collection('users')
-      .doc(firebase.auth().currentUser.uid)
-      .get()
-      .then(snapshot => {
-        if (snapshot.exists) {
-          setName(snapshot.data());
-          setTitle(preItem.title);
-          setDescription(preItem.description);
-          setMyProgramLanguage(preItem.programLanguage);
-          setLanguage(preItem.language);
-        } else {
-          console.log('User does not exist');
-        }
-      });
-  }, []);
+    firebase.firestore().collection('users')
+    .doc(firebase.auth().currentUser.uid).get()
+    .then((snapshot) => {
+      if(snapshot.exists)
+      {
+        setName(snapshot.data())
+        setTitle(preItem.title)
+        setDescription(preItem.description)
+        setMyProgramLanguage(preItem.programLanguage)
+        setLanguage(preItem.language)
+      }
+      else {
+        console.log('User does not exist')
+      }
+    })
+  }, [])
 
-  const now = firebase.firestore.Timestamp.now();
+  const now = firebase.firestore.Timestamp.now()
 
-  const updateCourse = async () => {
+  const updateCourse = async() => {
+
     const imageUrl = await handleUpload();
-    console.log('imageUrl', imageUrl);
+    console.log('imageUrl', imageUrl)
 
-    if (
-      title !== '' &&
-      description !== '' &&
-      language !== '' &&
-      myProgramLanguage !== ''
-    ) {
+    if ( title !== '' && description !== '' &&language !== '' &&myProgramLanguage !== '' ) {
       firebase
-        .firestore()
-        .collection('courses')
-        .where('title', '==', preItem.title)
-        .where('author', '==', name.email)
-        .get()
-        .then(querrySnapshot => {
-          if (!querrySnapshot.empty) {
-            const documentId = querrySnapshot.docs[0].id;
-            firebase.firestore().collection('courses').doc(documentId).update({
-              title: title,
-              description: description,
-              language: language,
-              programLanguage: myProgramLanguage,
-              lastUpdate: now,
-              image: imageUrl,
-            });
-          }
-        });
-
-      firebase
-        .firestore()
-        .collection('chapters')
-        .where('courseTitle', '==', preItem.title)
-        .where('courseAuthor', '==', name.email)
-        .get()
-        .then(querrySnapshot => {
-          if (!querrySnapshot.empty) {
-            const documentId = querrySnapshot.docs[0].id;
-            firebase.firestore().collection('chapters').doc(documentId).update({
-              courseTitle: title,
-            });
-          }
-        });
+      .firestore()
+      .collection('courses')
+      .where('title', '==', preItem.title)
+      .where('author', '==', name.email)
+      .get().then((querrySnapshot) => {
+        if(!querrySnapshot.empty)
+        {
+          const documentId = querrySnapshot.docs[0].id
+          firebase
+          .firestore()
+          .collection('courses')
+          .doc(documentId)
+          .update({
+            title : title,
+            description: description,
+            language: language,
+            programLanguage: myProgramLanguage,
+            lastUpdate: now,
+            image: imageUrl,
+          })
+        }
+      })
 
       firebase
-        .firestore()
-        .collection('chapters')
-        .where('courseTitle', '==', preItem.title)
-        .where('courseAuthor', '==', name.email)
-        .get()
-        .then(querrySnapshot => {
-          if (!querrySnapshot.empty) {
-            const documentId = querrySnapshot.docs[0].id;
-            firebase.firestore().collection('chapters').doc(documentId).update({
-              courseTitle: title,
-            });
-          }
-        });
+      .firestore()
+      .collection('chapters')
+      .where('courseTitle', '==', preItem.title)
+      .where('courseAuthor', '==', name.email)
+      .get().then((querrySnapshot) => {
+        if(!querrySnapshot.empty)
+        {
+          const documentId = querrySnapshot.docs[0].id
+          firebase
+          .firestore()
+          .collection('chapters')
+          .doc(documentId)
+          .update({
+            courseTitle: title
+          })
+        }
+      })
 
       firebase
-        .firestore()
-        .collection('evaluate')
-        .where('courseTitle', '==', preItem.title)
-        .where('courseAuthor', '==', name.email)
-        .get()
-        .then(querrySnapshot => {
-          if (!querrySnapshot.empty) {
-            const documentId = querrySnapshot.docs[0].id;
-            firebase.firestore().collection('evaluate').doc(documentId).update({
-              courseTitle: title,
-            });
-          }
-        });
+      .firestore()
+      .collection('chapters')
+      .where('courseTitle', '==', preItem.title)
+      .where('courseAuthor', '==', name.email)
+      .get().then((querrySnapshot) => {
+        if(!querrySnapshot.empty)
+        {
+          const documentId = querrySnapshot.docs[0].id
+          firebase
+          .firestore()
+          .collection('chapters')
+          .doc(documentId)
+          .update({
+            courseTitle: title
+          })
+        }
+      })
 
       firebase
-        .firestore()
-        .collection('chapters')
-        .where('courseTitle', '==', preItem.title)
-        .where('courseAuthor', '==', name.email)
-        .get()
-        .then(querrySnapshot => {
-          if (!querrySnapshot.empty) {
-            const documentId = querrySnapshot.docs[0].id;
-            firebase.firestore().collection('chapters').doc(documentId).update({
-              courseTitle: title,
-            });
-          }
-        });
+      .firestore()
+      .collection('evaluate')
+      .where('courseTitle', '==', preItem.title)
+      .where('courseAuthor', '==', name.email)
+      .get().then((querrySnapshot) => {
+        if(!querrySnapshot.empty)
+        {
+          const documentId = querrySnapshot.docs[0].id
+          firebase
+          .firestore()
+          .collection('evaluate')
+          .doc(documentId)
+          .update({
+            courseTitle: title
+          })
+        }
+      })
 
       firebase
-        .firestore()
-        .collection('lessons')
-        .where('courseTitle', '==', preItem.title)
-        .where('courseAuthor', '==', name.email)
-        .get()
-        .then(querrySnapshot => {
-          if (!querrySnapshot.empty) {
-            const documentId = querrySnapshot.docs[0].id;
-            firebase.firestore().collection('lessons').doc(documentId).update({
-              courseTitle: title,
-            });
-          }
-        });
+      .firestore()
+      .collection('chapters')
+      .where('courseTitle', '==', preItem.title)
+      .where('courseAuthor', '==', name.email)
+      .get().then((querrySnapshot) => {
+        if(!querrySnapshot.empty)
+        {
+          const documentId = querrySnapshot.docs[0].id
+          firebase
+          .firestore()
+          .collection('chapters')
+          .doc(documentId)
+          .update({
+            courseTitle: title
+          })
+        }
+      })
 
       firebase
-        .firestore()
-        .collection('study')
-        .where('courseTitle', '==', preItem.title)
-        .where('courseAuthor', '==', name.email)
-        .get()
-        .then(querrySnapshot => {
-          if (!querrySnapshot.empty) {
-            const documentId = querrySnapshot.docs[0].id;
-            firebase.firestore().collection('study').doc(documentId).update({
-              courseTitle: title,
-            });
-          }
-        });
-    } else {
+      .firestore()
+      .collection('lessons')
+      .where('courseTitle', '==', preItem.title)
+      .where('courseAuthor', '==', name.email)
+      .get().then((querrySnapshot) => {
+        if(!querrySnapshot.empty)
+        {
+          const documentId = querrySnapshot.docs[0].id
+          firebase
+          .firestore()
+          .collection('lessons')
+          .doc(documentId)
+          .update({
+            courseTitle: title
+          })
+        }
+      })
+
+      firebase
+      .firestore()
+      .collection('study')
+      .where('courseTitle', '==', preItem.title)
+      .where('courseAuthor', '==', name.email)
+      .get().then((querrySnapshot) => {
+        if(!querrySnapshot.empty)
+        {
+          const documentId = querrySnapshot.docs[0].id
+          firebase
+          .firestore()
+          .collection('study')
+          .doc(documentId)
+          .update({
+            courseTitle: title
+          })
+        }
+      })
+    
+    }
+    else {
       Alert.alert('Please fill full enough information!');
     }
-  };
+
+    
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -465,25 +475,26 @@ const EditCourseScreen = ({route}) => {
         </View>
       </ImageBackground>
       <View style={styles.content}>
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={data}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}></FlatList>
+        <FlatList 
+        showsVerticalScrollIndicator={false}
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}>
+          
+        </FlatList>
       </View>
 
-      <BtnTick
-        onPress={() => {
-          updateCourse();
-          navigation.navigate('CourseStack', {
-            screen: 'CourseDetail',
-            params: {item: preItem},
-          });
-        }}
-      />
+      <BtnTick onPress={() => {
+        updateCourse()
+        navigation.navigate('CourseStack', {
+                  screen: 'CourseDetail',
+                  params: {item: preItem},
+                })
+      }} />
     </SafeAreaView>
   );
-};
+  }
+
 
 export default EditCourseScreen;
 
@@ -555,7 +566,7 @@ const styles = StyleSheet.create({
     //numberOfLines: 2,
     textAlignVertical: 'top',
     color: CUSTOM_COLORS.usBlue,
-    fontSize: CUSTOM_SIZES.medium,
+    fontSize: scale(17, 'w'),
     padding: scale(15, 'w'),
   },
   txtInput2: {
@@ -569,7 +580,7 @@ const styles = StyleSheet.create({
     //numberOfLines: 2,
     textAlignVertical: 'top',
     color: CUSTOM_COLORS.usBlue,
-    fontSize: CUSTOM_SIZES.medium,
+    fontSize: scale(17, 'w'),
     padding: scale(15, 'w'),
   },
   btnThumnail: {
