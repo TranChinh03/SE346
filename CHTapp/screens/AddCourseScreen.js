@@ -346,6 +346,10 @@ const AddCourseScreen = ({route}) => {
         const imageUrl = await handleUpload();
 
         console.log('imageUrl', imageUrl)
+        console.log('description', description)
+        console.log('title', title)
+        console.log('programLanguage', programLanguage)
+        console.log('meetingLink', meetingLink)
     
         // Add a new course document to the 'courses' collection
         await firebase.firestore().collection('courses').add({

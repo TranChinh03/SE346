@@ -13,7 +13,7 @@ import {useNavigation} from '@react-navigation/native';
 
 import {View, StyleSheet, Alert} from 'react-native';
 import CUSTOM_COLORS from '../src/constants/colors';
-import {IC_Book, IC_Home, IC_Profile, IC_Schedule} from '../src/assets/iconsvg';
+import {IC_Book, IC_Home, IC_Profile, IC_Schedule, IC_Setting} from '../src/assets/iconsvg';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import scale from '../src/constants/responsive';
 import CourseDetailScreen from '../screens/CourseDetailScreen';
@@ -112,16 +112,16 @@ const HomeTabs = () => {
         }}
       /> */}
       <Tab.Screen
-        name="ProfileStack"
-        component={ProfileStack}
+        name="SettingStack"
+        component={SettingStack}
         options={{
           tabBarIcon: ({focused}) => (
             <View>
-              <IC_Profile
-                fill={focused ? CUSTOM_COLORS.primary : CUSTOM_COLORS.lightGray}
+              <IC_Setting
+                stroke={focused ? CUSTOM_COLORS.primary : CUSTOM_COLORS.lightGray}
                 fill2={
                   focused ? CUSTOM_COLORS.primary : 'transparent'
-                }></IC_Profile>
+                }></IC_Setting>
             </View>
           ),
         }}
@@ -214,9 +214,14 @@ const CourseStack = () => {
   );
 };
 
-const ProfileStack = () => {
+const SettingStack = () => {
   return (
-    <Stack.Navigator initialRouteName="Profile">
+    <Stack.Navigator initialRouteName="Setting">
+      <Stack.Screen
+        name="Setting"
+        component={SettingScreen}
+        options={{headerShown: false}}
+      />
       <Stack.Screen
         name="Profile"
         component={ProfileScreen}

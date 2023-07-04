@@ -22,6 +22,8 @@ import {useNavigation} from '@react-navigation/native';
 import { IC_LOGOUT } from '../src/assets/iconsvg';
 import { IMG_LOGOUTBACKGROUND } from '../src/assets/imgsvg';
 import CUSTOM_FONTS from '../src/constants/fonts';
+import BackButton from '../src/components/backButton';
+
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -61,6 +63,12 @@ const ProfileScreen = () => {
           style={styles.background}
           source={IMG_PROFILEBACKGROUND}
         />
+        <View style={{position: 'absolute'}}>
+          <BackButton 
+          type = {2} 
+          onPress = {() => navigation.goBack()}/>
+        </View>
+
         {/* <TouchableOpacity style={styles.whiteCircle}>
           <Image source={IC_SETTING} />
         </TouchableOpacity> */}
@@ -257,7 +265,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(24, 'w'),
     backgroundColor: CUSTOM_COLORS.white,
     position: 'absolute',
-    right: scale(10, 'w'),
+    left: scale(10, 'w'),
     top: scale(10, 'w'),
     justifyContent: 'center',
     alignItems: 'center',
