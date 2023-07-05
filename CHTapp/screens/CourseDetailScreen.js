@@ -45,9 +45,11 @@ import formatDuration from '../src/constants/formatDuration';
 import {useNavigation} from '@react-navigation/native';
 import percentage from '../src/constants/percentage';
 import uuid from 'react-native-uuid';
+import {getFirestore} from 'firebase/firestore'
+import { counterEvent } from 'react-native/Libraries/Performance/Systrace';
 
 const CourseDetailScreen = ({route}) => {
-  const {item} = route.params;
+  const {preItem} = route.params;
 
   const navigation = useNavigation();
 
@@ -66,8 +68,28 @@ const CourseDetailScreen = ({route}) => {
   const [threeStar, setThreeStar] = useState(0);
   const [twoStar, setTwoStar] = useState(0);
   const [oneStar, setOneStar] = useState(0);
+ 
+  const [initialFavor, setInitialFavor] = useState(false);
+
 
   const [name, setName] = useState('');
+
+  useEffect(() => {
+    const db = firebase.firestore();
+    console.log('preItem: ', preItem)
+    const query = db.collection('courses')
+    .where('title', '==', preItem.title)
+    .where('author', '==', preItem.author)
+    const unsubscribe = query.onSnapshot((querySnapshot) => {
+      if (!querySnapshot.empty) {
+        const doc = querySnapshot.docs[0];
+        console.log('Course data: ', doc.data());
+      } else {
+        console.log('No such document!');
+      }
+    });
+    return unsubscribe;
+  });
 
   useEffect(() => {
     firebase
@@ -85,6 +107,24 @@ const CourseDetailScreen = ({route}) => {
   }, [name.email]);
 
   useEffect(() => {
+    const db = firebase.firestore();
+    const query = db.collection('users')
+    .doc(firebase.auth().currentUser.uid)
+    .get()
+    .then(snapshot => {
+      if(snapshot.exists) {
+        const courses = snapshot.data().favoriteCourses
+        const index = courses.findIndex((course) => course.courseTitle === preItem.title && course.courseAuthor === preItem.author)
+        if(index !== -1) {
+          setInitialFavor(courses[index].isFavor)
+        }
+      }
+    })
+  })
+
+
+
+  useEffect(() => {
     ChapterList().then(data => setChapters(data));
     LessonList().then(data => setLessons(data));
     EvaluationList().then(data => setEvaluation(data));
@@ -94,7 +134,7 @@ const CourseDetailScreen = ({route}) => {
     getStarPercentage(2).then(data => setTwoStar(data));
     getStarPercentage(1).then(data => setOneStar(data));
     // GetEvaluation().then((data) => setEvaluation(data))
-  }, [item.title, item.rate]);
+  }, [preItem.title,preItem.rate]);
 
   // useEffect(() => {
   //   // Listen for when the screen is focused again
@@ -116,6 +156,48 @@ const CourseDetailScreen = ({route}) => {
 
   //   return unsubscribe;
   // }, [navigation]);
+
+  const updateFavor = async () => {
+    try {
+        await firebase
+        .firestore()
+        .collection('users')
+        .where('email', '==', name.email)
+        .get().then((querrySnapshot) => {
+          if(!querrySnapshot.empty)
+          {
+            const documentId = querrySnapshot.docs[0].id
+            const courses = querrySnapshot.docs[0].favoriteCourses
+            const index = courses.findIndex((course) => course.courseTitle === preItem.title && course.courseAuthor === preItem.author)
+            if(index !== -1) {
+              courses[index].isFavor = !courses[index].isFavor
+              firebase
+              .firestore()
+              .collection('users')
+              .doc(documentId)
+              .update({
+                favoriteCourses: courses,
+              })
+            } else {
+              firebase
+              .firestore()
+              .collection('users')
+              .doc(documentId)
+              .update({
+                favoriteCourses: firebase.firestore.FieldValue.arrayUnion({
+                  courseTitle: preItem.title,
+                  courseAuthor: preItem.athor,
+                  isFavor: true,
+                })
+              })
+            }
+          }
+        })
+      } 
+      catch (error) {
+        console.log('Handle favorite course is failed!', error);
+      }
+    }
 
   const renderLessonItem = ({item: lesson}) => {
     return (
@@ -139,18 +221,17 @@ const CourseDetailScreen = ({route}) => {
     );
   };
 
-  const renderChapterItem = ({item: chapter}) => {
+  const renderChapterItem = ({item: chapter, index}) => {
     return (
       <View>
         <View style={styles.horizontalContainer}>
           <Text style={[styles.normalText2, {fontWeight: '500'}]}>
-            Chapter:
+            Chapter {index + 1}: {' '}
           </Text>
           <Text style={styles.normalText2}>{chapter.title}</Text>
         </View>
         <FlatList
           data={lessons}
-          horizontal
           showsHorizontalScrollIndicator={false}
           keyExtractor={item => item.id = uuid.v4()}
           renderItem={renderLessonItem}
@@ -176,8 +257,8 @@ const CourseDetailScreen = ({route}) => {
 
     const chapterList = chapterData.filter(
       chapter =>
-        chapter.courseTitle === item.title &&
-        chapter.courseAuthor === item.author,
+        chapter.courseTitle === preItem.title &&
+        chapter.courseAuthor === preItem.author,
     );
     return chapterList;
   }
@@ -200,8 +281,8 @@ const CourseDetailScreen = ({route}) => {
     const joinedData = lessonData
       .filter(
         filter =>
-          filter.courseAuthor === item.author &&
-          filter.courseTitle === item.title,
+          filter.courseAuthor === preItem.author &&
+          filter.courseTitle === preItem.title,
       )
       .map(firstItem => {
         const secondItem = chapterData.find(
@@ -235,8 +316,8 @@ const CourseDetailScreen = ({route}) => {
     const joinedData = evaluationData
       .filter(
         filter =>
-          filter.courseAuthor === item.author &&
-          filter.courseTitle === item.title,
+          filter.courseAuthor === preItem.author &&
+          filter.courseTitle === preItem.title,
       )
       .map(firstItem => {
         const secondItem = userData.find(
@@ -249,7 +330,7 @@ const CourseDetailScreen = ({route}) => {
     return joinedData;
   }
 
-  const date = item.lastUpdate.toDate();
+  const date = preItem.lastUpdate.toDate();
   const formattedDate = date.toLocaleDateString('en-GB');
 
   // async function GetEvaluation () {
@@ -263,16 +344,16 @@ const CourseDetailScreen = ({route}) => {
   const getStarPercentage = async (rate) => {
     const evaluationsRef = firebase.firestore().collection('evaluate');
     const allEvaluationsSnapshot = await evaluationsRef
-      .where('courseTitle', '==', item.title)
-      .where('courseAuthor', '==', item.author)
+      .where('courseTitle', '==', preItem.title)
+      .where('courseAuthor', '==', preItem.author)
       .get();
     const allEvaluationsCount = allEvaluationsSnapshot.size;
 
     if (allEvaluationsCount === 0) return 0;
     const starEvaluationsSnapshot = await evaluationsRef
       .where('rate', '==', rate)
-      .where('courseTitle', '==', item.title)
-      .where('courseAuthor', '==', item.author)
+      .where('courseTitle', '==', preItem.title)
+      .where('courseAuthor', '==', preItem.author)
       .get();
     const starEvaluationsCount = starEvaluationsSnapshot.size;
 
@@ -283,54 +364,60 @@ const CourseDetailScreen = ({route}) => {
     return starPercentage.toFixed(1);
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView>
-        <View style={styles.container1}>
-          {item.image === '' ? (
-            <Image
-              source={IMG_CPPBACKGROUND}
-              resizeMode="contain"
-              style={styles.image}
-            />
-          ) : (
-            <Image
-              source={{uri: item.image}}
-              resizeMode="contain"
-              style={styles.image}
-            />
-          )}
-          <View style={styles.conOperator}>
-            <BackButton onPress={() => navigation.goBack()} type={1} />
-            <TouchableOpacity onPress={() => setFavorite(!favorite)}>
-              <IC_Heart
-                fillH={favorite ? CUSTOM_COLORS.sunsetOrange : 'transparent'}
+  const data = [
+    {id: 'content1', type: 'content1'},
+    {id: 'flatlist', type: 'flatlist'},
+  ];
+
+  const renderItem = ({item}) => {
+    if (item.type === 'content1') {
+      return (
+          <View style={styles.container1}>
+          {console.log(preItem)}
+              {preItem.image === '' ? (
+              <Image
+                source={IMG_CPPBACKGROUND}
+                resizeMode="contain"
+                style={styles.image}
               />
-            </TouchableOpacity>
+            ) : (
+              <Image
+                source={{uri: preItem.image}}
+                resizeMode="contain"
+                style={styles.image}
+              />
+            )}
+            <View style={styles.conOperator}>
+              <BackButton onPress={() => navigation.goBack()} type={1} />
+              <TouchableOpacity onPress={() => { setFavorite(!favorite), updateFavor()}}>
+                <IC_Heart
+                  fillH={favorite ? CUSTOM_COLORS.sunsetOrange : 'transparent'}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+      );
+    } else if (item.type === 'flatlist') {
+      return (
         <View style={styles.container2}>
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.subTitle}>{item.description}</Text>
+          <Text style={styles.title}>{preItem.title}</Text>
+          <Text style={styles.subTitle}>{preItem.description}</Text>
           <View style={styles.horizontalContainer}>
-            <Text style={styles.ratingNum}>{item.rate}</Text>
+            <Text style={styles.ratingNum}>{preItem.rate}</Text>
             <View style={styles.rating}>
               <StarRating
                 onChange={() => {}}
                 maxStars={5}
                 starSize={15}
-                rating={item.rate}
+                rating={preItem.rate}
                 starStyle={styles.star}
               />
             </View>
-            {/* <Text style={styles.viewerNum}>
-              {Number(item.numofAttendants)} học viên
-            </Text> */}
           </View>
           <View style={styles.horizontalContainer}>
             <Text style={styles.normalText}>Create by </Text>
             <Text style={[styles.normalText, styles.authorName]}>
-              {item.name}
+              {preItem.name}
             </Text>
           </View>
           <View style={styles.horizontalContainer}>
@@ -346,37 +433,13 @@ const CourseDetailScreen = ({route}) => {
               <Image source={IC_GLOBAL} />
             </View>
             <Text style={[styles.normalText, {marginLeft: scale(7, 'w')}]}>
-              {item.language}
+              {preItem.language}
             </Text>
           </View>
           <Text style={styles.categoryText}>Lessons</Text>
-          {/* <View style={styles.lessonContainer}>
-                      <View style={styles.horizontalContainer}>
-                          <Text style={[styles.normalText2, {fontWeight: '500'}]}>Chapter 1: </Text>
-                          <Text style={styles.normalText2}>First C++ Program</Text>
-                      </View>
-                      <View>
-                          <LessonBox onPress={()=> this.props.navigation.navigate('LessonDetail')}/>
-                          <LessonBox onPress={()=> this.props.navigation.navigate('LessonDetail')}/>
-                      </View>
-                      <View style={styles.horizontalContainer}>
-                          <Text style={[styles.normalText2, {fontWeight: '500'}]}>Chapter 2: </Text>
-                          <Text style={styles.normalText2}>Variables and Data Types</Text>
-                      </View>
-                      <View>
-                          <LessonBox onPress={()=> this.props.navigation.navigate('LessonDetail')}/>
-                          <LessonBox onPress={()=> this.props.navigation.navigate('LessonDetail')}/>
-                          <LessonBox onPress={()=> this.props.navigation.navigate('LessonDetail')}/>
-                          <LessonBox onPress={()=> this.props.navigation.navigate('LessonDetail')}/>
-                      </View>
-                      <TouchableOpacity style={styles.buttonContainer}>
-                          <Text style={styles.textButton}>See more</Text>
-                      </TouchableOpacity>
-                  </View> */}
 
           <FlatList
             data={chapters}
-            horizontal
             showsHorizontalScrollIndicator={false}
             keyExtractor={item => item.id = uuid.v4()}
             renderItem={renderChapterItem}
@@ -388,17 +451,17 @@ const CourseDetailScreen = ({route}) => {
             <Image style={styles.avaImage} source={IMG_LECTURERAVA} />
             <View style={styles.infoLecturer}>
               <Text style={[styles.normalText, {fontWeight: '500'}]}>
-                {item.name}
+                {preItem.name}
               </Text>
-              <Text style={styles.infoText}>{item.phone}</Text>
-              <Text style={styles.infoText}>{item.author}</Text>
+              <Text style={styles.infoText}>{preItem.phone}</Text>
+              <Text style={styles.infoText}>{preItem.author}</Text>
             </View>
-            <View style={styles.infoCourse}>
-              <Text style={styles.numCourse}>{item.numofCourse}</Text>
+            {/* <View style={styles.infoCourse}>
+              <Text style={styles.numCourse}>{preItem.numofCourse}</Text>
               <Text style={[styles.infoText, {textAlign: 'center'}]}>
                 Courses
               </Text>
-            </View>
+            </View> */}
           </View>
           <Text style={[styles.categoryText, {marginTop: scale(20, 'h')}]}>
             Rate this course
@@ -424,7 +487,7 @@ const CourseDetailScreen = ({route}) => {
               styles.categoryText,
               {marginTop: scale(-5, 'h'), color: CUSTOM_COLORS.yellow},
             ]}>
-            {item.rate}
+            {preItem.rate}
           </Text>
           <View>
             <CusProgressBar percent={fiveStar} rating="5" />
@@ -445,7 +508,6 @@ const CourseDetailScreen = ({route}) => {
 
           <FlatList
             data={evaluation}
-            horizontal
             showsHorizontalScrollIndicator={false}
             keyExtractor={item => item.id = uuid.v4()}
             renderItem={renderEvaluationItem}
@@ -454,14 +516,26 @@ const CourseDetailScreen = ({route}) => {
             <View style={[styles.space]}></View>
           </View>
         </View>
-      </ScrollView>
-      {item.author === name.email ? (
+      );
+    }
+  };
+
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <FlatList
+          showsVerticalScrollIndicator={false}
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}>
+      </FlatList>
+      {preItem.author === name.email ? (
         <TouchableOpacity
           style={styles.fixedBtnEdit}
           onPress={() =>
             navigation.navigate('CourseStack', {
               screen: 'EditCourse',
-              params: {preItem: item},
+              params: {preItem: preItem},
             })
           }>
           <IC_Edit />

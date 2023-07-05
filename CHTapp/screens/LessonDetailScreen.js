@@ -44,6 +44,7 @@ import {IC_EYE, IC_VIEW} from '../src/assets/icons';
 import CusRatingBar from '../src/components/CusRatingBar';
 
 const LessonDetailScreen = ({route}) => {
+  const navigation = useNavigation()
   const {item, item1} = route.params;
   return (
     <SafeAreaView style={styles.container}>
@@ -115,7 +116,7 @@ const LessonDetailScreen = ({route}) => {
       <TouchableOpacity
         style={styles.fixedBtnEdit}
         onPress={() =>
-          this.props.navigation.navigate('AddChapterScreen', {
+          navigation.navigate('AddChapterScreen', {
             txtHeader: 'Edit Chapter',
           })
         }>

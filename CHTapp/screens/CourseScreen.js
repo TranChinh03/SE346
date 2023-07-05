@@ -66,12 +66,14 @@ const CourseScreen = ({route}) => {
     const authorSnapshot = await authorRef.get();
     const authorData = authorSnapshot.docs.map(doc => doc.data());
 
+
     const joinedData = courseData
       .filter(filter => filter.author === curEmail)
       .map(firstItem => {
         const secondItem = authorData.find(
           item => item.email === firstItem.author,
         );
+      
 
         return {...firstItem, ...secondItem};
       });
@@ -183,7 +185,7 @@ const CourseScreen = ({route}) => {
               onPress={() =>
                 navigation.navigate('CourseStack', {
                   screen: 'CourseDetail',
-                  params: {item: item},
+                  params: {preItem: item},
                 })
               }
             />

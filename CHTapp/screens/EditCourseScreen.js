@@ -317,6 +317,7 @@ const handleUpload = async () => {
   const updateCourse = async() => {
 
     const imageUrl = await handleUpload();
+
     console.log('imageUrl', imageUrl)
 
     if ( title !== '' && description !== '' &&language !== '' &&myProgramLanguage !== '' ) {
@@ -329,37 +330,36 @@ const handleUpload = async () => {
         if(!querrySnapshot.empty)
         {
           const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('courses')
-          .doc(documentId)
-          .update({
-            title : title,
-            description: description,
-            language: language,
-            programLanguage: myProgramLanguage,
-            lastUpdate: now,
-            image: imageUrl,
-          })
-        }
-      })
-
-      firebase
-      .firestore()
-      .collection('chapters')
-      .where('courseTitle', '==', preItem.title)
-      .where('courseAuthor', '==', name.email)
-      .get().then((querrySnapshot) => {
-        if(!querrySnapshot.empty)
-        {
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('chapters')
-          .doc(documentId)
-          .update({
-            courseTitle: title
-          })
+          if(imageUrl) {
+            console.log ("Hi")
+            firebase
+            .firestore()
+            .collection('courses')
+            .doc(documentId)
+            .update({
+              title : title,
+              description: description,
+              language: language,
+              programLanguage: myProgramLanguage,
+              lastUpdate: now,
+              image: imageUrl,
+            })
+          }
+          else {
+            console.log("Hello")
+            firebase
+            .firestore()
+            .collection('courses')
+            .doc(documentId)
+            .update({
+              title : title,
+              description: description,
+              language: language,
+              programLanguage: myProgramLanguage,
+              lastUpdate: now,
+              image: '',
+            })
+          }
         }
       })
 
@@ -403,25 +403,6 @@ const handleUpload = async () => {
 
       firebase
       .firestore()
-      .collection('chapters')
-      .where('courseTitle', '==', preItem.title)
-      .where('courseAuthor', '==', name.email)
-      .get().then((querrySnapshot) => {
-        if(!querrySnapshot.empty)
-        {
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('chapters')
-          .doc(documentId)
-          .update({
-            courseTitle: title
-          })
-        }
-      })
-
-      firebase
-      .firestore()
       .collection('lessons')
       .where('courseTitle', '==', preItem.title)
       .where('courseAuthor', '==', name.email)
@@ -439,25 +420,44 @@ const handleUpload = async () => {
         }
       })
 
+      
       firebase
       .firestore()
-      .collection('study')
-      .where('courseTitle', '==', preItem.title)
-      .where('courseAuthor', '==', name.email)
+      .collection('users')
       .get().then((querrySnapshot) => {
-        if(!querrySnapshot.empty)
-        {
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('study')
-          .doc(documentId)
-          .update({
-            courseTitle: title
-          })
-        }
+        querrySnapshot.forEach((doc) => {
+          // doc.data().favoriteCourses.forEach((course) => {
+          //   if(course.courseAuthor === name.email && course.courseTitle === preItem.title) {
+          //     const documentId = doc.id
+          //     course.courseTitle = title
+          //     firebase
+          //     .firestore()
+          //     .collection('users')
+          //     .doc(documentId)
+          //     .update({
+          //       favoriteCourses: firebase.firestore.FieldValue.arrayUnion({
+          //         course
+          //       })
+          //     })
+          //   }
+          // })
+          if(doc.exists) {
+            const documentId = doc.id
+            const courses = doc.data().favoriteCourses;
+            const index = courses.findIndex ((course) => course.courseTitle === preItem.title && course.courseAuthor === name.email)
+            if (index !== -1) {
+              courses[index].courseTitle = title
+              firebase
+              .firestore()
+              .collection('users')
+              .doc(documentId)
+              .update({
+                favoriteCourses: courses
+              })
+            }
+          }
+        })
       })
-    
     }
     else {
       Alert.alert('Please fill full enough information!');
@@ -488,7 +488,7 @@ const handleUpload = async () => {
         updateCourse()
         navigation.navigate('CourseStack', {
                   screen: 'CourseDetail',
-                  params: {item: preItem},
+                  params: {preItem: preItem},
                 })
       }} />
     </SafeAreaView>
