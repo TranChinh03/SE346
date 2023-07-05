@@ -148,7 +148,7 @@ const ProfileEditScreen = () => {
             style={styles.whiteCircle}
             onPress={() => {
               updateProfile();
-              navigation.navigate('ProfileStack', {screen: 'Profile'});
+              navigation.navigate('SettingStack', {screen: 'Profile'});
             }}>
             <IC_Tick></IC_Tick>
           </TouchableOpacity>
