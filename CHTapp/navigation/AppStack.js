@@ -34,6 +34,7 @@ import SettingScreen from '../screens/SettingScreen';
 import SearchScreen from '../screens/SearchScreen';
 import RatingScreen from '../screens/RatingScreen';
 import EditChapterScreen from '../screens/EditChapterScreen';
+import EditLessonScreen from '../screens/EditLessonScreen';
 
 const Tab = createBottomTabNavigator();
 
