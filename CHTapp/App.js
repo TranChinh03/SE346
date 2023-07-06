@@ -78,9 +78,9 @@ export default function App() {
     //<AddChapterScreen />
     //<AddLessonScreen />
     // <SearchScreen />
-    //<EditCourseScreen />
+    // <EditCourseScreen />
     //<RatingScreen />
-    //<EditChapterScreen />
+    // <EditChapterScreen />
     // <EditLessonScreen />
 
   );

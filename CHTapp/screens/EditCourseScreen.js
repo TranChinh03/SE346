@@ -31,9 +31,11 @@ import {useNavigation} from '@react-navigation/native';
 import BtnDelete from '../src/components/BtnDelete';
 import BtnTick from '../src/components/BtnTick';
 import {firebase} from '../configs/FirebaseConfig'
+import uuid from 'react-native-uuid';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker'
 import {utils} from '@react-native-firebase/app'
 import storage from '@react-native-firebase/storage'
+
 const EditCourseScreen = ({route}) => {
   const {preItem} = route.params;
   const navigation = useNavigation();
@@ -65,6 +67,11 @@ const EditCourseScreen = ({route}) => {
   const [name, setName] = useState('')
 
   const [imageUri, setImageUri] = useState(null)
+  const [chapters, setChapters] = useState([])
+
+  useEffect (() => {
+    ChapterList().then(data => setChapters(data));
+  },[preItem.title, preItem.author])
 
 const handleButtonPress = () => {
   const options = {
@@ -112,6 +119,35 @@ const handleUpload = async () => {
       Alert.alert(error.message);
     }
   }
+};
+
+async function ChapterList() {
+  const chapeterRef = firebase.firestore().collection('chapters');
+  const chapterSnapshot = await chapeterRef.get();
+  const chapterData = chapterSnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  const chapterList = chapterData.filter(
+    chapter =>
+      chapter.courseTitle === preItem.title &&
+      chapter.courseAuthor === preItem.author,
+  );
+  return chapterList;
+}
+
+const renderChapterItem = ({item: chapter, index}) => {
+  return (
+    <TouchableOpacity onPress = {() => {navigation.navigate('EditChapter', {preItem: chapter})}}>
+      <View style={styles.horizontalContainer}>
+        <Text style={[styles.normalText2, {fontWeight: '500'}]}>
+          Chapter {index + 1}: {' '}
+        </Text>
+        <Text style={styles.normalText2}>{chapter.title}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 };
 
 
@@ -192,94 +228,22 @@ const handleUpload = async () => {
               onChangeValue={(myLanguage) => setLanguage(myLanguage) }
             />
           </View>
+
+          <View>
+            <Text style= {styles.txtTiltle}>Chapters in this course: </Text>
+            <FlatList
+              data={chapters}
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={item => item.id = uuid.v4()}
+              renderItem={renderChapterItem}
+            />
+          </View>
         </View>
       )
     }
     else {
       return (
         <View>
-          {/* <Text style={styles.txtTiltle}>Chapter</Text> */}
-          {/* <View style={styles.conSpeedDial}>
-            <SpeedDial
-              DropDownPicker="left"
-              flexDirection="right"
-              color={CUSTOM_COLORS.usBlue}
-              style={styles.btnSd}
-              isOpen={openSpeedDial}
-              icon={{name: 'edit', color: '#fff'}}
-              openIcon={{name: 'close', color: '#fff'}}
-              onOpen={() => setOpenSpeedDial(!openSpeedDial)}
-              onClose={() => setOpenSpeedDial(!openSpeedDial)}>
-              <SpeedDial.Action
-                color={CUSTOM_COLORS.usBlue}
-                icon={{name: 'add', color: '#fff'}}
-                title="Chapter"
-
-                //onPress={() => console.log('Add Something')}
-              />
-              <SpeedDial.Action
-                color={CUSTOM_COLORS.usBlue}
-                icon={{name: 'delete', color: '#fff'}}
-                title="Lesson"
-                //onPress={() => console.log('Delete Something')}
-              />
-            </SpeedDial>
-          </View> */}
-          {/* <View style={styles.conSpeedDial}>
-            <TouchableOpacity
-              style={styles.btnSD}
-              onPress={() => setShouldShow(!shouldShow)}>
-              <Text style={styles.txtSD}>+</Text>
-            </TouchableOpacity>
-            {shouldShow ? (
-              <View
-                style={{
-                  height: '100%',
-                  justifyContent: 'space-between',
-                  backfaceVisibility: 'hidden',
-                }}>
-                <TouchableOpacity
-                  style={styles.spAction}
-                  onPress={() =>
-                    navigation.navigate('AddChapterScreen', {
-                      txtHeader: 'Add Chapter',
-                    })
-                  }>
-                  <Text style={styles.txtSDAction}>Chapter</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.spAction}
-                  onPress={() => navigation.navigate('AddLessonScreen')}>
-                  <Text style={styles.txtSDAction}>Lesson</Text>
-                </TouchableOpacity>
-              </View>
-            ) : null}
-          </View> */}
-          {/* <View
-            style={{
-              width: scale(320, 'w'),
-              alignSelf: 'center',
-              marginBottom: scale(15, 'h'),
-              flexDirection: 'row',
-            }}>
-            <FlatList
-              scrollEnabled={false}
-              numColumns={1}
-              data={lesson}
-              renderItem={({item, index}) => {
-                return <LessonBoxAdd title={item.title} time={item.time} />;
-              }}
-            />
-            <FlatList
-              style={{marginTop: scale(10, 'h'), marginLeft: scale(5, 'h')}}
-              scrollEnabled={false}
-              numColumns={1}
-              data={lesson}
-              renderItem={({item, index}) => {
-                return <BtnDelete />;
-              }}
-            />
-          </View> */}
           <View style={styles.space}>
             <View style={[styles.space]}></View>
          </View>
@@ -426,35 +390,23 @@ const handleUpload = async () => {
       .collection('users')
       .get().then((querrySnapshot) => {
         querrySnapshot.forEach((doc) => {
-          // doc.data().favoriteCourses.forEach((course) => {
-          //   if(course.courseAuthor === name.email && course.courseTitle === preItem.title) {
-          //     const documentId = doc.id
-          //     course.courseTitle = title
-          //     firebase
-          //     .firestore()
-          //     .collection('users')
-          //     .doc(documentId)
-          //     .update({
-          //       favoriteCourses: firebase.firestore.FieldValue.arrayUnion({
-          //         course
-          //       })
-          //     })
-          //   }
-          // })
           if(doc.exists) {
             const documentId = doc.id
             const courses = doc.data().favoriteCourses;
-            const index = courses.findIndex ((course) => course.courseTitle === preItem.title && course.courseAuthor === name.email)
-            if (index !== -1) {
-              courses[index].courseTitle = title
-              firebase
-              .firestore()
-              .collection('users')
-              .doc(documentId)
-              .update({
-                favoriteCourses: courses
-              })
+            if(courses) {
+              const index = courses.findIndex((course) => course.courseTitle === preItem.title && course.courseAuthor === name.email)
+              if (index !== -1) {
+                courses[index].courseTitle = title
+                firebase
+                .firestore()
+                .collection('users')
+                .doc(documentId)
+                .update({
+                  favoriteCourses: courses
+                })
+              }
             }
+
           }
         })
       })
@@ -684,5 +636,16 @@ const styles = StyleSheet.create({
   space: {
     height: scale(200, 'h'),
     // backgroundColor: 'pink',
+  },
+  horizontalContainer: {
+    flexDirection: 'row',
+    marginTop: scale(10, 'h'),
+    alignItems: 'center',
+    marginLeft: scale(30, 'w'),
+  },
+  normalText2: {
+    color: CUSTOM_COLORS.black,
+    fontSize: CUSTOM_SIZES.medium,
+    textDecorationLine: 'underline'
   },
 });

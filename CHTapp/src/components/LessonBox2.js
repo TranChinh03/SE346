@@ -21,6 +21,7 @@ import {
 } from '../assets/icons';
 import {SelectList} from 'react-native-dropdown-select-list';
 import DropDown from './dropDown';
+import BtnDelete from './BtnDelete';
 
 export class LessonBox2 extends Component {
   constructor(props) {
@@ -34,7 +35,8 @@ export class LessonBox2 extends Component {
 
   render() {
     return (
-      <TouchableOpacity style={styles.container} onPress={this.props.onPress}>
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.container1} onPress={this.props.onPress}>
         <TouchableOpacity style={styles.playIcon} onPress={this.props.onPress}>
           <Image source={IC_PLAYCIRCLE}></Image>
         </TouchableOpacity>
@@ -51,12 +53,19 @@ export class LessonBox2 extends Component {
           </View>
         </View>
       </TouchableOpacity>
+      <BtnDelete/>
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    backgroundColor: 'pink',
+
+  },
+  container1: {
     flexDirection: 'row',
     height: scale(90, 'h'),
     width: scale(280, 'w'),
