@@ -69,21 +69,18 @@ const CourseDetailScreen = ({route}) => {
   const [twoStar, setTwoStar] = useState(0);
   const [oneStar, setOneStar] = useState(0);
  
-  const [initialFavor, setInitialFavor] = useState(false);
 
 
   const [name, setName] = useState('');
 
   useEffect(() => {
     const db = firebase.firestore();
-    console.log('preItem: ', preItem)
     const query = db.collection('courses')
     .where('title', '==', preItem.title)
     .where('author', '==', preItem.author)
     const unsubscribe = query.onSnapshot((querySnapshot) => {
       if (!querySnapshot.empty) {
         const doc = querySnapshot.docs[0];
-        console.log('Course data: ', doc.data());
       } else {
         console.log('No such document!');
       }
@@ -114,13 +111,22 @@ const CourseDetailScreen = ({route}) => {
     .then(snapshot => {
       if(snapshot.exists) {
         const courses = snapshot.data().favoriteCourses
-        const index = courses.findIndex((course) => course.courseTitle === preItem.title && course.courseAuthor === preItem.author)
-        if(index !== -1) {
-          setInitialFavor(courses[index].isFavor)
+        if(courses) {
+          console.log('favor1')
+          const index = courses.findIndex((course) => course.courseTitle === preItem.title && course.courseAuthor === preItem.author)
+          if(index !== -1) {
+            setFavorite(courses[index].isFavor)
+          }
+          else {
+            setFavorite(false)
+          }
         }
       }
+      else {
+        console.log('favor2')
+        setFavorite(false)}
     })
-  })
+  }, [preItem.title, preItem.author])
 
 
 
@@ -163,37 +169,51 @@ const CourseDetailScreen = ({route}) => {
         .firestore()
         .collection('users')
         .where('email', '==', name.email)
-        .get().then((querrySnapshot) => {
-          if(!querrySnapshot.empty)
+        .get()
+        .then((snapshot) => {
+          if(!snapshot.empty)
           {
-            const documentId = querrySnapshot.docs[0].id
-            const courses = querrySnapshot.docs[0].favoriteCourses
-            const index = courses.findIndex((course) => course.courseTitle === preItem.title && course.courseAuthor === preItem.author)
-            if(index !== -1) {
-              courses[index].isFavor = !courses[index].isFavor
-              firebase
-              .firestore()
-              .collection('users')
-              .doc(documentId)
-              .update({
-                favoriteCourses: courses,
-              })
-            } else {
-              firebase
-              .firestore()
-              .collection('users')
-              .doc(documentId)
-              .update({
-                favoriteCourses: firebase.firestore.FieldValue.arrayUnion({
-                  courseTitle: preItem.title,
-                  courseAuthor: preItem.athor,
-                  isFavor: true,
+            const documentId = snapshot.docs[0].id
+            console.log('4',snapshot.docs[0])
+            console.log('5',snapshot.docs[0].data())
+
+            const courses = snapshot.docs[0].data().favoriteCourses
+            if (courses) {
+              const index = courses.findIndex((course) => course.courseTitle === preItem.title && course.courseAuthor === preItem.author)
+              if(index !== -1) {
+                courses[index].isFavor = !courses[index].isFavor
+                firebase
+                .firestore()
+                .collection('users')
+                .doc(documentId)
+                .update({
+                  favoriteCourses: courses,
                 })
-              })
-            }
+            }  else {
+              const data = {courseTitle: preItem.title, courseAuthor: preItem.author, isFavor: true}
+              console.log("dataaaa", data)
+                firebase
+                .firestore()
+                .collection('users')
+                .doc(documentId)
+                .update({
+                  favoriteCourses: firebase.firestore.FieldValue.arrayUnion(data)
+                })
+              }
           }
-        })
-      } 
+          else {
+            const data = {courseTitle: preItem.title, courseAuthor: preItem.author, isFavor: true}
+            firebase
+            .firestore()
+            .collection('users')
+            .doc(documentId)
+            .update({
+              favoriteCourses: firebase.firestore.FieldValue.arrayUnion(data)
+            })
+          }
+        }
+      })
+    }
       catch (error) {
         console.log('Handle favorite course is failed!', error);
       }
@@ -373,7 +393,6 @@ const CourseDetailScreen = ({route}) => {
     if (item.type === 'content1') {
       return (
           <View style={styles.container1}>
-          {console.log(preItem)}
               {preItem.image === '' ? (
               <Image
                 source={IMG_CPPBACKGROUND}

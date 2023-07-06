@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from 'react-native';
-import React, {Component} from 'react';
+import React, {Component, useEffect, useState} from 'react';
 import {IMG_BG1} from '../src/assets/img';
 import BackButton from '../src/components/backButton';
 import BtnTick from '../src/components/BtnTick';
@@ -22,6 +22,8 @@ import CourseAttendedBox from '../src/components/courseAttendedBox';
 import LessonBox from '../src/components/lessonBox';
 import LessonBox2 from '../src/components/LessonBox2';
 import BtnDelete from '../src/components/BtnDelete';
+import { useNavigation } from '@react-navigation/native';
+import {firebase} from '../configs/FirebaseConfig'
 
 const data = [
   {
@@ -44,77 +46,173 @@ const data = [
   },
 ];
 
-export default class EditChapterScreen extends Component {
-  render() {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ImageBackground
-          style={styles.vwImg}
-          source={IMG_BG1}
-          resizeMode="cover">
-          <View style={styles.vwTitle}>
-            <BackButton onPress={() => this.props.navigation.goBack()} />
-            <Text style={styles.txtHeader}>Edit Chapter</Text>
-          </View>
-        </ImageBackground>
-        <View style={styles.content}>
-          <Text style={styles.txtChapter}>Chapter name</Text>
-          <TextInput
-            style={styles.txbChapterName}
-            //placehoder={'Name your meeting'}
-          >
-            First C++ Program
-          </TextInput>
-          <Text style={styles.txtChapter}>Lesson</Text>
-          <TouchableOpacity
-            style={styles.conAddLesson}
-            onPress={() => this.props.navigation.navigate('AddLessonScreen')}>
-            <Text style={styles.txtInfo}>Add Lesson</Text>
-            <IC_RightArrow2 />
-          </TouchableOpacity>
-          <View style={{flexDirection: 'row', flex: 1.5}}>
-            <FlatList
-              style={{
-                marginTop: scale(20, 'h'),
-                marginLeft: scale(5, 'h'),
-                marginBottom: scale(80, 'h'),
-              }}
-              showsVerticalScrollIndicator={false}
-              scrollEnabled={true}
-              numColumns={1}
-              data={data}
-              renderItem={({item, index}) => {
-                return (
-                  <LessonBox2
-                    //onPress={() => this.props.navigation.navigate('EditLesson')}
-                    onPress={() => {}}
-                    title={item.title}
-                    time={item.time}
-                  />
-                );
-              }}
-            />
-            <FlatList
-              style={{
-                marginTop: scale(20, 'h'),
-                marginLeft: scale(5, 'h'),
-                marginBottom: scale(80, 'h'),
-              }}
-              scrollEnabled={true}
-              numColumns={1}
-              data={data}
-              renderItem={({item, index}) => {
-                return <BtnDelete title={item.title} time={item.time} />;
-              }}
-            />
-          </View>
-        </View>
+const  EditChapterScreen = ({route})  => {
+  const {preItem} = route.params;
+  const navigation = useNavigation();
+  const [lessons, setLessons] = useState([])
+  const [title, setTitle] = useState('')
 
-        <BtnTick />
-      </SafeAreaView>
-    );
+  useEffect (() => {
+    LessonList().then(data => setLessons(data));
+  })
+
+  
+  async function LessonList() {
+    const lessonRef = firebase.firestore().collection('lessons');
+    const lessonSnapshot = await lessonRef.get();
+    const lessonData = lessonSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    const joinedData = lessonData
+      .filter(
+        filter =>
+          filter.courseAuthor === preItem.courseAuthor &&
+          filter.courseTitle === preItem.courseTitle &&
+          filter.chapterTitle === preItem.title
+      )
+    return joinedData;
   }
+
+  const updateChapter = async() => {
+    if ( title !== '') {
+      firebase
+      .firestore()
+      .collection('chapters')
+      .where('title', '==', preItem.title)
+      .where('courseTitle', '==', preItem.courseTitle)
+      .where('courseAuthor', '==', preItem.courseAuthor)
+      .get().then((querrySnapshot) => {
+        if(!querrySnapshot.empty)
+        {
+          const documentId = querrySnapshot.docs[0].id
+          firebase
+          .firestore()
+          .collection('chapters')
+          .doc(documentId)
+          .update({
+            title: title
+          })
+    
+          firebase
+          .firestore()
+          .collection('lessons')
+          .where('courseTitle', '==', preItem.courseTitle)
+          .where('courseAuthor', '==', preItem.courseAuthor)
+          .where('chapterTitle', '==', preItem.title)
+          .get().then((querrySnapshot) => {
+            if(!querrySnapshot.empty)
+            {
+              const documentId1 = querrySnapshot.docs[0].id
+              firebase
+              .firestore()
+              .collection('lessons')
+              .doc(documentId1)
+              .update({
+                chapterTitle: title
+              })
+            }
+          })
+    
+          firebase
+          .firestore()
+          .collection('lessons')
+          .where('courseTitle', '==', preItem.title)
+          .where('courseAuthor', '==', name.email)
+          .get().then((querrySnapshot) => {
+            if(!querrySnapshot.empty)
+            {
+              const documentId1 = querrySnapshot.docs[0].id
+              firebase
+              .firestore()
+              .collection('lessons')
+              .doc(documentId1)
+              .update({
+                courseTitle: title
+              })
+            }
+          })
+        }
+        else {
+          Alert.alert('Please fill full enough information!');
+        }
+        })}
+  }
+
+
+  return (
+    <SafeAreaView style={styles.container}>
+    {console.log('preItem',preItem)}
+      <ImageBackground
+        style={styles.vwImg}
+        source={IMG_BG1}
+        resizeMode="cover">
+        <View style={styles.vwTitle}>
+          <BackButton onPress={() => navigation.goBack()} />
+          <Text style={styles.txtHeader}>Edit Chapter</Text>
+        </View>
+      </ImageBackground>
+      <View style={styles.content}>
+        <Text style={styles.txtChapter}>Chapter name</Text>
+        <TextInput
+          style={styles.txbChapterName}
+          //placehoder={'Name your meeting'}
+          onChangeText={(myTitle) => setTitle(myTitle)}
+        >
+          {preItem.title}
+        </TextInput>
+        <Text style={styles.txtChapter}>Lesson</Text>
+        <TouchableOpacity
+          style={styles.conAddLesson}
+          onPress={() => navigation.navigate('AddLessonScreen')}
+          >
+          <Text style={styles.txtInfo}>Add Lesson</Text>
+          <IC_RightArrow2 />
+        </TouchableOpacity>
+        <View style={{flexDirection: 'row', flex: 1.5}}>
+          <FlatList
+            style={{
+              marginTop: scale(20, 'h'),
+              marginLeft: scale(5, 'h'),
+              marginBottom: scale(80, 'h'),
+            }}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={true}
+            numColumns={1}
+            data={lessons}
+            renderItem={({item, index}) => {
+              return (
+                <LessonBox2
+                  onPress={() => navigation.navigate('EditLesson')}
+                  title={item.lessonTitle}
+                  time={item.time}
+                />
+              );
+            }}
+          />
+          {/* <FlatList
+            style={{
+              marginTop: scale(20, 'h'),
+              marginLeft: scale(5, 'h'),
+              marginBottom: scale(80, 'h'),
+            }}
+            scrollEnabled={true}
+            numColumns={1}
+            data={data}
+            renderItem={({item, index}) => {
+              return <BtnDelete title={item.title} time={item.time} />;
+            }}
+          /> */}
+        </View>
+      </View>
+
+      <BtnTick />
+    </SafeAreaView>
+  );
 }
+
+export default EditChapterScreen
 
 const styles = StyleSheet.create({
   container: {
