@@ -53,7 +53,7 @@ export class LessonBox2 extends Component {
           </View>
         </View>
       </TouchableOpacity>
-      <BtnDelete/>
+      <BtnDelete onPress = {this.props.onDeletedPress}/>
       </View>
     );
   }
@@ -62,7 +62,6 @@ export class LessonBox2 extends Component {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: 'pink',
 
   },
   container1: {

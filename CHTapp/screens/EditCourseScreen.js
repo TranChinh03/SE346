@@ -335,13 +335,15 @@ const renderChapterItem = ({item: chapter, index}) => {
       .get().then((querrySnapshot) => {
         if(!querrySnapshot.empty)
         {
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('chapters')
-          .doc(documentId)
-          .update({
-            courseTitle: title
+          querrySnapshot.forEach((doc) => {
+            const documentId = doc.id
+            firebase
+            .firestore()
+            .collection('chapters')
+            .doc(documentId)
+            .update({
+              courseTitle: title
+            })
           })
         }
       })
@@ -354,13 +356,15 @@ const renderChapterItem = ({item: chapter, index}) => {
       .get().then((querrySnapshot) => {
         if(!querrySnapshot.empty)
         {
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('evaluate')
-          .doc(documentId)
-          .update({
-            courseTitle: title
+          querrySnapshot.forEach((doc) => {
+            const documentId = doc.id
+            firebase
+            .firestore()
+            .collection('evaluate')
+            .doc(documentId)
+            .update({
+              courseTitle: title
+            })
           })
         }
       })
@@ -373,13 +377,15 @@ const renderChapterItem = ({item: chapter, index}) => {
       .get().then((querrySnapshot) => {
         if(!querrySnapshot.empty)
         {
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('lessons')
-          .doc(documentId)
-          .update({
-            courseTitle: title
+          querrySnapshot.forEach((doc) => {
+            const documentId = doc.id
+            firebase
+            .firestore()
+            .collection('lessons')
+            .doc(documentId)
+            .update({
+              courseTitle: title
+            })
           })
         }
       })
