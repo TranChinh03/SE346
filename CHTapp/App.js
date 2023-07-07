@@ -82,6 +82,5 @@ export default function App() {
     //<RatingScreen />
     // <EditChapterScreen />
     // <EditLessonScreen />
-
   );
 }
