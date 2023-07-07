@@ -68,8 +68,9 @@ const data = [
   },
 ];
 
-const EditLessonScreen = () => {
-  //const navigation = useNavigation();
+const EditLessonScreen = ({route}) => {
+  const {preItem} = route.params;
+  const navigation = useNavigation();
   const [shouldShow, setShouldShow] = useState(false);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
@@ -163,13 +164,13 @@ const EditLessonScreen = () => {
             multiline
             style={styles.txtInput}
             // onChangeText={myTitle => setTitle(myTitle)}
-          />
+          >{preItem.lessonTitle}</TextInput>
         </View>
       );
     } else if (item.type === 'dropdown') {
       return (
         <View>
-          <Text style={styles.txtTiltle}>Course</Text>
+          {/* <Text style={styles.txtTiltle}>Course</Text>
           <View style={styles.conDropDown}>
             <DropDownPicker
               style={styles.dropDown}
@@ -219,7 +220,7 @@ const EditLessonScreen = () => {
               // badgeDotColors={['#e76f51', '#00b4d8']}
               //onChangeValue={mychapter => setMyChapter(mychapter)}
             />
-          </View>
+          </View> */}
         </View>
       );
     } else {
@@ -416,9 +417,10 @@ const EditLessonScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+    {console.log('preItemEditLesson', preItem)}
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          <BackButton />
+          <BackButton onPress={() => navigation.goBack()} />
           <Text style={styles.txtHeader}>Edit Lesson</Text>
         </View>
       </ImageBackground>
