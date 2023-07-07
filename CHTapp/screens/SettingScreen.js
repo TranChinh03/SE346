@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, SafeAreaView, Image, TouchableOpacity } from 'react-native'
+import { Text, View, StyleSheet, SafeAreaView, Image, TouchableOpacity, ScrollView, FlatList } from 'react-native'
 import React, { Component, useState, useEffect } from 'react'
 import BackButton from '../src/components/backButton'
 import scale from '../src/constants/responsive'
@@ -9,9 +9,147 @@ import { IC_RightArrow, IC_Help, IC_Language, IC_Moon, IC_Notification, IC_LOGOU
 import {firebase} from '../configs/FirebaseConfig';
 import {useNavigation} from '@react-navigation/native';
 import { IMG_LOGOUTBACKGROUND } from '../src/assets/imgsvg'
+import {IC_SEARCH, IC_VIEW_MORE} from '../src/assets/icons';
 
 const SettingScreen = ()  => {
+    const [myCourse, setMyCourse] = useState([]);
+    const [newCourse, setNewCourse] = useState([]);
     const navigation = useNavigation();
+    const [name, setName] = useState('');
+
+    const renderCourses = (data, category) => {
+        const navigation = useNavigation();
+        return (
+          <View>
+            <View style={styles.titlePartCourses}>
+              <Text style={styles.categoryName}>{category}</Text>
+              <TouchableOpacity
+                style={styles.loadAllPart}
+                onPress={() =>
+                     navigation.navigate('CourseStack', {
+                        screen: 'Course',
+                        params: {item: 'MyCourses'},
+                      })
+                }>
+                <Text style={styles.loadAll}>View All </Text>
+                <Image source={IC_VIEW_MORE} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              style={styles.coursesList}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={data}
+              keyExtractor={item => item.id}
+              renderItem={({item}) => (
+                <CourseItem
+                  key={item.key}
+                  language={item.programLanguage}
+                  title={item.title}
+                  author={item.name}
+                  rating={item.rate}
+                  view={item.numofAttendants}
+                  style={{marginRight: scale(20, 'w')}}
+                  image={item.image}
+                  onPress={() =>
+                    navigation.navigate('CourseStack', {
+                        screen: 'CourseDetail',
+                        params: {item: item}
+                      })
+                  }
+                />
+              )}
+            />
+          </View>
+        );
+      };
+
+      async function joinedMyCourse(curEmail) {
+        const courseRef = firebase.firestore().collection('courses');
+        const courseSnapshot = await courseRef.get();
+        const courseData = courseSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+    
+        const authorRef = firebase.firestore().collection('users');
+        const authorSnapshot = await authorRef.get();
+        const authorData = authorSnapshot.docs.map(doc => doc.data());
+    
+        const studyRef = firebase.firestore().collection('study');
+        const studySnapshot = await studyRef.get();
+        const studyData = studySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+    
+        const joinedData = studyData
+          .filter(firstItem => firstItem.student === curEmail)
+          .map(firstItem => {
+            const secondItem = courseData.find(
+              item =>
+                item.author === firstItem.courseAuthor &&
+                item.title === firstItem.courseTitle,
+            );
+    
+            const thirdItem = authorData.find(
+              item => item.email === secondItem.author,
+            );
+    
+            return {...firstItem, ...secondItem, ...thirdItem};
+          });
+    
+        return joinedData;
+      }
+
+      async function joinedMyCourse2(curEmail) {
+        const courseRef = firebase.firestore().collection('courses');
+        const courseSnapshot = await courseRef.get();
+        const courseData = courseSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+    
+        const authorRef = firebase.firestore().collection('users');
+        const authorSnapshot = await authorRef.get();
+        const authorData = authorSnapshot.docs.map(doc => doc.data());
+    
+        const joinedData = courseData
+          .filter(item => item.author === curEmail)
+          .map(firstItem => {
+            const secondItem = authorData.find(
+              item => item.email === firstItem.author,
+            );
+    
+            return {...firstItem, ...secondItem};
+          });
+    
+        return joinedData;
+      }
+
+      async function joinedCourse() {
+        //const navigation = useNavigation();
+        const courseRef = firebase.firestore().collection('courses');
+        const courseSnapshot = await courseRef.get();
+        const courseData = courseSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+    
+        const authorRef = firebase.firestore().collection('users');
+        const authorSnapshot = await authorRef.get();
+        const authorData = authorSnapshot.docs.map(doc => doc.data());
+    
+        const joinedData = courseData.map(firstItem => {
+          const secondItem = authorData.find(
+            item => item.email === firstItem.author,
+          );
+    
+          return {...firstItem, ...secondItem};
+        });
+    
+        return joinedData;
+      }
 
     const handleSignOut = () => {
         firebase.auth()
@@ -38,7 +176,32 @@ const SettingScreen = ()  => {
               console.log('User does not exist');
             }
           });
-        });
+        }, [name.email]);
+
+        useEffect(() => {
+            async function getData() {
+              if (name.job === 'Student') {
+                const myCourse = (await joinedMyCourse(name.email)).slice(0, 5);
+                setMyCourse(myCourse);
+              } else {
+                const myCourse = (await joinedMyCourse2(name.email)).slice(0, 5);
+                setMyCourse(myCourse);
+              }
+            }
+        
+            getData();
+          }, [myCourse]);
+
+          useEffect(() => {
+            async function getData() {
+              const newCourse = (await joinedCourse())
+                .sort((a, b) => b.openDate - a.openDate)
+                .slice(0, 5);
+              setNewCourse(newCourse);
+            }
+        
+            getData();
+          }, [newCourse]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -192,7 +355,11 @@ const SettingScreen = ()  => {
                     </TouchableOpacity>
                 </View>
             </View> */}
-            <View style={{flex: 3}}/>
+            <View style={{flex: 3, padding: scale(20, 'w')}}>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    {renderCourses(myCourse, 'MY COURSES')}
+                </ScrollView>
+            </View>
             <View style={styles.logOutContainer}>
                 <TouchableOpacity onPress={handleSignOut} style={{
                   flex: 6,
@@ -324,6 +491,26 @@ const styles = StyleSheet.create({
     logouttext: {
         fontSize: scale(20, 'w'),
         color: CUSTOM_COLORS.usBlue,
-    }
+    },
+    titlePartCourses: {
+        display: 'flex',
+        flexDirection: 'row',
+        marginTop: scale(25, 'h'),
+        marginBottom: scale(5, 'h'),
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      },
+      categoryName: {
+        fontSize: scale(25, 'w'),
+        fontWeight: '700',
+        color: CUSTOM_COLORS.black,
+      },
+      loadAllPart: {
+        display: 'flex',
+        flexDirection: 'row',
+        marginRight: scale(12, 'w'),
+        alignItems: 'center',
+        color: CUSTOM_COLORS.black,
+      },
 })
 
