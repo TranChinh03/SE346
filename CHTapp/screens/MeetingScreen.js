@@ -20,30 +20,6 @@ import ItemMeeting from '../src/components/ItemMeeting';
 import {firebase} from '../configs/FirebaseConfig';
 import {useNavigation, useNavigationState} from '@react-navigation/native';
 
-const data = [
-  {
-    id: 'content1',
-    meetingName: 'Meeting 1',
-    time: '20h',
-    courseName: 'C++ for beginers 2023',
-    lectureName: 'Tran Minh Chinh',
-  },
-  {
-    id: 'dropdown',
-    meetingName: 'Meeting 2',
-    time: '20h',
-    courseName: 'C++ for beginers 2023',
-    lectureName: 'Tran ',
-  },
-  {
-    id: 'content2',
-    meetingName: 'Meeting 3',
-    time: '20h',
-    courseName: 'C++ for beginers 2023',
-    lectureName: 'Tran Minh Chinh',
-  },
-];
-
 const MeetingScreen = () => {
   const [data, setData] = useState('');
 
@@ -99,7 +75,7 @@ const MeetingScreen = () => {
     <SafeAreaView style={styles.container}>
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          <BackButton onPress={() => this.props.navigation.goBack()} />
+          <BackButton onPress={() => navigation.goBack()} />
           <Text style={styles.txtHeader}>Meetings</Text>
         </View>
       </ImageBackground>
