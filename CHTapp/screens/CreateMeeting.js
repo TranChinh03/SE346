@@ -8,6 +8,7 @@ import {
     TouchableOpacity,
     TextInput,
     ScrollView,
+    Alert
   } from 'react-native';
   import React, {Component, useState, useEffect} from 'react';
   import BackButton from '../src/components/backButton';
@@ -21,6 +22,7 @@ import {
   import ItemMeeting from '../src/components/ItemMeeting';
   import {useNavigation} from '@react-navigation/native';
 import DropDownPicker from 'react-native-dropdown-picker';
+import {firebase} from '../configs/FirebaseConfig'
 
   
   
@@ -31,22 +33,111 @@ import DropDownPicker from 'react-native-dropdown-picker';
     const [value, setValue] = useState('');
     const [open1, setOpen1] = useState(false);
     const [value1, setValue1] = useState('');
-    const [course, setCourse] = useState([]);
+    const [myCourse, setMyCourse] = useState([])
+    const [course, setCourse] = useState('');
+    const [name, setName] = useState('')
+    const [time, setTime] = useState('')
+    const [date, setDate] = useState('')
+    const [link, setLink] = useState('')
+    const [language, setLanguage] = useState('')
+    const [host, setHost] = useState('')
 
-    const [name, setName] = useState()
-    const [time, setTime] = useState()
-    const [date, setDate] = useState()
-    const [link, setLink] = useState()
+    useEffect(() => {
+      firebase.firestore().collection('users')
+      .doc(firebase.auth().currentUser.uid).get()
+      .then((snapshot) => {
+        if(snapshot.exists)
+        {
+          setHost(snapshot.data())
+        }
+        else {
+          console.log('User does not exist')
+        }
+      })
+    }, [])
 
 
     const navigation = useNavigation();
+
+    useEffect(() => {
+      const fetchData = async () => {
+        setMyCourse([])
+        // Check if name.email is defined
+        if (host.email) {
+          // Fetch data from Firestore and filter the results
+          const querySnapshot = await firebase.firestore()
+            .collection('courses')
+            .get();
+            console.log('querySnapshot', querySnapshot)
+        
+    
+          // Update the state with the new data
+          let index = 0;
+          querySnapshot.forEach(documentSnapshot => {
+            const fieldValue = documentSnapshot.get('title');
+            console.log(fieldValue)
+            setMyCourse(prevData => [
+              ...prevData,
+              {label: fieldValue, value: index.toString()},
+            ]);
+            index++;
+          });
+        }
+        console.log('myCourse', myCourse)
+      };
+    
+      fetchData();
+    }, [host.email]);
+
+    const addMeeting = async () => {
+      try {
+         if(name !== '' && time !== '' && date !== '' && course !== '' && link!== ''&&language!== '')
+         {
+      
+          // Add a new course document to the 'courses' collection
+          await firebase.firestore().collection('meetings').add({
+            host: host.name,
+            date: date,
+            joinUrl: link,
+            time: time,
+            title: name,
+            subject: language,
+          });
+      
+          Alert.alert('Add Meeting Successfully!');
+          navigation.goBack();
+         }
+         else {
+          Alert.alert('Please fill full information!');
+         }
+      } catch (error) {
+        console.log('Error adding meeting:', error);
+      }
+    };
 
     const renderItem = ({item}) => {
       if(item.type ==='content1'){
         return  (
           <View>
-            <Text style={styles.txtTiltle}>{item.title}</Text>
-            <TextInput multiline style={styles.txtInput} onChangeText={item.onChange}></TextInput>
+            <View>
+              <Text style={styles.txtTiltle}>Meeting Name</Text>
+              <TextInput style={styles.txtInput} onChangeText={(name) => setName(name)}></TextInput>
+            </View>
+
+            <View>
+              <Text style={styles.txtTiltle}>Time</Text>
+              <TextInput style={styles.txtInput} onChangeText={(time) => setTime(time)}></TextInput>
+            </View>
+
+            <View>
+              <Text style={styles.txtTiltle}>Date</Text>
+              <TextInput style={styles.txtInput} onChangeText={(date) => setDate(date)}></TextInput>
+            </View>
+
+            <View>
+              <Text style={styles.txtTiltle}>Language</Text>
+              <TextInput style={styles.txtInput} onChangeText={(language) => setLanguage(language)}></TextInput>
+            </View>
           </View>
         )
       }
@@ -63,23 +154,30 @@ import DropDownPicker from 'react-native-dropdown-picker';
                 dropDownContainerStyle={styles.condropdown2}
                 open={open1}
                 value={value1}
-                items={course}
+                items={myCourse}
                 setOpen={setOpen1}
                 setValue={setValue1}
-                setItems={setCourse}
+                setItems={setMyCourse}
                 multiple={false}
                 mode="BADGE"
                 badgeDotColors={['#e76f51', '#00b4d8']}
                 onChangeValue={(value) => {
                   // Find the selected item
-                  const selectedItem = course.find(item => item.value === value);
+                  const selectedItem = myCourse.find(item => item.value === value);
                   // Set the myCourse state to the label of the selected item
                   if (selectedItem) {
-                    setMyCourse(selectedItem.label);
+                    setCourse(selectedItem.label);
                   }
                 }}
               />
             </View>
+
+            <View>
+              <Text style={styles.txtTiltle}>Link</Text>
+              <TextInput style={styles.txtInput} onChangeText={(link) => setLink(link)}></TextInput>
+            </View>
+
+            <View style={styles.space}/>
           </View>
         )
       }
@@ -95,10 +193,8 @@ import DropDownPicker from 'react-native-dropdown-picker';
     }
 
     const data = [
-      { id: 'content1', type: 'content1', title: 'Meeting Name'},
-      { id: 'content3', type: 'content1', title: 'Time'},
+      { id: 'content1', type: 'content1'},
       { id: 'dropdown', type: 'dropdown' },
-      { id: 'content2', type: 'content2' },
     ];
 
       return (
@@ -113,59 +209,13 @@ import DropDownPicker from 'react-native-dropdown-picker';
             </View>
           </ImageBackground>
           <View style={styles.content}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-            <View>
-              <Text style={styles.txtTiltle}>Meeting Name</Text>
-              <TextInput style={styles.txtInput} onChangeText={(name) => setName(name)}></TextInput>
-            </View>
-
-            <View>
-              <Text style={styles.txtTiltle}>Time</Text>
-              <TextInput style={styles.txtInput} onChangeText={(time) => setTime(time)}></TextInput>
-            </View>
-
-            <View>
-              <Text style={styles.txtTiltle}>Date</Text>
-              <TextInput style={styles.txtInput} onChangeText={(date) => setDate(date)}></TextInput>
-            </View>
-
-            <Text style={styles.txtTiltle}>Course</Text>
-            <View style={styles.conDropDown}>
-              <DropDownPicker
-                style={styles.dropDown}
-                textStyle={styles.txtDropDown}
-                dropDownDirection="TOP"
-                dropDownContainerStyle={styles.condropdown2}
-                open={open1}
-                value={value1}
-                items={course}
-                setOpen={setOpen1}
-                setValue={setValue1}
-                setItems={setCourse}
-                multiple={false}
-                mode="BADGE"
-                badgeDotColors={['#e76f51', '#00b4d8']}
-                onChangeValue={(value) => {
-                  // Find the selected item
-                  const selectedItem = course.find(item => item.value === value);
-                  // Set the myCourse state to the label of the selected item
-                  if (selectedItem) {
-                    setMyCourse(selectedItem.label);
-                  }
-                }}
-              />
-            </View>
-
-            <View>
-              <Text style={styles.txtTiltle}>Link</Text>
-              <TextInput style={styles.txtInput} onChangeText={(link) => setLink(link)}></TextInput>
-            </View>
-
-            <View style={styles.space}/>
-              
-            </ScrollView>
+            <FlatList
+            showsVerticalScrollIndicator={false}
+            data={data}
+            renderItem={renderItem}
+            keyExtractor={item => item.id}></FlatList>
           </View>
-          <BtnTick onPress = {() => {console.log(name, time, date, link)}}/>
+          <BtnTick onPress = {() => addMeeting()}/>
         </SafeAreaView>
       );
     }

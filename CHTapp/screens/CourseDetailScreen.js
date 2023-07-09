@@ -221,7 +221,7 @@ const CourseDetailScreen = ({route}) => {
 
   const renderLessonItem = ({item: lesson}) => {
     return (
-      <TouchableOpacity onPress={() => navigation.navigate('LessonDetail', {item: lesson, item1: item})}>
+      <TouchableOpacity onPress={() => navigation.navigate('LessonDetail', {item: lesson, item1: preItem})}>
         <LessonBox
           title={lesson.lessonTitle}
           duration={formatDuration(lesson.duration)}
@@ -561,10 +561,10 @@ const CourseDetailScreen = ({route}) => {
         </TouchableOpacity>
       ) : null}
 
-      <TouchableOpacity style={styles.fixedButton}>
+      {/* <TouchableOpacity style={styles.fixedButton}>
         <Text style={styles.start}>Start</Text>
         <Image style={styles.iconNext} source={IC_NEXT} />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </SafeAreaView>
   );
 };
