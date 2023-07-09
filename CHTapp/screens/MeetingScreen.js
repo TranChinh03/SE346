@@ -38,13 +38,6 @@ const MeetingScreen = () => {
     }));
 
     return meetingData;
-    <SafeAreaView>
-      <TouchableOpacity
-        style={styles.fixedButton}
-        onPress={() => this.props.navigation.navigate('CreateMeeting')}>
-        <Text style={styles.start}>+</Text>
-      </TouchableOpacity>
-    </SafeAreaView>;
   }
 
   useEffect(() => {
@@ -69,7 +62,7 @@ const MeetingScreen = () => {
     }
 
     getData();
-  }, [name.email]);
+  }, [name.email, data]);
 
   return (
     <SafeAreaView style={styles.container}>
