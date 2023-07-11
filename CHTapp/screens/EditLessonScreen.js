@@ -119,7 +119,6 @@ const EditLessonScreen = ({route}) => {
       ...doc.data(),
     }));
 
-    console.log('joinedData')
     const joinedData = lessonData
       .filter(
         filter =>
@@ -128,13 +127,9 @@ const EditLessonScreen = ({route}) => {
           filter.chapterTitle === preItem.chapterTitle &&
           filter.lessonTitle === preItem.lessonTitle
       )
-    console.log('joinedData', joinedData)
-    console.log('preItem', preItem)
     const finalData = 
       joinedData[0].files
       .map((file) => firebase.storage().refFromURL(file))
-
-      console.log(finalData)
     return finalData;
   }
 
@@ -146,7 +141,6 @@ const EditLessonScreen = ({route}) => {
       ...doc.data(),
     }));
 
-    console.log('joinedData')
     const joinedData = lessonData
       .filter(
         filter =>
@@ -156,14 +150,16 @@ const EditLessonScreen = ({route}) => {
           filter.lessonTitle === preItem.lessonTitle
       )
 
-    if(joinedData[0].tests !== []){
+      console.log('joinedData', joinedData)
+    if(joinedData[0].tests || joinedData[0].tests.length !== 0 && joinedData[0].tests[0]!== null){
+      console.log("Hello1")
       const finalData = 
       joinedData[0].tests
       .map((file) => firebase.storage().refFromURL(file))
 
       return finalData;
     }
-
+    console.log("Hello2")
     return;
 
   }
@@ -171,7 +167,9 @@ const EditLessonScreen = ({route}) => {
   useEffect(() => {
     MaterialList().then(data => setMaterials(data))
     TestList().then(data => setTests(data))
-  }, [preItem.lessonTitle, materials, tests])
+
+    console.log('tests', tests)
+  }, [])
 
   const handleDelete = (item) => {
     console.log('item', item)
@@ -351,8 +349,8 @@ const EditLessonScreen = ({route}) => {
             <FlatList
               horizontal
               numColumns={1}
-              data={documents}
-              extraData={refreshMaterial}
+              data={documents1}
+              extraData={refreshTests}
               renderItem={({item, index}) => {
                 return <ItemPdf title={item.name} onPress={() => deleteDocument1(item.name)}/>;
               }}
