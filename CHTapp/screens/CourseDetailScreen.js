@@ -45,8 +45,10 @@ import formatDuration from '../src/constants/formatDuration';
 import {useNavigation} from '@react-navigation/native';
 import percentage from '../src/constants/percentage';
 import uuid from 'react-native-uuid';
-import {getFirestore} from 'firebase/firestore'
-import { counterEvent } from 'react-native/Libraries/Performance/Systrace';
+import {getFirestore} from 'firebase/firestore';
+import {counterEvent} from 'react-native/Libraries/Performance/Systrace';
+import CUSTOM_FONTS from '../src/constants/fonts';
+import CUSTOM_SIZES from '../src/constants/size';
 
 const CourseDetailScreen = ({route}) => {
   const {preItem} = route.params;
@@ -68,8 +70,6 @@ const CourseDetailScreen = ({route}) => {
   const [threeStar, setThreeStar] = useState(0);
   const [twoStar, setTwoStar] = useState(0);
   const [oneStar, setOneStar] = useState(0);
- 
-
 
   const [name, setName] = useState('');
 
@@ -105,30 +105,32 @@ const CourseDetailScreen = ({route}) => {
 
   useEffect(() => {
     const db = firebase.firestore();
-    const query = db.collection('users')
-    .doc(firebase.auth().currentUser.uid)
-    .get()
-    .then(snapshot => {
-      if(snapshot.exists) {
-        const courses = snapshot.data().favoriteCourses
-        if(courses) {
-          console.log('favor1')
-          const index = courses.findIndex((course) => course.courseTitle === preItem.title && course.courseAuthor === preItem.author)
-          if(index !== -1) {
-            setFavorite(courses[index].isFavor)
+    const query = db
+      .collection('users')
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(snapshot => {
+        if (snapshot.exists) {
+          const courses = snapshot.data().favoriteCourses;
+          if (courses) {
+            console.log('favor1');
+            const index = courses.findIndex(
+              course =>
+                course.courseTitle === preItem.title &&
+                course.courseAuthor === preItem.author,
+            );
+            if (index !== -1) {
+              setFavorite(courses[index].isFavor);
+            } else {
+              setFavorite(false);
+            }
           }
-          else {
-            setFavorite(false)
-          }
+        } else {
+          console.log('favor2');
+          setFavorite(false);
         }
-      }
-      else {
-        console.log('favor2')
-        setFavorite(false)}
-    })
-  }, [chapters, lessons, evaluation])
-
-
+      });
+  }, [chapters, lessons, evaluation]);
 
   useEffect(() => {
     ChapterList().then(data => setChapters(data));
@@ -140,7 +142,7 @@ const CourseDetailScreen = ({route}) => {
     getStarPercentage(2).then(data => setTwoStar(data));
     getStarPercentage(1).then(data => setOneStar(data));
     // GetEvaluation().then((data) => setEvaluation(data))
-  }, [preItem.title,preItem.rate]);
+  }, [preItem.title, preItem.rate]);
 
   // useEffect(() => {
   //   // Listen for when the screen is focused again
@@ -165,63 +167,77 @@ const CourseDetailScreen = ({route}) => {
 
   const updateFavor = async () => {
     try {
-        await firebase
+      await firebase
         .firestore()
         .collection('users')
         .where('email', '==', name.email)
         .get()
-        .then((snapshot) => {
-          if(!snapshot.empty)
-          {
-            const documentId = snapshot.docs[0].id
-            console.log('4',snapshot.docs[0])
-            console.log('5',snapshot.docs[0].data())
+        .then(snapshot => {
+          if (!snapshot.empty) {
+            const documentId = snapshot.docs[0].id;
+            console.log('4', snapshot.docs[0]);
+            console.log('5', snapshot.docs[0].data());
 
-            const courses = snapshot.docs[0].data().favoriteCourses
+            const courses = snapshot.docs[0].data().favoriteCourses;
             if (courses) {
-              const index = courses.findIndex((course) => course.courseTitle === preItem.title && course.courseAuthor === preItem.author)
-              if(index !== -1) {
-                courses[index].isFavor = !courses[index].isFavor
+              const index = courses.findIndex(
+                course =>
+                  course.courseTitle === preItem.title &&
+                  course.courseAuthor === preItem.author,
+              );
+              if (index !== -1) {
+                courses[index].isFavor = !courses[index].isFavor;
                 firebase
-                .firestore()
-                .collection('users')
-                .doc(documentId)
-                .update({
-                  favoriteCourses: courses,
-                })
-            }  else {
-              const data = {courseTitle: preItem.title, courseAuthor: preItem.author, isFavor: true}
-              console.log("dataaaa", data)
+                  .firestore()
+                  .collection('users')
+                  .doc(documentId)
+                  .update({
+                    favoriteCourses: courses,
+                  });
+              } else {
+                const data = {
+                  courseTitle: preItem.title,
+                  courseAuthor: preItem.author,
+                  isFavor: true,
+                };
+                console.log('dataaaa', data);
                 firebase
-                .firestore()
-                .collection('users')
-                .doc(documentId)
-                .update({
-                  favoriteCourses: firebase.firestore.FieldValue.arrayUnion(data)
-                })
+                  .firestore()
+                  .collection('users')
+                  .doc(documentId)
+                  .update({
+                    favoriteCourses:
+                      firebase.firestore.FieldValue.arrayUnion(data),
+                  });
               }
+            } else {
+              const data = {
+                courseTitle: preItem.title,
+                courseAuthor: preItem.author,
+                isFavor: true,
+              };
+              firebase
+                .firestore()
+                .collection('users')
+                .doc(documentId)
+                .update({
+                  favoriteCourses:
+                    firebase.firestore.FieldValue.arrayUnion(data),
+                });
+            }
           }
-          else {
-            const data = {courseTitle: preItem.title, courseAuthor: preItem.author, isFavor: true}
-            firebase
-            .firestore()
-            .collection('users')
-            .doc(documentId)
-            .update({
-              favoriteCourses: firebase.firestore.FieldValue.arrayUnion(data)
-            })
-          }
-        }
-      })
+        });
+    } catch (error) {
+      console.log('Handle favorite course is failed!', error);
     }
-      catch (error) {
-        console.log('Handle favorite course is failed!', error);
-      }
-    }
+  };
 
   const renderLessonItem = ({item: lesson}) => {
     return (
-      <TouchableOpacity onPress={() => navigation.navigate('LessonDetail', {item: lesson, item1: preItem})}>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('LessonDetail', {item: lesson, item1: preItem})
+        }>
         <LessonBox
           title={lesson.lessonTitle}
           duration={formatDuration(lesson.duration)}
@@ -246,14 +262,14 @@ const CourseDetailScreen = ({route}) => {
       <View>
         <View style={styles.horizontalContainer}>
           <Text style={[styles.normalText2, {fontWeight: '500'}]}>
-            Chapter {index + 1}: {' '}
+            Chapter {index + 1}:{' '}
           </Text>
           <Text style={styles.normalText2}>{chapter.title}</Text>
         </View>
         <FlatList
           data={lessons}
           showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item.id = uuid.v4()}
+          keyExtractor={item => (item.id = uuid.v4())}
           renderItem={renderLessonItem}
         />
       </View>
@@ -309,7 +325,7 @@ const CourseDetailScreen = ({route}) => {
           item =>
             item.courseAuthor === firstItem.courseAuthor &&
             item.courseTitle === firstItem.courseTitle &&
-            item.title === firstItem.chapterTitle
+            item.title === firstItem.chapterTitle,
         );
 
         return {...firstItem, ...secondItem};
@@ -361,7 +377,7 @@ const CourseDetailScreen = ({route}) => {
   //     return evaluationData;
   // }
 
-  const getStarPercentage = async (rate) => {
+  const getStarPercentage = async rate => {
     const evaluationsRef = firebase.firestore().collection('evaluate');
     const allEvaluationsSnapshot = await evaluationsRef
       .where('courseTitle', '==', preItem.title)
@@ -392,29 +408,33 @@ const CourseDetailScreen = ({route}) => {
   const renderItem = ({item}) => {
     if (item.type === 'content1') {
       return (
-          <View style={styles.container1}>
-              {preItem.image === '' ? (
-              <Image
-                source={IMG_CPPBACKGROUND}
-                resizeMode="contain"
-                style={styles.image}
+        <View style={styles.container1}>
+          <View style={styles.conOperator}>
+            <BackButton onPress={() => navigation.goBack()} type={1} />
+            <TouchableOpacity
+              onPress={() => {
+                setFavorite(!favorite), updateFavor();
+              }}>
+              <IC_Heart
+                fillH={favorite ? CUSTOM_COLORS.sunsetOrange : 'transparent'}
               />
-            ) : (
-              <Image
-                source={{uri: preItem.image}}
-                resizeMode="contain"
-                style={styles.image}
-              />
-            )}
-            <View style={styles.conOperator}>
-              <BackButton onPress={() => navigation.goBack()} type={1} />
-              <TouchableOpacity onPress={() => { setFavorite(!favorite), updateFavor()}}>
-                <IC_Heart
-                  fillH={favorite ? CUSTOM_COLORS.sunsetOrange : 'transparent'}
-                />
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
+
+          {preItem.image === '' ? (
+            <Image
+              source={IMG_CPPBACKGROUND}
+              resizeMode="contain"
+              style={styles.image}
+            />
+          ) : (
+            <Image
+              source={{uri: preItem.image}}
+              resizeMode="contain"
+              style={styles.image}
+            />
+          )}
+        </View>
       );
     } else if (item.type === 'flatlist') {
       return (
@@ -460,7 +480,7 @@ const CourseDetailScreen = ({route}) => {
           <FlatList
             data={chapters}
             showsHorizontalScrollIndicator={false}
-            keyExtractor={item => item.id = uuid.v4()}
+            keyExtractor={item => (item.id = uuid.v4())}
             renderItem={renderChapterItem}
           />
           <Text style={[styles.categoryText, {marginTop: scale(50, 'h')}]}>
@@ -469,10 +489,11 @@ const CourseDetailScreen = ({route}) => {
           <View style={[styles.horizontalContainer, {height: scale(80, 'h')}]}>
             <Image style={styles.avaImage} source={IMG_LECTURERAVA} />
             <View style={styles.infoLecturer}>
-              <Text style={[styles.normalText, {fontWeight: '500'}]}>
+              <Text
+                style={[styles.normalText, {fontFamily: CUSTOM_FONTS.medium}]}>
                 {preItem.name}
               </Text>
-              <Text style={styles.infoText}>{preItem.phone}</Text>
+              {/* <Text style={styles.infoText}>{preItem.phone}</Text> */}
               <Text style={styles.infoText}>{preItem.author}</Text>
             </View>
             {/* <View style={styles.infoCourse}>
@@ -528,9 +549,14 @@ const CourseDetailScreen = ({route}) => {
           <FlatList
             data={evaluation}
             showsHorizontalScrollIndicator={false}
-            keyExtractor={item => item.id = uuid.v4()}
+            keyExtractor={item => (item.id = uuid.v4())}
             renderItem={renderEvaluationItem}
           />
+          {preItem.author === name.email ? (
+            <TouchableOpacity style={styles.conDelete}>
+              <Text style={styles.txtDelete}>Delete this course?</Text>
+            </TouchableOpacity>
+          ) : null}
           <View style={styles.space}>
             <View style={[styles.space]}></View>
           </View>
@@ -539,15 +565,13 @@ const CourseDetailScreen = ({route}) => {
     }
   };
 
-
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-          showsVerticalScrollIndicator={false}
-          data={data}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}>
-      </FlatList>
+        showsVerticalScrollIndicator={false}
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}></FlatList>
       {preItem.author === name.email ? (
         <TouchableOpacity
           style={styles.fixedBtnEdit}
@@ -587,12 +611,14 @@ const styles = StyleSheet.create({
   },
   conOperator: {
     marginRight: scale(20, 'w'),
+    marginBottom: scale(10, 'w'),
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
   },
   image: {
     flex: 1,
+    alignSelf: 'center',
   },
   title: {
     color: CUSTOM_COLORS.black,
@@ -740,9 +766,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'flex-end',
-    bottom: scale(160, 'h'),
+    bottom: scale(100, 'h'),
     right: scale(35, 'w'),
     flexDirection: 'row',
     elevation: 7,
+  },
+  conDelete: {
+    height: scale(50, 'h'),
+    width: scale(200, 'w'),
+    borderColor: CUSTOM_COLORS.sunsetOrange,
+    borderWidth: scale(0.75, 'w'),
+    borderRadius: scale(15, 'w'),
+    marginTop: scale(25, 'w'),
+    alignSelf: 'center',
+    justifyContent: 'center',
+  },
+  txtDelete: {
+    color: CUSTOM_COLORS.sunsetOrange,
+    fontFamily: CUSTOM_FONTS.medium,
+    fontSize: CUSTOM_SIZES.medium,
+    alignSelf: 'center',
   },
 });
