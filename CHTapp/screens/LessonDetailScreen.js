@@ -54,6 +54,7 @@ const LessonDetailScreen = ({route}) => {
   const navigation = useNavigation()
   const {item, item1} = route.params;
   const [materials, setMaterials] = useState([]);
+  const [tests, setTests] = useState([])
 
   async function MaterialList() {
     const lessonRef = firebase.firestore().collection('lessons');
@@ -82,7 +83,33 @@ const LessonDetailScreen = ({route}) => {
 
   useEffect(() => {
     MaterialList().then(data => setMaterials(data))
-  }, [item.lessonTitle, materials])
+    TestList().then(data => setTests(data))
+  }, [])
+
+  async function TestList() {
+    const lessonRef = firebase.firestore().collection('lessons');
+    const lessonSnapshot = await lessonRef.get();
+    const lessonData = lessonSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    console.log('joinedData')
+    const joinedData = lessonData
+      .filter(
+        filter =>
+          filter.courseAuthor === item.courseAuthor &&
+          filter.courseTitle === item.courseTitle &&
+          filter.chapterTitle === item.chapterTitle &&
+          filter.lessonTitle === item.lessonTitle
+      )
+    const finalData = 
+      joinedData[0].tests
+      .map((file) => firebase.storage().refFromURL(file))
+
+      console.log(finalData)
+    return finalData;
+  }
 
   
   const handleDownload = (myItem) => {
@@ -173,11 +200,100 @@ const LessonDetailScreen = ({route}) => {
         });
       });
   };
+
+  const handleDownload1 = (myItem) => {
+    firebase
+      .firestore()
+      .collection('lessons')
+      .where('lessonTitle', '==', item.lessonTitle)
+      .where('courseTitle', '==', item.courseTitle)
+      .where('courseAuthor', '==', item.courseAuthor)
+      .where('chapterTitle', '==', item.chapterTitle)
+      .get()
+      .then((querySnapshot) => {
+        let documentId;
+        if (!querySnapshot.empty) {
+          documentId = querySnapshot.docs[0].id;
+        }
+        return documentId;
+      })
+      .then((documentId) => {
+        const docRef = firebase.firestore().collection('lessons').doc(documentId);
+  
+        // Get the document from Firestore
+        docRef.get().then((doc) => {
+          if (doc.exists) {
+            const storageRef1 = myItem;
+            storageRef1
+              .getDownloadURL()
+              .then((url) => {
+                const files = doc.data().tests
+                if (files) {
+                  const index = files.findIndex((file) =>file === url)
+                  if(index !== -1) {
+                    const fileRef = doc.data().files[index];
+                    const storageRef = firebase.storage().refFromURL(fileRef);
+                    console.log('Download1!');
+                    storageRef.getDownloadURL().then(async(url) => {
+                      console.log('Download2!');
+                      const granted = await PermissionsAndroid.request(
+                        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                        {
+                          title: 'Storage Permission',
+                          message: 'This app needs access to your storage to download files.',
+                          buttonNeutral: 'Ask Me Later',
+                          buttonNegative: 'Cancel',
+                          buttonPositive: 'OK',
+                        }
+                      );
+        
+                      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                        // Permission granted
+                        const {config, fs} = RNFetchBlob;
+                        const date = new Date()
+                        const fileDir = fs.dirs.DownloadDir
+                        config({
+                          fileCache: true,
+                          addAndroidDownloads: {
+                            useDownloadManager: true,
+                            notification: true,
+                            path: fileDir + '/download_' + Math.floor(date.getDate() + date.getSeconds() / 2) + '.pdf',
+                            description: 'file download'
+                          }
+                        })
+                        .fetch('GET', fileRef, {
+        
+                        })
+                        .then(res => {
+                          console.log ('The file saved to ', res)
+                          Alert.alert("Download sucessfully!")
+                        })
+                        // console.log(require('react-native').NativeModules)
+                        // const DownloadManager = require('react-native').NativeModules.DownloadManager;
+        
+                        // // Download the file from the URL
+                        // DownloadManager.download(url, 'filename.pdf', 'Description', (result) => {
+                        //   console.log('Download result:', result);
+                        // });
+                      } else {
+                        // Permission denied
+                        console.log('Storage permission denied');
+                      }
+                    });
+                }}
+              })
+              .catch((error) => {
+                console.log(error.message)
+              });
+          }
+        });
+      });
+  };
   return (
     <SafeAreaView style={styles.container}>
     {console.log('item', item)}
     {console.log('item1', item1)}
-      <ScrollView>
+      <View>
         <View style={styles.container1}>
           <ImageBackground
             style={styles.image}
@@ -223,12 +339,19 @@ const LessonDetailScreen = ({route}) => {
             <View style={styles.infoTextContainer}>
               <Text style={styles.infoText}>Test:</Text>
             </View>
-            <TouchableOpacity style={styles.downloadBox}>
+            {/* <TouchableOpacity style={styles.downloadBox}>
               <Text style={styles.downloadText}>Download</Text>
               <Image source={IC_DOWNLOAD} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
-
+          <FlatList
+              horizontal
+              numColumns={1}
+              data={tests}
+              renderItem={({item, index}) => {
+                return <ItemPdf title={item.name} onPress={() => handleDownload1(item)}/>;
+              }}
+          />
           {/* <TouchableOpacity style={styles.nextButton}>
             <Text style={styles.nextBtnText}>Next</Text>
           </TouchableOpacity> */}
@@ -249,7 +372,7 @@ const LessonDetailScreen = ({route}) => {
             </TouchableOpacity>
           </View> */}
         </View>
-      </ScrollView>
+      </View>
       <TouchableOpacity
         style={styles.fixedBtnEdit}
         onPress={() =>

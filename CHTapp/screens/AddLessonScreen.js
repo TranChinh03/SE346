@@ -64,7 +64,7 @@ const AddLessonScreen = () => {
   const [files, setFiles] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [tests, setTests] = useState([]);
-
+  const [documents1, setDocuments1] = useState([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [myChapter, setMyChapter] = useState('');
@@ -72,6 +72,7 @@ const AddLessonScreen = () => {
   const [myCourse, setMyCourse] = useState('');
 
   const [name, setName] = useState('');
+
 
   useEffect(() => {
     firebase
@@ -328,10 +329,7 @@ const AddLessonScreen = () => {
           </View>
           <Text style={styles.txtTiltle}>Test</Text>
           <View style={{marginLeft: scale(15, 'w')}}>
-            {/* <TouchableOpacity style={styles.btnBorder}>
-              <Text style={styles.txtDelete}>-</Text>
-            </TouchableOpacity> */}
-            <TouchableOpacity onPress={pickDocument} style={styles.btnImport}>
+            <TouchableOpacity onPress={pickDocument1} style={styles.btnImport}>
               <Text style={styles.start}>Import from your device</Text>
               <IC_Plus style={{alignSelf: 'center'}} />
             </TouchableOpacity>
@@ -339,13 +337,14 @@ const AddLessonScreen = () => {
               horizontal
               style={styles.flLesson}
               numColumns={1}
-              data={tests}
+              data={documents1}
+              extraData={refreshTest}
               renderItem={({item, index}) => {
                 return (
                   <ItemPdf
-                    title={item}
+                    title={item.name}
                     onPress={() => {
-                      deleteDocument(item.name);
+                      deleteDocument1(item.name);
                     }}
                   />
                 );
@@ -417,6 +416,33 @@ const AddLessonScreen = () => {
       }
     }
   }
+
+  async function pickDocument1() {
+    try {
+      let index = 0;
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
+
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
+
+      //   console.log(newResult)
+      setDocuments1(prevData => [...prevData, result[0]]);
+
+      index++;
+
+      console.log(documents1);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
   async function deleteDocument(value2) {
     try {
       //let index = 0;
@@ -447,6 +473,47 @@ const AddLessonScreen = () => {
 
       setRefreshMaterial(!refreshMaterial);
       console.log(documents);
+      console.log('index: ' + index);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
+
+
+  async function deleteDocument1(value2) {
+    try {
+      //let index = 0;
+      // Let's say it's Bob.
+      // console.log(documents);
+      // console.log(value2);
+
+      var index;
+      documents1.map(temp => {
+        if (temp.name === value2) index = documents1.indexOf(temp);
+      });
+      //var index = documents.indexOf(value2);
+      console.log('index: ' + index);
+      delete documents1[index];
+      for (index; index < documents1.length; index++) {
+        documents1[index] = documents1[index + 1];
+      }
+      documents1.length--;
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
+
+      //   console.log(newResult)
+      //setDocuments(prevData => [...prevData, result[0]]);
+
+      //index++;
+
+      setRefreshTest(!refreshTest);
+      console.log(documents1);
       console.log('index: ' + index);
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
@@ -529,10 +596,44 @@ const AddLessonScreen = () => {
     }
   };
 
+  const handleUpload1 = async () => {
+    await requestStoragePermission();
+
+    if (documents1) {
+      try {
+        const urls = [];
+        for (const document of documents1) {
+          const blob = await uriToBlob(document.uri);
+          console.log(blob);
+          const reference = storage().ref().child(`files/${Date.now()}`);
+          const task = reference.put(blob);
+
+          task.on('state_changed', snapshot => {
+            console.log(document);
+            console.log(
+              `${
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+              }% completed`,
+            );
+          });
+
+          await task;
+          const url = await reference.getDownloadURL();
+          console.log('File uploaded to Firebase storage:', url);
+          urls.push(url);
+        }
+        return urls;
+      } catch (error) {
+        Alert.alert(error.message);
+      }
+    }
+  };
+
   const now = firebase.firestore.Timestamp.now();
 
   const addLesson = async () => {
     const fileUrls = await handleUpload();
+    const fileUrls1 = await handleUpload1();
 
     await firebase
       .firestore()
@@ -543,6 +644,7 @@ const AddLessonScreen = () => {
         chapterTitle: myChapter,
         lessonTitle: title,
         files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
+        tests: firebase.firestore.FieldValue.arrayUnion(...fileUrls1),
       })
       .then(() => {
         Alert.alert('Add Lesson Successfully!');

@@ -73,20 +73,20 @@ const CourseDetailScreen = ({route}) => {
 
   const [name, setName] = useState('');
 
-  useEffect(() => {
-    const db = firebase.firestore();
-    const query = db.collection('courses')
-    .where('title', '==', preItem.title)
-    .where('author', '==', preItem.author)
-    const unsubscribe = query.onSnapshot((querySnapshot) => {
-      if (!querySnapshot.empty) {
-        const doc = querySnapshot.docs[0];
-      } else {
-        console.log('No such document!');
-      }
-    });
-    return unsubscribe;
-  });
+  // useEffect(() => {
+  //   const db = firebase.firestore();
+  //   const query = db.collection('courses')
+  //   .where('title', '==', preItem.title)
+  //   .where('author', '==', preItem.author)
+  //   const unsubscribe = query.onSnapshot((querySnapshot) => {
+  //     if (!querySnapshot.empty) {
+  //       const doc = querySnapshot.docs[0];
+  //     } else {
+  //       console.log('No such document!');
+  //     }
+  //   });
+  //   return unsubscribe;
+  // });
 
   useEffect(() => {
     firebase
@@ -126,7 +126,7 @@ const CourseDetailScreen = ({route}) => {
         console.log('favor2')
         setFavorite(false)}
     })
-  }, [preItem.title, preItem.author])
+  }, [chapters, lessons, evaluation])
 
 
 
