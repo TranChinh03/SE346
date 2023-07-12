@@ -7,8 +7,9 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
+  Alert
 } from 'react-native';
-import React, {Component} from 'react';
+import React, {Component, useEffect, useState} from 'react';
 import {IMG_BG1} from '../src/assets/img';
 import BackButton from '../src/components/backButton';
 import BtnTick from '../src/components/BtnTick';
@@ -22,99 +23,243 @@ import CourseAttendedBox from '../src/components/courseAttendedBox';
 import LessonBox from '../src/components/lessonBox';
 import LessonBox2 from '../src/components/LessonBox2';
 import BtnDelete from '../src/components/BtnDelete';
+import { useNavigation } from '@react-navigation/native';
+import {firebase} from '../configs/FirebaseConfig'
+import uuid from 'react-native-uuid';
 
-const data = [
-  {
-    id: 'content1',
-    time: '20h',
-    title: 'C++ for beginers 2023',
-    lectureName: 'Tran Minh Chinh',
-  },
-  {
-    id: 'dropdown',
-    time: '20h',
-    title: 'C++ for beginers 2023',
-    lectureName: 'Tran ',
-  },
-  {
-    id: 'content2',
-    time: '20h',
-    title: 'C++ for beginers 2023',
-    lectureName: 'Tran Minh Chinh',
-  },
-];
+const  EditChapterScreen = ({route})  => {
+  const {preItem} = route.params;
+  const navigation = useNavigation();
+  const [lessons, setLessons] = useState([])
+  const [title, setTitle] = useState('')
+  const [name, setName] = useState('')
 
-export default class EditChapterScreen extends Component {
-  render() {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ImageBackground
-          style={styles.vwImg}
-          source={IMG_BG1}
-          resizeMode="cover">
-          <View style={styles.vwTitle}>
-            <BackButton onPress={() => this.props.navigation.goBack()} />
-            <Text style={styles.txtHeader}>Edit Chapter</Text>
-          </View>
-        </ImageBackground>
-        <View style={styles.content}>
+
+  useEffect (() => {
+    LessonList().then(data => setLessons(data));
+  }, [preItem.title, preItem.courseAuthor, lessons])
+
+  useEffect(() => {
+    firebase.firestore().collection('users')
+    .doc(firebase.auth().currentUser.uid).get()
+    .then((snapshot) => {
+      if(snapshot.exists)
+      {
+        setName(snapshot.data())
+        setTitle(preItem.title)
+        console.log('preItem',preItem)
+        console.log('title',title)
+      }
+      else {
+        console.log('User does not exist')
+      }
+    })
+  }, [])
+
+  
+  async function LessonList() {
+    const lessonRef = firebase.firestore().collection('lessons');
+    const lessonSnapshot = await lessonRef.get();
+    const lessonData = lessonSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    const joinedData = lessonData
+      .filter(
+        filter =>
+          filter.courseAuthor === preItem.courseAuthor &&
+          filter.courseTitle === preItem.courseTitle &&
+          filter.chapterTitle === preItem.title
+      )
+    return joinedData;
+  }
+
+  const updateChapter = async() => {
+    console.log('title1',title)
+    if ( title !== '') {
+      firebase
+      .firestore()
+      .collection('chapters')
+      .where('title', '==', preItem.title)
+      .where('courseTitle', '==', preItem.courseTitle)
+      .where('courseAuthor', '==', preItem.courseAuthor)
+      .get().then((querrySnapshot) => {
+        if(!querrySnapshot.empty)
+        {
+          const documentId = querrySnapshot.docs[0].id
+          firebase
+          .firestore()
+          .collection('chapters')
+          .doc(documentId)
+          .update({
+            title: title
+          })
+    
+          firebase
+          .firestore()
+          .collection('lessons')
+          .where('courseTitle', '==', preItem.courseTitle)
+          .where('courseAuthor', '==', preItem.courseAuthor)
+          .where('chapterTitle', '==', preItem.title)
+          .get().then((querrySnapshot) => {
+            if(!querrySnapshot.empty)
+            {
+              querrySnapshot.forEach((doc) => {
+                const documentId1 = doc.id
+                firebase
+                .firestore()
+                .collection('lessons')
+                .doc(documentId1)
+                .update({
+                  chapterTitle: title
+                })
+              })
+            }
+          })
+
+          Alert.alert('Edit chapter sucessfully!')
+        }
+        else {
+          Alert.alert('Please fill full enough information!');
+        }
+        })}
+  }
+
+  const data = [
+    { id: 'content1', type: 'content1' },
+    { id: 'content2', type: 'content2' },
+  ];
+
+  const handleDelete = (item) => {
+    Alert.alert(
+      'Delete Lesson',
+      'Are you sure you want to delete this lesson?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            firebase
+            .firestore()
+            .collection('lessons')
+            .where('courseTitle', '==', item.courseTitle)
+            .where('courseAuthor', '==', item.courseAuthor)
+            .where('chapterTitle', '==', item.chapterTitle)
+            .where('lessonTitle', '==', item.lessonTitle)
+            .get().then((querrySnapshot) => {
+              if(!querrySnapshot.empty)
+              {
+                querrySnapshot.forEach((doc) => {
+                  const documentId1 = doc.id
+                  firebase
+                  .firestore()
+                  .collection('lessons')
+                  .doc(documentId1)
+                  .delete()
+                  .then(() => {
+                    console.log('Lesson is deleted!')
+                  })
+                })
+              }
+            })
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const renderItem = ({item}) => {
+    if(item.type ==='content1'){
+      return  (
+        <View>
           <Text style={styles.txtChapter}>Chapter name</Text>
           <TextInput
+            cursorColor={CUSTOM_COLORS.usBlue}
+            multiline
             style={styles.txbChapterName}
-            //placehoder={'Name your meeting'}
+            onChangeText={(myTitle) =>setTitle(myTitle)}
           >
-            First C++ Program
+            {preItem.title}
           </TextInput>
           <Text style={styles.txtChapter}>Lesson</Text>
           <TouchableOpacity
             style={styles.conAddLesson}
-            onPress={() => this.props.navigation.navigate('AddLessonScreen')}>
+            onPress={() => navigation.navigate('AddLessonScreen')}
+            >
             <Text style={styles.txtInfo}>Add Lesson</Text>
             <IC_RightArrow2 />
           </TouchableOpacity>
-          <View style={{flexDirection: 'row', flex: 1.5}}>
-            <FlatList
-              style={{
-                marginTop: scale(20, 'h'),
-                marginLeft: scale(5, 'h'),
-                marginBottom: scale(80, 'h'),
-              }}
-              showsVerticalScrollIndicator={false}
-              scrollEnabled={true}
-              numColumns={1}
-              data={data}
-              renderItem={({item, index}) => {
-                return (
-                  <LessonBox2
-                    //onPress={() => this.props.navigation.navigate('EditLesson')}
-                    onPress={() => {}}
-                    title={item.title}
-                    time={item.time}
-                  />
-                );
-              }}
-            />
-            <FlatList
-              style={{
-                marginTop: scale(20, 'h'),
-                marginLeft: scale(5, 'h'),
-                marginBottom: scale(80, 'h'),
-              }}
-              scrollEnabled={true}
-              numColumns={1}
-              data={data}
-              renderItem={({item, index}) => {
-                return <BtnDelete title={item.title} time={item.time} />;
-              }}
-            />
-          </View>
         </View>
-
-        <BtnTick />
-      </SafeAreaView>
-    );
+      )
+    }
+    else
+    {
+      return (
+        <View>
+          <View style={{flexDirection: 'row', flex: 1.5}}>
+          <FlatList
+            style={{
+              marginTop: scale(20, 'h'),
+              marginLeft: scale(5, 'h'),
+              marginBottom: scale(80, 'h'),
+            }}
+            showsVerticalScrollIndicator={false}
+            scrollEnabled={true}
+            numColumns={1}
+            data={lessons}
+            renderItem={({item, index}) => {
+              return (
+                <LessonBox2
+                  onPress={() => navigation.navigate('EditLesson', {preItem: item})}
+                  title={item.lessonTitle}
+                  time={item.time}
+                  onDeletedPress = {() => handleDelete(item)}
+                />
+              );
+            }}
+          />
+        </View>
+        <View style={styles.space}>
+            <View style={[styles.space]}></View>
+        </View>
+        </View>
+      )
+    }
   }
+
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ImageBackground
+        style={styles.vwImg}
+        source={IMG_BG1}
+        resizeMode="cover">
+        <View style={styles.vwTitle}>
+          <BackButton onPress={() => navigation.goBack()} />
+          <Text style={styles.txtHeader}>Edit Chapter</Text>
+        </View>
+      </ImageBackground>
+      <View style={styles.content}>
+        <FlatList
+            data={data}
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={item => item.id = uuid.v4()}
+            renderItem={renderItem}
+          />
+      </View>
+
+      <BtnTick onPress={() => (updateChapter(), navigation.goBack)}/>
+    </SafeAreaView>
+  );
 }
+
+export default EditChapterScreen
 
 const styles = StyleSheet.create({
   container: {
@@ -178,14 +323,14 @@ const styles = StyleSheet.create({
     height: scale(85, 'h'),
     width: scale(320, 'w'),
     borderColor: CUSTOM_COLORS.usBlue,
-    borderWidth: scale(0.75, 'w'),
+    borderWidth: scale(1, 'w'),
     borderRadius: scale(15, 'w'),
     alignSelf: 'flex-start',
     justifyContent: 'flex-start',
     //numberOfLines: 2,
     textAlignVertical: 'top',
     color: CUSTOM_COLORS.usBlue,
-    fontSize: CUSTOM_SIZES.large,
+    fontSize: scale(17, 'w'),
     padding: scale(15, 'w'),
   },
   txtChapter: {
@@ -212,5 +357,9 @@ const styles = StyleSheet.create({
     color: CUSTOM_COLORS.usBlue,
     fontFamily: CUSTOM_FONTS.regular,
     fontSize: CUSTOM_SIZES.medium,
+  },
+  space: {
+    height: scale(100, 'h'),
+    // backgroundColor: 'pink',
   },
 });

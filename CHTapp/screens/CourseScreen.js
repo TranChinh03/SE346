@@ -66,13 +66,13 @@ const CourseScreen = ({route}) => {
     const authorSnapshot = await authorRef.get();
     const authorData = authorSnapshot.docs.map(doc => doc.data());
 
+
     const joinedData = courseData
       .filter(filter => filter.author === curEmail)
       .map(firstItem => {
         const secondItem = authorData.find(
           item => item.email === firstItem.author,
         );
-
         return {...firstItem, ...secondItem};
       });
 
@@ -91,23 +91,34 @@ const CourseScreen = ({route}) => {
     const authorSnapshot = await authorRef.get();
     const authorData = authorSnapshot.docs.map(doc => doc.data());
 
-    const joinedData = authorData
+    const userRef = firebase.firestore().collection('users');
+    const userSnapshot = await userRef.get();
+    const userData = userSnapshot.docs.map(doc => doc.data());
+
+    const joinedData = userData
       .filter(filter => filter.email === curEmail)
       .map(firstItem => {
         let secondItem;
-        firstItem.favoriteCourses.find(subItem => {
-          if (subItem.isFavor === true) {
-            secondItem = courseData.find(
-              item =>
-                item.title === subItem.courseTitle &&
-                item.author === subItem.courseAuthor,
-            );
-          }
-        });
-
-        return {...firstItem, ...secondItem};
+        let thirdItem;
+        if (firstItem.favoriteCourses){
+          firstItem.favoriteCourses.find(subItem => {
+            if (subItem.isFavor === true) {
+              secondItem = courseData.find(
+                item =>
+                  item.title === subItem.courseTitle &&
+                  item.author === subItem.courseAuthor,
+              );
+              thirdItem = authorData.find(
+                item => item.email === secondItem.author
+              )
+            }
+          }); 
+          return {...firstItem, ...secondItem, ...thirdItem}; 
+        }
+        else {
+          return;
+        }
       });
-
     return joinedData;
   }
 
@@ -183,7 +194,7 @@ const CourseScreen = ({route}) => {
               onPress={() =>
                 navigation.navigate('CourseStack', {
                   screen: 'CourseDetail',
-                  params: {item: item},
+                  params: {preItem: item},
                 })
               }
             />
@@ -191,7 +202,7 @@ const CourseScreen = ({route}) => {
         }}
         ItemSeparatorComponent={() => <View style={{height: scale(20, 'h')}} />}
         showsVerticalScrollIndicator={false}
-        keyExtractor={item => item.id}></FlatList>
+        keyExtractor={item => item.id} ></FlatList>
     );
   };
 
@@ -200,7 +211,9 @@ const CourseScreen = ({route}) => {
       ? renderCourses(allCourses)
       : currentPage === 'MyCourses'
       ? renderCourses(myCourses)
-      : renderCourses(favorite);
+      : favorite && favorite[0] !== undefined
+      ? renderCourses(favorite)
+      : null;
   };
   return (
     <SafeAreaView style={styles.container}>

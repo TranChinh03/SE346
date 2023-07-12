@@ -23,3 +23,5 @@ export {default as IC_Star} from './IC_Star';
 export {default as IC_Search} from './IC_Search';
 export {default as IC_Heart} from './IC_Heart';
 export {default as IC_Setting} from './IC_Setting';
+export {default as IC_Plus} from './IC_Plus';
+export {default as IC_Download} from './IC_Download';

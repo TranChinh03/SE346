@@ -33,7 +33,14 @@ import {
     const [value, setValue] = useState('');
     const [open1, setOpen1] = useState(false);
     const [value1, setValue1] = useState('');
-    const [course, setCourse] = useState([]);
+    const [myCourse, setMyCourse] = useState([])
+    const [course, setCourse] = useState('');
+    const [name, setName] = useState('')
+    const [time, setTime] = useState('')
+    const [date, setDate] = useState('')
+    const [link, setLink] = useState('')
+    const [language, setLanguage] = useState('')
+    const [host, setHost] = useState('')
 
     const [myCourse, setMyCourse] = useState('');
 
@@ -44,7 +51,6 @@ import {
     const [link, setLink] = useState('')
 
     const navigation = useNavigation();
-
 
     useEffect(() => {
       firebase
@@ -131,7 +137,7 @@ import {
       }
     }
 
-    
+  
 
       return (
         <SafeAreaView style={styles.container}>

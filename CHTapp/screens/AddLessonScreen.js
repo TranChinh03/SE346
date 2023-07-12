@@ -22,7 +22,7 @@ import ListItemCustom from '../src/components/ListItemCustom';
 import CUSTOM_FONTS from '../src/constants/fonts';
 import CUSTOM_SIZES from '../src/constants/size';
 import CUSTOM_COLORS from '../src/constants/colors';
-import {IC_Camera} from '../src/assets/iconsvg';
+import {IC_Camera, IC_Plus} from '../src/assets/iconsvg';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {SpeedDial} from '@rneui/themed';
 import LessonBox from '../src/components/lessonBox';
@@ -49,6 +49,9 @@ var titles = [
 ];
 
 const AddLessonScreen = () => {
+  const [refreshMaterial, setRefreshMaterial] = useState(false);
+  const [refreshTest, setRefreshTest] = useState(false);
+  const [typeDoc, setTypeDoc] = useState(1);
   const navigation = useNavigation();
   const [shouldShow, setShouldShow] = useState(false);
   const [open, setOpen] = useState(false);
@@ -60,7 +63,8 @@ const AddLessonScreen = () => {
   const [course, setCourse] = useState([]);
   const [files, setFiles] = useState([]);
   const [documents, setDocuments] = useState([]);
-
+  const [tests, setTests] = useState([]);
+  const [documents1, setDocuments1] = useState([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [myChapter, setMyChapter] = useState('');
@@ -68,6 +72,7 @@ const AddLessonScreen = () => {
   const [myCourse, setMyCourse] = useState('');
 
   const [name, setName] = useState('');
+
 
   useEffect(() => {
     firebase
@@ -135,7 +140,9 @@ const AddLessonScreen = () => {
   };
 
   const renderItem = ({item}) => {
-    if (item.type === 'content1') {
+    if (item.type === 'space') {
+      return <View style={{height: scale(100, 'h')}} />;
+    } else if (item.type === 'content1') {
       return (
         <View>
           <Text style={styles.txtTiltle}>Title</Text>
@@ -196,12 +203,12 @@ const AddLessonScreen = () => {
               scrollViewProps={{nestedScrollEnabled: true}}
               // mode="BADGE"
               // badgeDotColors={['#e76f51', '#00b4d8']}
-              onChangeValue={(value) => {
+              onChangeValue={value => {
                 // Find the selected item
                 const selectedItem = chapter.find(item => item.value === value);
                 // Set the myCourse state to the label of the selected item
                 if (selectedItem) {
-                  setMyChapter(selectedItem.label)
+                  setMyChapter(selectedItem.label);
                 }
               }}
             />
@@ -294,33 +301,53 @@ const AddLessonScreen = () => {
             />
           </View> */}
           <Text style={styles.txtTiltle}>Material</Text>
-          <View style={{marginLeft: scale(15, 'w'), flexDirection: 'row'}}>
+          <View style={{marginLeft: scale(15, 'w')}}>
             {/* <TouchableOpacity style={styles.btnBorder}>
                 <Text style={styles.txtDelete}>-</Text>
               </TouchableOpacity> */}
-            <TouchableOpacity onPress={pickDocument} style={styles.fixedButton}>
-              <Text style={styles.start}>+</Text>
+            <TouchableOpacity onPress={pickDocument} style={styles.btnImport}>
+              <Text style={styles.start}>Import from your device</Text>
+              <IC_Plus style={{alignSelf: 'center'}} />
             </TouchableOpacity>
             <FlatList
               horizontal
               numColumns={1}
+              style={styles.flLesson}
               data={documents}
+              extraData={refreshMaterial}
               renderItem={({item, index}) => {
-                return <ItemPdf title={item.name} />;
+                return (
+                  <ItemPdf
+                    title={item.name}
+                    onPress={() => {
+                      deleteDocument(item.name);
+                    }}
+                  />
+                );
               }}
             />
           </View>
           <Text style={styles.txtTiltle}>Test</Text>
-          <View style={{marginLeft: scale(15, 'w'), flexDirection: 'row'}}>
-            <TouchableOpacity style={styles.btnBorder}>
-              <Text style={styles.txtDelete}>-</Text>
+          <View style={{marginLeft: scale(15, 'w')}}>
+            <TouchableOpacity onPress={pickDocument1} style={styles.btnImport}>
+              <Text style={styles.start}>Import from your device</Text>
+              <IC_Plus style={{alignSelf: 'center'}} />
             </TouchableOpacity>
             <FlatList
               horizontal
+              style={styles.flLesson}
               numColumns={1}
-              data={titles}
+              data={documents1}
+              extraData={refreshTest}
               renderItem={({item, index}) => {
-                return <ItemPdf title={item} />;
+                return (
+                  <ItemPdf
+                    title={item.name}
+                    onPress={() => {
+                      deleteDocument1(item.name);
+                    }}
+                  />
+                );
               }}
             />
           </View>
@@ -337,6 +364,7 @@ const AddLessonScreen = () => {
     {id: 'content1', type: 'content1'},
     {id: 'dropdown', type: 'dropdown'},
     {id: 'content2', type: 'content2'},
+    {id: 'space', type: 'space'},
   ];
 
   useEffect(() => {
@@ -380,6 +408,113 @@ const AddLessonScreen = () => {
       index++;
 
       console.log(documents);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  async function pickDocument1() {
+    try {
+      let index = 0;
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
+
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
+
+      //   console.log(newResult)
+      setDocuments1(prevData => [...prevData, result[0]]);
+
+      index++;
+
+      console.log(documents1);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
+  async function deleteDocument(value2) {
+    try {
+      //let index = 0;
+      // Let's say it's Bob.
+      // console.log(documents);
+      // console.log(value2);
+
+      var index;
+      documents.map(temp => {
+        if (temp.name === value2) index = documents.indexOf(temp);
+      });
+      //var index = documents.indexOf(value2);
+      console.log('index: ' + index);
+      delete documents[index];
+      for (index; index < documents.length; index++) {
+        documents[index] = documents[index + 1];
+      }
+      documents.length--;
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
+
+      //   console.log(newResult)
+      //setDocuments(prevData => [...prevData, result[0]]);
+
+      //index++;
+
+      setRefreshMaterial(!refreshMaterial);
+      console.log(documents);
+      console.log('index: ' + index);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
+
+
+  async function deleteDocument1(value2) {
+    try {
+      //let index = 0;
+      // Let's say it's Bob.
+      // console.log(documents);
+      // console.log(value2);
+
+      var index;
+      documents1.map(temp => {
+        if (temp.name === value2) index = documents1.indexOf(temp);
+      });
+      //var index = documents.indexOf(value2);
+      console.log('index: ' + index);
+      delete documents1[index];
+      for (index; index < documents1.length; index++) {
+        documents1[index] = documents1[index + 1];
+      }
+      documents1.length--;
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
+
+      //   console.log(newResult)
+      //setDocuments(prevData => [...prevData, result[0]]);
+
+      //index++;
+
+      setRefreshTest(!refreshTest);
+      console.log(documents1);
+      console.log('index: ' + index);
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         // User cancelled the picker
@@ -461,10 +596,44 @@ const AddLessonScreen = () => {
     }
   };
 
+  const handleUpload1 = async () => {
+    await requestStoragePermission();
+
+    if (documents1) {
+      try {
+        const urls = [];
+        for (const document of documents1) {
+          const blob = await uriToBlob(document.uri);
+          console.log(blob);
+          const reference = storage().ref().child(`files/${Date.now()}`);
+          const task = reference.put(blob);
+
+          task.on('state_changed', snapshot => {
+            console.log(document);
+            console.log(
+              `${
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+              }% completed`,
+            );
+          });
+
+          await task;
+          const url = await reference.getDownloadURL();
+          console.log('File uploaded to Firebase storage:', url);
+          urls.push(url);
+        }
+        return urls;
+      } catch (error) {
+        Alert.alert(error.message);
+      }
+    }
+  };
+
   const now = firebase.firestore.Timestamp.now();
 
   const addLesson = async () => {
     const fileUrls = await handleUpload();
+    const fileUrls1 = await handleUpload1();
 
     await firebase
       .firestore()
@@ -475,6 +644,7 @@ const AddLessonScreen = () => {
         chapterTitle: myChapter,
         lessonTitle: title,
         files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
+        tests: firebase.firestore.FieldValue.arrayUnion(...fileUrls1),
       })
       .then(() => {
         Alert.alert('Add Lesson Successfully!');
@@ -495,7 +665,8 @@ const AddLessonScreen = () => {
           showsVerticalScrollIndicator={false}
           data={data}
           renderItem={renderItem}
-          keyExtractor={item => item.id}></FlatList>
+          keyExtractor={item => item.id}
+        />
       </View>
 
       <BtnTick
@@ -526,13 +697,15 @@ const styles = StyleSheet.create({
   content: {
     flex: 5,
     //backgroundColor: 'pink',
+    width: '98%',
+    alignSelf: 'center',
   },
   flLesson: {
     marginVertical: scale(15, 'h'),
     //backgroundColor: 'red',
     //alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
+    //justifyContent: 'center',
+    //flexDirection: 'row',
   },
   vwImg: {
     flex: 1.3,
@@ -708,8 +881,19 @@ const styles = StyleSheet.create({
     elevation: 7,
   },
   start: {
-    fontSize: scale(25, 'w'),
-    fontWeight: '300',
-    color: CUSTOM_COLORS.white,
+    fontSize: scale(12, 'w'),
+    fontFamily: CUSTOM_FONTS.regular,
+    color: CUSTOM_COLORS.usBlue,
+    alignSelf: 'center',
+  },
+  btnImport: {
+    height: scale(45, 'h'),
+    width: scale(200, 'h'),
+    borderWidth: scale(0.75, 'h'),
+    borderColor: CUSTOM_COLORS.usBlue,
+    borderRadius: scale(15, 'w'),
+    justifyContent: 'space-between',
+    padding: scale(10, 'w'),
+    flexDirection: 'row',
   },
 });

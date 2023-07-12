@@ -31,9 +31,11 @@ import {useNavigation} from '@react-navigation/native';
 import BtnDelete from '../src/components/BtnDelete';
 import BtnTick from '../src/components/BtnTick';
 import {firebase} from '../configs/FirebaseConfig'
+import uuid from 'react-native-uuid';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker'
 import {utils} from '@react-native-firebase/app'
 import storage from '@react-native-firebase/storage'
+
 const EditCourseScreen = ({route}) => {
   const {preItem} = route.params;
   const navigation = useNavigation();
@@ -65,6 +67,11 @@ const EditCourseScreen = ({route}) => {
   const [name, setName] = useState('')
 
   const [imageUri, setImageUri] = useState(null)
+  const [chapters, setChapters] = useState([])
+
+  useEffect (() => {
+    ChapterList().then(data => setChapters(data));
+  },[preItem.title, preItem.author])
 
 const handleButtonPress = () => {
   const options = {
@@ -112,6 +119,35 @@ const handleUpload = async () => {
       Alert.alert(error.message);
     }
   }
+};
+
+async function ChapterList() {
+  const chapeterRef = firebase.firestore().collection('chapters');
+  const chapterSnapshot = await chapeterRef.get();
+  const chapterData = chapterSnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  const chapterList = chapterData.filter(
+    chapter =>
+      chapter.courseTitle === preItem.title &&
+      chapter.courseAuthor === preItem.author,
+  );
+  return chapterList;
+}
+
+const renderChapterItem = ({item: chapter, index}) => {
+  return (
+    <TouchableOpacity onPress = {() => {navigation.navigate('EditChapter', {preItem: chapter})}}>
+      <View style={styles.horizontalContainer}>
+        <Text style={[styles.normalText2, {fontWeight: '500'}]}>
+          Chapter {index + 1}: {' '}
+        </Text>
+        <Text style={styles.normalText2}>{chapter.title}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 };
 
 
@@ -192,94 +228,22 @@ const handleUpload = async () => {
               onChangeValue={(myLanguage) => setLanguage(myLanguage) }
             />
           </View>
+
+          <View>
+            <Text style= {styles.txtTiltle}>Chapters in this course: </Text>
+            <FlatList
+              data={chapters}
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={item => item.id = uuid.v4()}
+              renderItem={renderChapterItem}
+            />
+          </View>
         </View>
       )
     }
     else {
       return (
         <View>
-          {/* <Text style={styles.txtTiltle}>Chapter</Text> */}
-          {/* <View style={styles.conSpeedDial}>
-            <SpeedDial
-              DropDownPicker="left"
-              flexDirection="right"
-              color={CUSTOM_COLORS.usBlue}
-              style={styles.btnSd}
-              isOpen={openSpeedDial}
-              icon={{name: 'edit', color: '#fff'}}
-              openIcon={{name: 'close', color: '#fff'}}
-              onOpen={() => setOpenSpeedDial(!openSpeedDial)}
-              onClose={() => setOpenSpeedDial(!openSpeedDial)}>
-              <SpeedDial.Action
-                color={CUSTOM_COLORS.usBlue}
-                icon={{name: 'add', color: '#fff'}}
-                title="Chapter"
-
-                //onPress={() => console.log('Add Something')}
-              />
-              <SpeedDial.Action
-                color={CUSTOM_COLORS.usBlue}
-                icon={{name: 'delete', color: '#fff'}}
-                title="Lesson"
-                //onPress={() => console.log('Delete Something')}
-              />
-            </SpeedDial>
-          </View> */}
-          {/* <View style={styles.conSpeedDial}>
-            <TouchableOpacity
-              style={styles.btnSD}
-              onPress={() => setShouldShow(!shouldShow)}>
-              <Text style={styles.txtSD}>+</Text>
-            </TouchableOpacity>
-            {shouldShow ? (
-              <View
-                style={{
-                  height: '100%',
-                  justifyContent: 'space-between',
-                  backfaceVisibility: 'hidden',
-                }}>
-                <TouchableOpacity
-                  style={styles.spAction}
-                  onPress={() =>
-                    navigation.navigate('AddChapterScreen', {
-                      txtHeader: 'Add Chapter',
-                    })
-                  }>
-                  <Text style={styles.txtSDAction}>Chapter</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.spAction}
-                  onPress={() => navigation.navigate('AddLessonScreen')}>
-                  <Text style={styles.txtSDAction}>Lesson</Text>
-                </TouchableOpacity>
-              </View>
-            ) : null}
-          </View> */}
-          {/* <View
-            style={{
-              width: scale(320, 'w'),
-              alignSelf: 'center',
-              marginBottom: scale(15, 'h'),
-              flexDirection: 'row',
-            }}>
-            <FlatList
-              scrollEnabled={false}
-              numColumns={1}
-              data={lesson}
-              renderItem={({item, index}) => {
-                return <LessonBoxAdd title={item.title} time={item.time} />;
-              }}
-            />
-            <FlatList
-              style={{marginTop: scale(10, 'h'), marginLeft: scale(5, 'h')}}
-              scrollEnabled={false}
-              numColumns={1}
-              data={lesson}
-              renderItem={({item, index}) => {
-                return <BtnDelete />;
-              }}
-            />
-          </View> */}
           <View style={styles.space}>
             <View style={[styles.space]}></View>
          </View>
@@ -317,6 +281,7 @@ const handleUpload = async () => {
   const updateCourse = async() => {
 
     const imageUrl = await handleUpload();
+
     console.log('imageUrl', imageUrl)
 
     if ( title !== '' && description !== '' &&language !== '' &&myProgramLanguage !== '' ) {
@@ -329,18 +294,36 @@ const handleUpload = async () => {
         if(!querrySnapshot.empty)
         {
           const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('courses')
-          .doc(documentId)
-          .update({
-            title : title,
-            description: description,
-            language: language,
-            programLanguage: myProgramLanguage,
-            lastUpdate: now,
-            image: imageUrl,
-          })
+          if(imageUrl) {
+            console.log ("Hi")
+            firebase
+            .firestore()
+            .collection('courses')
+            .doc(documentId)
+            .update({
+              title : title,
+              description: description,
+              language: language,
+              programLanguage: myProgramLanguage,
+              lastUpdate: now,
+              image: imageUrl,
+            })
+          }
+          else {
+            console.log("Hello")
+            firebase
+            .firestore()
+            .collection('courses')
+            .doc(documentId)
+            .update({
+              title : title,
+              description: description,
+              language: language,
+              programLanguage: myProgramLanguage,
+              lastUpdate: now,
+              image: '',
+            })
+          }
         }
       })
 
@@ -352,32 +335,15 @@ const handleUpload = async () => {
       .get().then((querrySnapshot) => {
         if(!querrySnapshot.empty)
         {
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('chapters')
-          .doc(documentId)
-          .update({
-            courseTitle: title
-          })
-        }
-      })
-
-      firebase
-      .firestore()
-      .collection('chapters')
-      .where('courseTitle', '==', preItem.title)
-      .where('courseAuthor', '==', name.email)
-      .get().then((querrySnapshot) => {
-        if(!querrySnapshot.empty)
-        {
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('chapters')
-          .doc(documentId)
-          .update({
-            courseTitle: title
+          querrySnapshot.forEach((doc) => {
+            const documentId = doc.id
+            firebase
+            .firestore()
+            .collection('chapters')
+            .doc(documentId)
+            .update({
+              courseTitle: title
+            })
           })
         }
       })
@@ -390,32 +356,15 @@ const handleUpload = async () => {
       .get().then((querrySnapshot) => {
         if(!querrySnapshot.empty)
         {
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('evaluate')
-          .doc(documentId)
-          .update({
-            courseTitle: title
-          })
-        }
-      })
-
-      firebase
-      .firestore()
-      .collection('chapters')
-      .where('courseTitle', '==', preItem.title)
-      .where('courseAuthor', '==', name.email)
-      .get().then((querrySnapshot) => {
-        if(!querrySnapshot.empty)
-        {
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('chapters')
-          .doc(documentId)
-          .update({
-            courseTitle: title
+          querrySnapshot.forEach((doc) => {
+            const documentId = doc.id
+            firebase
+            .firestore()
+            .collection('evaluate')
+            .doc(documentId)
+            .update({
+              courseTitle: title
+            })
           })
         }
       })
@@ -428,36 +377,45 @@ const handleUpload = async () => {
       .get().then((querrySnapshot) => {
         if(!querrySnapshot.empty)
         {
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('lessons')
-          .doc(documentId)
-          .update({
-            courseTitle: title
+          querrySnapshot.forEach((doc) => {
+            const documentId = doc.id
+            firebase
+            .firestore()
+            .collection('lessons')
+            .doc(documentId)
+            .update({
+              courseTitle: title
+            })
           })
         }
       })
 
+      
       firebase
       .firestore()
-      .collection('study')
-      .where('courseTitle', '==', preItem.title)
-      .where('courseAuthor', '==', name.email)
+      .collection('users')
       .get().then((querrySnapshot) => {
-        if(!querrySnapshot.empty)
-        {
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('study')
-          .doc(documentId)
-          .update({
-            courseTitle: title
-          })
-        }
+        querrySnapshot.forEach((doc) => {
+          if(doc.exists) {
+            const documentId = doc.id
+            const courses = doc.data().favoriteCourses;
+            if(courses) {
+              const index = courses.findIndex((course) => course.courseTitle === preItem.title && course.courseAuthor === name.email)
+              if (index !== -1) {
+                courses[index].courseTitle = title
+                firebase
+                .firestore()
+                .collection('users')
+                .doc(documentId)
+                .update({
+                  favoriteCourses: courses
+                })
+              }
+            }
+
+          }
+        })
       })
-    
     }
     else {
       Alert.alert('Please fill full enough information!');
@@ -488,7 +446,7 @@ const handleUpload = async () => {
         updateCourse()
         navigation.navigate('CourseStack', {
                   screen: 'CourseDetail',
-                  params: {item: preItem},
+                  params: {preItem: preItem},
                 })
       }} />
     </SafeAreaView>
@@ -684,5 +642,16 @@ const styles = StyleSheet.create({
   space: {
     height: scale(200, 'h'),
     // backgroundColor: 'pink',
+  },
+  horizontalContainer: {
+    flexDirection: 'row',
+    marginTop: scale(10, 'h'),
+    alignItems: 'center',
+    marginLeft: scale(30, 'w'),
+  },
+  normalText2: {
+    color: CUSTOM_COLORS.black,
+    fontSize: CUSTOM_SIZES.medium,
+    textDecorationLine: 'underline'
   },
 });

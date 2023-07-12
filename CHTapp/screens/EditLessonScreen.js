@@ -68,8 +68,9 @@ const data = [
   },
 ];
 
-const EditLessonScreen = () => {
-  //const navigation = useNavigation();
+const EditLessonScreen = ({route}) => {
+  const {preItem} = route.params;
+  const navigation = useNavigation();
   const [shouldShow, setShouldShow] = useState(false);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
@@ -80,7 +81,9 @@ const EditLessonScreen = () => {
   const [course, setCourse] = useState([]);
   const [files, setFiles] = useState([]);
   const [documents, setDocuments] = useState([]);
+  const [tests, setTests] = useState([])
 
+  const [documents1, setDocuments1] = useState([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [myChapter, setMyChapter] = useState('');
@@ -89,70 +92,198 @@ const EditLessonScreen = () => {
 
   const [name, setName] = useState('');
 
-  //   useEffect(() => {
-  //     firebase
-  //       .firestore()
-  //       .collection('users')
-  //       .doc(firebase.auth().currentUser.uid)
-  //       .get()
-  //       .then(snapshot => {
-  //         if (snapshot.exists) {
-  //           setName(snapshot.data());
-  //         } else {
-  //           console.log('User does not exist');
-  //         }
-  //       });
-  //   }, []);
+  const [materials, setMaterials] = useState([]);
+  const [refreshMaterial, setRefreshMaterial] = useState(false);
+  const [refreshTests, setRefreshTests] = useState(false);
 
-  //   useEffect(() => {
-  //     const fetchData = async () => {
-  //       // Check if name.email is defined
-  //       if (name.email) {
-  //         // Fetch data from Firestore and filter the results
-  //         const querySnapshot = await firebase
-  //           .firestore()
-  //           .collection('courses')
-  //           .where('author', '==', name.email)
-  //           .get();
+  useEffect(() => {
+    firebase.firestore().collection('users')
+    .doc(firebase.auth().currentUser.uid).get()
+    .then((snapshot) => {
+      if(snapshot.exists)
+      {
+        setName(snapshot.data())
+        setTitle(preItem.lessonTitle)
+      }
+      else {
+        console.log('User does not exist')
+      }
+    })
+  }, [])
 
-  //         // Update the state with the new data
-  //         let index = 0;
-  //         querySnapshot.forEach(documentSnapshot => {
-  //           const fieldValue = documentSnapshot.get('title');
-  //           setCourse(prevData => [
-  //             ...prevData,
-  //             {label: fieldValue, value: index.toString()},
-  //           ]);
-  //           index++;
-  //         });
-  //       }
-  //     };
+  async function MaterialList() {
+    const lessonRef = firebase.firestore().collection('lessons');
+    const lessonSnapshot = await lessonRef.get();
+    const lessonData = lessonSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-  //     fetchData();
-  //   }, [name.email]);
+    const joinedData = lessonData
+      .filter(
+        filter =>
+          filter.courseAuthor === preItem.courseAuthor &&
+          filter.courseTitle === preItem.courseTitle &&
+          filter.chapterTitle === preItem.chapterTitle &&
+          filter.lessonTitle === preItem.lessonTitle
+      )
+    const finalData = 
+      joinedData[0].files
+      .map((file) => firebase.storage().refFromURL(file))
+    return finalData;
+  }
 
-  //   const chapterList = async curCourse => {
-  //     if (curCourse) {
-  //       // Fetch data from Firestore and filter the results
-  //       const querySnapshot = await firebase
-  //         .firestore()
-  //         .collection('chapters')
-  //         .where('courseAuthor', '==', name.email)
-  //         .where('courseTitle', '==', curCourse)
-  //         .get();
+  async function TestList() {
+    const lessonRef = firebase.firestore().collection('lessons');
+    const lessonSnapshot = await lessonRef.get();
+    const lessonData = lessonSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-  //       // Update the state with the new data
-  //       let index = 0;
-  //       querySnapshot.forEach(documentSnapshot => {
-  //         const fieldValue = documentSnapshot.get('title');
-  //         setChapter(prevData => [
-  //           ...prevData,
-  //           {label: fieldValue, value: index.toString()},
-  //         ]);
-  //         index++;
-  //       });
-  //     }
-  //   };
+    const joinedData = lessonData
+      .filter(
+        filter =>
+          filter.courseAuthor === preItem.courseAuthor &&
+          filter.courseTitle === preItem.courseTitle &&
+          filter.chapterTitle === preItem.chapterTitle &&
+          filter.lessonTitle === preItem.lessonTitle
+      )
+
+      console.log('joinedData', joinedData)
+    if(joinedData[0].tests || joinedData[0].tests.length !== 0 && joinedData[0].tests[0]!== null){
+      console.log("Hello1")
+      const finalData = 
+      joinedData[0].tests
+      .map((file) => firebase.storage().refFromURL(file))
+
+      return finalData;
+    }
+    console.log("Hello2")
+    return;
+
+  }
+
+  useEffect(() => {
+    MaterialList().then(data => setMaterials(data))
+    TestList().then(data => setTests(data))
+
+    console.log('tests', tests)
+  }, [])
+
+  const handleDelete = (item) => {
+    console.log('item', item)
+    Alert.alert(
+      'Delete Material',
+      'Are you sure you want to delete this material?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+
+            const storageRef = item;
+            storageRef
+              .getDownloadURL()
+              .then((url) => {
+                console.log('url', url)
+                firebase
+                .firestore()
+                .collection('lessons')
+                .where('courseTitle', '==', preItem.courseTitle)
+                .where('courseAuthor', '==', preItem.courseAuthor)
+                .where('chapterTitle', '==', preItem.chapterTitle)
+                .where('lessonTitle', '==', preItem.lessonTitle)
+                .get().then((querrySnapshot) => {
+                  if(!querrySnapshot.empty)
+                  {
+                    querrySnapshot.forEach((doc) => {
+                      const documentId1 = doc.id
+                      firebase
+                      .firestore()
+                      .collection('lessons')
+                      .doc(documentId1)
+                      .update({
+                        files: firebase.firestore.FieldValue.arrayRemove(url)
+                      })
+                      .then(() => {
+                        Alert.alert('File is deleted!')
+                      })
+                    })
+                  }
+                })
+              })
+              .catch((error) => {
+                console.log(error.message)
+              });
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  }
+
+
+  const handleDelete1 = (item) => {
+    console.log('item', item)
+    Alert.alert(
+      'Delete Material',
+      'Are you sure you want to delete this material?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+
+            const storageRef = item;
+            storageRef
+              .getDownloadURL()
+              .then((url) => {
+                console.log('url', url)
+                firebase
+                .firestore()
+                .collection('lessons')
+                .where('courseTitle', '==', preItem.courseTitle)
+                .where('courseAuthor', '==', preItem.courseAuthor)
+                .where('chapterTitle', '==', preItem.chapterTitle)
+                .where('lessonTitle', '==', preItem.lessonTitle)
+                .get().then((querrySnapshot) => {
+                  if(!querrySnapshot.empty)
+                  {
+                    querrySnapshot.forEach((doc) => {
+                      const documentId1 = doc.id
+                      firebase
+                      .firestore()
+                      .collection('lessons')
+                      .doc(documentId1)
+                      .update({
+                        tests: firebase.firestore.FieldValue.arrayRemove(url)
+                      })
+                      .then(() => {
+                        Alert.alert('File is deleted!')
+                      })
+                    })
+                  }
+                })
+              })
+              .catch((error) => {
+                console.log(error.message)
+              });
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  }
+
 
   const renderItem = ({item}) => {
     if (item.type === 'content1') {
@@ -162,64 +293,14 @@ const EditLessonScreen = () => {
           <TextInput
             multiline
             style={styles.txtInput}
-            // onChangeText={myTitle => setTitle(myTitle)}
-          />
+            onChangeText={myTitle => setTitle(myTitle)}
+          >{preItem.lessonTitle}</TextInput>
         </View>
       );
     } else if (item.type === 'dropdown') {
       return (
         <View>
-          <Text style={styles.txtTiltle}>Course</Text>
-          <View style={styles.conDropDown}>
-            <DropDownPicker
-              style={styles.dropDown}
-              textStyle={styles.txtDropDown}
-              dropDownDirection="BOTTOM"
-              dropDownContainerStyle={styles.condropdown2}
-              open={open1}
-              value={value1}
-              items={course}
-              setOpen={setOpen1}
-              setValue={setValue1}
-              setItems={setCourse}
-              multiple={false}
-              mode="BADGE"
-              badgeDotColors={['#e76f51', '#00b4d8']}
-              //   onChangeValue={value => {
-              //     setChapter([]);
-              //     // Find the selected item
-              //     const selectedItem = course.find(item => item.value === value);
-              //     // Set the myCourse state to the label of the selected item
-              //     if (selectedItem) {
-              //       setMyCourse(selectedItem.label);
-              //       chapterList(selectedItem.label);
-              //     }
-              //   }}
-            />
-          </View>
-
-          <Text style={styles.txtTiltle}>Chapter</Text>
-          <View style={styles.conDropDown}>
-            <DropDownPicker
-              style={styles.dropDown}
-              textStyle={styles.txtDropDown}
-              dropDownDirection="BOTTOM"
-              dropDownContainerStyle={styles.condropdown2}
-              open={open}
-              value={value}
-              items={chapter}
-              setOpen={setOpen}
-              setValue={setValue}
-              setItems={setChapter}
-              multiple={false}
-              dropDownMaxHeight={200}
-              listMode="SCROLLVIEW"
-              scrollViewProps={{nestedScrollEnabled: true}}
-              // mode="BADGE"
-              // badgeDotColors={['#e76f51', '#00b4d8']}
-              //onChangeValue={mychapter => setMyChapter(mychapter)}
-            />
-          </View>
+         
         </View>
       );
     } else {
@@ -227,39 +308,58 @@ const EditLessonScreen = () => {
         <View>
           <Text style={styles.txtTiltle}>Material</Text>
           <View style={{marginLeft: scale(15, 'w'), flexDirection: 'row'}}>
-            {/* <TouchableOpacity style={styles.btnBorder}>
-                  <Text style={styles.txtDelete}>-</Text>
-                </TouchableOpacity> */}
-            <TouchableOpacity style={styles.fixedButton}>
+            <FlatList
+              horizontal
+              numColumns={1}
+              data={materials}
+              renderItem={({item, index}) => {
+                return <ItemPdf title={item.name} onPress={() => handleDelete(item)}/>;
+              }}
+            />
+          </View>
+          <View style={{marginLeft: scale(15, 'w'), flexDirection: 'row', marginTop: scale(10,'w')}}>
+            <TouchableOpacity style={styles.fixedButton} onPress={()=> pickDocument()}>
               <Text style={styles.start}>+</Text>
             </TouchableOpacity>
             <FlatList
               horizontal
               numColumns={1}
-              data={data}
+              data={documents}
+              extraData={refreshMaterial}
               renderItem={({item, index}) => {
-                return <ItemPdf title={item.name} />;
+                return <ItemPdf title={item.name} onPress={() => deleteDocument(item.name)}/>;
               }}
             />
           </View>
           <Text style={styles.txtTiltle}>Test</Text>
           <View style={{marginLeft: scale(15, 'w'), flexDirection: 'row'}}>
-            <TouchableOpacity style={styles.btnBorder}>
-              <Text style={styles.txtDelete}>-</Text>
+            <FlatList
+              horizontal
+              numColumns={1}
+              data={tests}
+              renderItem={({item, index}) => {
+                return <ItemPdf title={item.name} onPress={() => handleDelete1(item)}/>;
+              }}
+            />
+          </View>
+          <View style={{marginLeft: scale(15, 'w'), flexDirection: 'row', marginTop: scale(10,'w')}}>
+            <TouchableOpacity style={styles.fixedButton} onPress={()=> pickDocument1()}>
+              <Text style={styles.start}>+</Text>
             </TouchableOpacity>
             <FlatList
               horizontal
               numColumns={1}
-              data={titles}
+              data={documents1}
+              extraData={refreshTests}
               renderItem={({item, index}) => {
-                return <ItemPdf title={item} />;
+                return <ItemPdf title={item.name} onPress={() => deleteDocument1(item.name)}/>;
               }}
             />
           </View>
           <View style={{marginBottom: scale(30, 'h')}}></View>
-          {/* <View style={styles.space}>
+          <View style={styles.space}>
               <View style={[styles.space]}></View>
-           </View> */}
+           </View>
         </View>
       );
     }
@@ -271,154 +371,285 @@ const EditLessonScreen = () => {
     {id: 'content2', type: 'content2'},
   ];
 
-  //   useEffect(() => {
-  //     firebase
-  //       .firestore()
-  //       .collection('users')
-  //       .doc(firebase.auth().currentUser.uid)
-  //       .get()
-  //       .then(snapshot => {
-  //         if (snapshot.exists) {
-  //           setName(snapshot.data());
-  //         } else {
-  //           console.log('User does not exist');
-  //         }
-  //       });
-  //   }, []);
+  async function pickDocument() {
+    try {
+      let index = 0;
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
 
-  // async function normalizePath(path) {
-  //   if(Platform.OS === 'ios' || Platform.OS === 'android')
-  //   {
-  //     const filePrefix = 'file://';
-  //     if (path.startsWith(filePrefix))
-  //   }
-  // }
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
 
-  //   async function pickDocument() {
-  //     try {
-  //       let index = 0;
-  //       const result = await DocumentPicker.pick({
-  //         type: [DocumentPicker.types.allFiles],
-  //       });
+      //   console.log(newResult)
+      setDocuments(prevData => [...prevData, result[0]]);
 
-  //       // const newResult = result.map(item =>({
-  //       //   ...item,
-  //       //   key: index.toString()
-  //       //   }))
+      index++;
 
-  //       //   console.log(newResult)
-  //       setDocuments(prevData => [...prevData, result[0]]);
+      console.log(documents);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
 
-  //       index++;
+  async function pickDocument1() {
+    try {
+      let index = 0;
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
 
-  //       console.log(documents);
-  //     } catch (err) {
-  //       if (DocumentPicker.isCancel(err)) {
-  //         // User cancelled the picker
-  //       } else {
-  //         throw err;
-  //       }
-  //     }
-  //   }
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
 
-  //   async function requestStoragePermission() {
-  //     try {
-  //       const granted = await PermissionsAndroid.request(
-  //         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-  //         {
-  //           title: 'Storage Permission',
-  //           message:
-  //             'This app needs access to your storage ' +
-  //             'so you can upload files.',
-  //           buttonNeutral: 'Ask Me Later',
-  //           buttonNegative: 'Cancel',
-  //           buttonPositive: 'OK',
-  //         },
-  //       );
-  //       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-  //         console.log('You can now access storage');
-  //       } else {
-  //         console.log('Storage permission denied');
-  //       }
-  //     } catch (err) {
-  //       console.warn(err);
-  //     }
-  //   }
+      //   console.log(newResult)
+      setDocuments1(prevData => [...prevData, result[0]]);
 
-  //   async function uriToBlob(uri) {
-  //     return new Promise((resolve, reject) => {
-  //       const xhr = new XMLHttpRequest();
-  //       xhr.onload = function () {
-  //         resolve(xhr.response);
-  //       };
-  //       xhr.onerror = function () {
-  //         reject(new Error('uriToBlob failed'));
-  //       };
-  //       xhr.responseType = 'blob';
-  //       xhr.open('GET', uri, true);
-  //       xhr.send(null);
-  //     });
-  //   }
+      index++;
 
-  //   const handleUpload = async () => {
-  //     await requestStoragePermission();
+      console.log(documents1);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
+  async function deleteDocument(value2) {
+    try {
+      //let index = 0;
+      // Let's say it's Bob.
+      // console.log(documents);
+      // console.log(value2);
 
-  //     if (documents) {
-  //       try {
-  //         const urls = [];
-  //         for (const document of documents) {
-  //           const blob = await uriToBlob(document.uri);
-  //           console.log(blob);
-  //           const reference = storage().ref().child(`files/${Date.now()}`);
-  //           const task = reference.put(blob);
+      var index;
+      documents.map(temp => {
+        if (temp.name === value2) index = documents.indexOf(temp);
+      });
+      //var index = documents.indexOf(value2);
+      console.log('index: ' + index);
+      delete documents[index];
+      for (index; index < documents.length; index++) {
+        documents[index] = documents[index + 1];
+      }
+      documents.length--;
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
 
-  //           task.on('state_changed', snapshot => {
-  //             console.log(document);
-  //             console.log(
-  //               `${
-  //                 (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-  //               }% completed`,
-  //             );
-  //           });
+      //   console.log(newResult)
+      //setDocuments(prevData => [...prevData, result[0]]);
 
-  //           await task;
-  //           const url = await reference.getDownloadURL();
-  //           console.log('File uploaded to Firebase storage:', url);
-  //           urls.push(url);
-  //         }
-  //         return urls;
-  //       } catch (error) {
-  //         Alert.alert(error.message);
-  //       }
-  //     }
-  //   };
+      //index++;
 
-  //   const now = firebase.firestore.Timestamp.now();
+      setRefreshMaterial(!refreshMaterial);
+      console.log(documents);
+      console.log('index: ' + index);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
 
-  //   const addLesson = async () => {
-  //     const fileUrls = await handleUpload();
+  async function deleteDocument1(value2) {
+    try {
+      //let index = 0;
+      // Let's say it's Bob.
+      // console.log(documents);
+      // console.log(value2);
 
-  //     await firebase
-  //       .firestore()
-  //       .collection('lessons')
-  //       .add({
-  //         courseAuthor: name.email,
-  //         courseTitle: myCourse,
-  //         chapterTitle: myChapter,
-  //         lessonTitle: title,
-  //         files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
-  //       })
-  //       .then(() => {
-  //         Alert.alert('Add Lesson Successfully!');
-  //         //navigation.navigate('Course');
-  //       });
-  //   };
+      var index;
+      documents1.map(temp => {
+        if (temp.name === value2) index = documents1.indexOf(temp);
+      });
+      //var index = documents.indexOf(value2);
+      console.log('index: ' + index);
+      delete documents1[index];
+      for (index; index < documents1.length; index++) {
+        documents1[index] = documents1[index + 1];
+      }
+      documents1.length--;
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
+
+      //   console.log(newResult)
+      //setDocuments(prevData => [...prevData, result[0]]);
+
+      //index++;
+
+      setRefreshTests(!refreshTests);
+      console.log(documents1);
+      console.log('index: ' + index);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  async function requestStoragePermission() {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission',
+          message:
+            'This app needs access to your storage ' +
+            'so you can upload files.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can now access storage');
+      } else {
+        console.log('Storage permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  }
+
+  async function uriToBlob(uri) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function () {
+        reject(new Error('uriToBlob failed'));
+      };
+      xhr.responseType = 'blob';
+      xhr.open('GET', uri, true);
+      xhr.send(null);
+    });
+  }
+
+  const handleUpload = async () => {
+    await requestStoragePermission();
+
+    if (documents) {
+      try {
+        const urls = [];
+        for (const document of documents) {
+          const blob = await uriToBlob(document.uri);
+          console.log(blob);
+          const reference = storage().ref().child(`files/${Date.now()}`);
+          const task = reference.put(blob);
+
+          task.on('state_changed', snapshot => {
+            console.log(document);
+            console.log(
+              `${
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+              }% completed`,
+            );
+          });
+
+          await task;
+          const url = await reference.getDownloadURL();
+          console.log('File uploaded to Firebase storage:', url);
+          urls.push(url);
+        }
+        return urls;
+      } catch (error) {
+        Alert.alert(error.message);
+      }
+    }
+  };
+
+  const handleUpload1 = async () => {
+    await requestStoragePermission();
+
+    if (documents1) {
+      try {
+        const urls = [];
+        for (const document of documents1) {
+          const blob = await uriToBlob(document.uri);
+          console.log(blob);
+          const reference = storage().ref().child(`files/${Date.now()}`);
+          const task = reference.put(blob);
+
+          task.on('state_changed', snapshot => {
+            console.log(document);
+            console.log(
+              `${
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+              }% completed`,
+            );
+          });
+
+          await task;
+          const url = await reference.getDownloadURL();
+          console.log('File uploaded to Firebase storage:', url);
+          urls.push(url);
+        }
+        return urls;
+      } catch (error) {
+        Alert.alert(error.message);
+      }
+    }
+  };
+
+  const now = firebase.firestore.Timestamp.now();
+
+  const editLesson = async () => {
+    const fileUrls = await handleUpload();
+    const fileUrls1 = await handleUpload1();
+
+    await firebase
+      .firestore()
+      .collection('lessons')
+      .where('lessonTitle', '==', preItem.lessonTitle)
+      .where('courseTitle', '==', preItem.courseTitle)
+      .where('courseAuthor', '==', preItem.courseAuthor)
+      .where('chapterTitle', '==', preItem.chapterTitle)
+      .get().then((querrySnapshot) => {
+        if(!querrySnapshot.empty)
+        {
+          const documentId = querrySnapshot.docs[0].id
+          firebase
+          .firestore()
+          .collection('lessons')
+          .doc(documentId)
+          .update({
+            lessonTitle: title,
+            files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
+            tests: firebase.firestore.FieldValue.arrayUnion(...fileUrls1),
+          })
+
+        }
+      })
+      .then(() => {
+        Alert.alert('Edit Lesson Successfully!');
+        navigation.goBack();
+      });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
+    {console.log('preItemEditLesson', preItem)}
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          <BackButton />
+          <BackButton onPress={() => navigation.goBack()} />
           <Text style={styles.txtHeader}>Edit Lesson</Text>
         </View>
       </ImageBackground>
@@ -432,7 +663,7 @@ const EditLessonScreen = () => {
 
       <BtnTick
         onPress={() => {
-          //addLesson();
+          editLesson()
         }}
       />
     </SafeAreaView>

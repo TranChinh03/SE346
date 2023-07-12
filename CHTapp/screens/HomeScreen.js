@@ -19,7 +19,11 @@ import TextBox from '../src/components/textBox';
 import BottomTab from '../src/components/bottomTab';
 import CourseItem from '../src/components/courseItem';
 import SearchBar from '../src/components/searchBar';
-import {IC_Notification, IC_NotificationBing} from '../src/assets/iconsvg';
+import {
+  IC_Notification,
+  IC_NotificationBing,
+  IC_Search,
+} from '../src/assets/iconsvg';
 import {firebase} from '../configs/FirebaseConfig';
 import {ListItem} from '@rneui/base';
 import {useNavigation, useNavigationState} from '@react-navigation/native';
@@ -97,9 +101,9 @@ const HomeScreen = () => {
               image={item.image}
               onPress={() =>
                 navigation.navigate('CourseStack', {
-                    screen: 'CourseDetail',
-                    params: {item: item}
-                  })
+                  screen: 'CourseDetail',
+                  params: {preItem: item},
+                })
               }
             />
           )}
@@ -293,9 +297,9 @@ const HomeScreen = () => {
             screen: 'Search',
           });
         }}>
-        <Text>Search Course</Text>
+        <Text style={{color: CUSTOM_COLORS.gray}}>Search Course</Text>
         <TouchableOpacity style={styles.searchButton}>
-          <Image source={IC_SEARCH}></Image>
+          <IC_Search />
         </TouchableOpacity>
       </TouchableOpacity>
 
