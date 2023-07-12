@@ -54,7 +54,25 @@ const LessonDetailScreen = ({route}) => {
   const navigation = useNavigation();
   const {item, item1} = route.params;
   const [materials, setMaterials] = useState([]);
-  const [tests, setTests] = useState([]);
+  const [tests, setTests] = useState([])
+  const [isAuthor, setIsAuthor] = useState(false)
+  const [name, setName] = useState('')
+
+  useEffect(() => {
+    firebase
+      .firestore()
+      .collection('users')
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(snapshot => {
+        if (snapshot.exists) {
+          setName(snapshot.data());
+        } else {
+          console.log('User does not exist');
+        }
+      });
+  }, []);
+
 
   async function MaterialList() {
     const lessonRef = firebase.firestore().collection('lessons');
@@ -80,10 +98,17 @@ const LessonDetailScreen = ({route}) => {
     return finalData;
   }
 
+  async function CheckAuthor() {
+    if(item.courseAuthor === name.email)
+      return true
+    return false
+  }
+
   useEffect(() => {
-    MaterialList().then(data => setMaterials(data));
-    TestList().then(data => setTests(data));
-  }, []);
+    MaterialList().then(data => setMaterials(data))
+    TestList().then(data => setTests(data))
+    CheckAuthor().then(data => setIsAuthor(data))
+  }, [])
 
   async function TestList() {
     const lessonRef = firebase.firestore().collection('lessons');
@@ -403,16 +428,19 @@ const LessonDetailScreen = ({route}) => {
           </View> */}
         </View>
       </View>
-
-      <TouchableOpacity
-        style={styles.fixedBtnEdit}
-        onPress={() =>
-          navigation.navigate('EditLesson', {
-            preItem: item,
-          })
-        }>
-        <IC_Edit />
-      </TouchableOpacity>
+      {
+        isAuthor === true ? (
+          <TouchableOpacity
+            style={styles.fixedBtnEdit}
+            onPress={() =>
+              navigation.navigate('EditLesson', {
+                preItem:item
+              })
+            }>
+            <IC_Edit />
+          </TouchableOpacity>
+        ) : null
+      }
     </SafeAreaView>
   );
 };

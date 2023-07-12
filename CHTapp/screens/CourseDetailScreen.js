@@ -52,6 +52,7 @@ import CUSTOM_SIZES from '../src/constants/size';
 
 const CourseDetailScreen = ({route}) => {
   const {preItem} = route.params;
+  const [isAuthor, setIsAuthor] = useState(false)
 
   const navigation = useNavigation();
 
@@ -87,6 +88,13 @@ const CourseDetailScreen = ({route}) => {
   //   });
   //   return unsubscribe;
   // });
+
+  async function CheckAuthor() {
+    if(preItem.author === name.email) {
+      return true
+    }
+    return false
+  }
 
   useEffect(() => {
     firebase
@@ -129,8 +137,17 @@ const CourseDetailScreen = ({route}) => {
           console.log('favor2');
           setFavorite(false);
         }
-      });
-  }, [chapters, lessons, evaluation]);
+      }
+      else {
+        console.log('favor2')
+        setFavorite(false)}
+    })
+  }, [chapters, lessons, evaluation])
+
+  useEffect(() => {
+    CheckAuthor().then(data => setIsAuthor(data))
+  }, [])
+
 
   useEffect(() => {
     ChapterList().then(data => setChapters(data));
@@ -503,22 +520,38 @@ const CourseDetailScreen = ({route}) => {
               </Text>
             </View> */}
           </View>
-          <Text style={[styles.categoryText, {marginTop: scale(20, 'h')}]}>
-            Rate this course
-          </Text>
-          <Text style={styles.infoText}>
-            Tell others how do you like this course
-          </Text>
-          <StarRating
-            onChange={() => navigation.navigate('RatingScreen', {item: item})}
-            maxStars={5}
-            starSize={scale(40, 'w')}
-            rating={0}
-            starStyle={[
-              styles.star,
-              {marginHorizontal: scale(7, 'w'), marginTop: scale(10, 'w')},
-            ]}
-          />
+          {
+            isAuthor === true ? (
+              <Text style={[styles.categoryText, {marginTop: scale(20, 'h')}]}>
+                Rate this course
+              </Text>
+            ) : null
+          }
+
+          {
+            isAuthor === true ? (
+              <Text style={styles.infoText}>
+                Tell others how do you like this course
+              </Text>
+            ) : null
+          }
+
+          {
+            isAuthor === true ? (
+              <StarRating
+                onChange={() => navigation.navigate('RatingScreen', {item: preItem})}
+                maxStars={5}
+                starSize={scale(40, 'w')}
+                rating={0}
+                starStyle={[
+                  styles.star,
+                  {marginHorizontal: scale(7, 'w'), marginTop: scale(10, 'w')},
+                ]}
+              />
+            ) : null
+          }
+
+          
           <Text style={[styles.categoryText, {marginTop: scale(20, 'h')}]}>
             Reviews
           </Text>
