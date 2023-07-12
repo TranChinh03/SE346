@@ -23,6 +23,7 @@ import { IC_LOGOUT } from '../src/assets/iconsvg';
 import { IMG_LOGOUTBACKGROUND } from '../src/assets/imgsvg';
 import CUSTOM_FONTS from '../src/constants/fonts';
 import BackButton from '../src/components/backButton';
+import { connectFirestoreEmulator } from 'firebase/firestore';
 
 
 const ProfileScreen = () => {
@@ -77,7 +78,16 @@ const ProfileScreen = () => {
       <View style={styles.contentContainer}>
         <View style={styles.avtContainer}>
           <View style={styles.avtFrame}>
-            <Image style={styles.avt} source={IMG_AVT} />
+          {profile.ava === '' ? 
+            <Image
+              source={IMG_AVT}
+              style={styles.avt}/>
+          : 
+          <Image
+              source={{uri: profile.ava}}
+              style={styles.avt}/>
+          }
+
           </View>
         </View>
 

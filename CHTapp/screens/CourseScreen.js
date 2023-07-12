@@ -28,8 +28,26 @@ const CourseScreen = ({route}) => {
   const [myCourses, setMyCourses] = useState([]);
   const [favorite, setFavorite] = useState([]);
   const [name, setName] = useState('');
+  const [curAccount, setCurAccount] = useState('')
 
   const navigation = useNavigation();
+
+  
+  useEffect(() => {
+    firebase
+      .firestore()
+      .collection('users')
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(snapshot => {
+        if (snapshot.exists) {
+          setName(snapshot.data());
+          console.log('name', name)
+        } else {
+          console.log('User does not exist');
+        }
+      });
+  }, [name.email, favorite]);
 
   async function joinedAllCourses() {
     const courseRef = firebase.firestore().collection('courses');
@@ -54,7 +72,7 @@ const CourseScreen = ({route}) => {
     return joinedData;
   }
 
-  async function joinedMyCourses(curEmail) {
+  async function joinedMyCourses() {
     const courseRef = firebase.firestore().collection('courses');
     const courseSnapshot = await courseRef.get();
     const courseData = courseSnapshot.docs.map(doc => ({
@@ -62,13 +80,15 @@ const CourseScreen = ({route}) => {
       ...doc.data(),
     }));
 
+
+
     const authorRef = firebase.firestore().collection('users');
     const authorSnapshot = await authorRef.get();
     const authorData = authorSnapshot.docs.map(doc => doc.data());
 
 
     const joinedData = courseData
-      .filter(filter => filter.author === curEmail)
+      .filter(filter => filter.author === name.email)
       .map(firstItem => {
         const secondItem = authorData.find(
           item => item.email === firstItem.author,
@@ -79,7 +99,7 @@ const CourseScreen = ({route}) => {
     return joinedData;
   }
 
-  async function joinedMyFavorite(curEmail) {
+  async function joinedMyFavorite() {
     const courseRef = firebase.firestore().collection('courses');
     const courseSnapshot = await courseRef.get();
     const courseData = courseSnapshot.docs.map(doc => ({
@@ -100,28 +120,36 @@ const CourseScreen = ({route}) => {
       id: doc.id,
       ...doc.data(),
     }));
-    const filterUser = userData
-    .filter(filter => filter.email === curEmail)
-    console.log('curEmail', curEmail)
-    console.log('filterUser',filterUser[0].favoriteCourses)
-    console.log('userData', userData)
-    console.log('courseData', courseData)
-  
-    const favoriteCourse = filterUser[0].favoriteCourses
-    .filter(filter => filter.isFavor === true)
 
-    // console.log(favoriteCourse)
-    .map(firstItem => {
-      console.log('firstItem', firstItem)
-      const secondItem = courseData.find(
-        item => item.title === firstItem.courseTitle
-              && item.author === firstItem.courseAuthor)
-
-      const thirdItem = authorData.find(
-        item => item.email === secondItem.author
-      );
-      return {...firstItem, ...secondItem, ...thirdItem};
+    firebase
+    .firestore()
+    .collection('users')
+    .doc(firebase.auth().currentUser.uid)
+    .get()
+    .then(snapshot => {
+      if (snapshot.exists) {
+        setCurAccount(snapshot.data());
+      } else {
+        console.log('User does not exist');
+      }
     });
+    console.log('curAccount', curAccount.email)
+    const filterUser = userData.filter(filter => filter.email === curAccount.email);
+    if (filterUser.length > 0) {
+      const favoriteCourse = filterUser[0].favoriteCourses
+        .filter(filter => filter.isFavor === true)
+        .map(firstItem => {
+          const secondItem = courseData.find(
+            item =>
+              item.title === firstItem.courseTitle &&
+              item.author === firstItem.courseAuthor
+          );
+          const thirdItem = authorData.find(item => item.email === secondItem.author);
+          return { ...firstItem, ...secondItem, ...thirdItem };
+        });
+    } else {
+      console.log("Don't have filerUser")
+    }
 
 
     // const joinedData = userData
@@ -165,20 +193,6 @@ const CourseScreen = ({route}) => {
   //   }, [])
   // );
 
-  useEffect(() => {
-    firebase
-      .firestore()
-      .collection('users')
-      .doc(firebase.auth().currentUser.uid)
-      .get()
-      .then(snapshot => {
-        if (snapshot.exists) {
-          setName(snapshot.data());
-        } else {
-          console.log('User does not exist');
-        }
-      });
-  }, []);
 
   useEffect(() => {
     async function getData() {
@@ -191,7 +205,7 @@ const CourseScreen = ({route}) => {
 
   useEffect(() => {
     async function getData() {
-      const myCourses = await joinedMyCourses(name.email);
+      const myCourses = await joinedMyCourses();
       setMyCourses(myCourses);
     }
 
@@ -200,7 +214,7 @@ const CourseScreen = ({route}) => {
 
   useEffect(() => {
     async function getData() {
-      const favorite = await joinedMyFavorite(name.email);
+      const favorite = await joinedMyFavorite();
       setFavorite(favorite);
     }
 
@@ -238,35 +252,6 @@ const CourseScreen = ({route}) => {
   };
 
 
-  const renderFavor = data => {
-    return (
-      <FlatList
-        numColumns={2}
-        columnWrapperStyle={{justifyContent: 'space-between'}}
-        data={data}      
-        renderItem={({item, index}) => {
-          return (
-            <CourseItem
-              language={item.programLanguage}
-              title={item.title}
-              author={item.name}
-              rating={item.rate}
-              view={item.numofAttendants}
-              image={item.image}
-              onPress={() =>
-                navigation.navigate('CourseStack', {
-                  screen: 'CourseDetail',
-                  params: {preItem: item},
-                })
-              }
-            />
-          );
-        }}
-        ItemSeparatorComponent={() => <View style={{height: scale(20, 'h')}} />}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={item => item.id} ></FlatList>
-    );
-  };
 
   const renderMyCourses = () => {
     return currentPage === 'AllCourses'

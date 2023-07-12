@@ -52,7 +52,6 @@ import CUSTOM_SIZES from '../src/constants/size';
 
 const CourseDetailScreen = ({route}) => {
   const {preItem} = route.params;
-  const [isAuthor, setIsAuthor] = useState(false)
 
   const navigation = useNavigation();
 
@@ -89,12 +88,6 @@ const CourseDetailScreen = ({route}) => {
   //   return unsubscribe;
   // });
 
-  async function CheckAuthor() {
-    if(preItem.author === name.email) {
-      return true
-    }
-    return false
-  }
 
   useEffect(() => {
     firebase
@@ -105,11 +98,12 @@ const CourseDetailScreen = ({route}) => {
       .then(snapshot => {
         if (snapshot.exists) {
           setName(snapshot.data());
+          
         } else {
           console.log('User does not exist');
         }
       });
-  }, [name.email]);
+  }, [preItem.title, preItem.author]);
 
   useEffect(() => {
     const db = firebase.firestore();
@@ -137,16 +131,10 @@ const CourseDetailScreen = ({route}) => {
           console.log('favor2');
           setFavorite(false);
         }
-      }
-      else {
-        console.log('favor2')
-        setFavorite(false)}
-    })
-  }, [chapters, lessons, evaluation])
+      });
+  }, [chapters, lessons, evaluation]);
 
-  useEffect(() => {
-    CheckAuthor().then(data => setIsAuthor(data))
-  }, [])
+
 
 
   useEffect(() => {
@@ -417,6 +405,132 @@ const CourseDetailScreen = ({route}) => {
     return starPercentage.toFixed(1);
   };
 
+
+  const handleDeleteCourse = () => {
+    Alert.alert(
+      'Delete Course',
+      'Are you sure you want to delete this course?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            firebase
+            .firestore()
+            .collection('courses')
+            .where('title', '==', preItem.title)
+            .where('author', '==', preItem.author)
+            .get().then((querrySnapshot) => {
+              if(!querrySnapshot.empty)
+              {
+                querrySnapshot.forEach((doc) => {
+                  const documentId1 = doc.id
+                  firebase
+                  .firestore()
+                  .collection('courses')
+                  .doc(documentId1)
+                  .delete()
+                  .then(() => {
+                    console.log('Courses is deleted!')
+                    navigate.goBack()
+                  })
+                })
+              }
+            })
+
+            firebase
+            .firestore()
+            .collection('chapters')
+            .where('courseTitle', '==', preItem.title)
+            .where('courseAuthor', '==', preItem.author)
+            .get().then((querrySnapshot) => {
+              if(!querrySnapshot.empty)
+              {
+                querrySnapshot.forEach((doc) => {
+                  const documentId = doc.id
+                  firebase
+                  .firestore()
+                  .collection('chapters')
+                  .doc(documentId)
+                  .delete()
+                })
+              }
+            })
+
+            firebase
+            .firestore()
+            .collection('lessons')
+            .where('courseTitle', '==', preItem.title)
+            .where('courseAuthor', '==', preItem.author)
+            .get().then((querrySnapshot) => {
+              if(!querrySnapshot.empty)
+              {
+                querrySnapshot.forEach((doc) => {
+                  const documentId = doc.id
+                  firebase
+                  .firestore()
+                  .collection('lessons')
+                  .doc(documentId)
+                  .delete()
+                })
+              }
+            })
+
+            firebase
+            .firestore()
+            .collection('evaluate')
+            .where('courseTitle', '==', preItem.title)
+            .where('courseAuthor', '==', preItem.author)
+            .get().then((querrySnapshot) => {
+              if(!querrySnapshot.empty)
+              {
+                querrySnapshot.forEach((doc) => {
+                  const documentId = doc.id
+                  firebase
+                  .firestore()
+                  .collection('evaluate')
+                  .doc(documentId)
+                  .delete()
+                })
+              }
+            })
+
+            firebase
+            .firestore()
+            .collection('users')
+            .get().then((querrySnapshot) => {
+              querrySnapshot.forEach((doc) => {
+                if(doc.exists) {
+                  const documentId = doc.id
+                  const courses = doc.data().favoriteCourses;
+                  if(courses) {
+                    const index = courses.findIndex((course) => course.courseTitle === preItem.title && course.courseAuthor === preItem.author)
+                    if (index !== -1) {
+                      courses.splice(index , 1)
+                      firebase
+                      .firestore()
+                      .collection('users')
+                      .doc(documentId)
+                      .update({
+                        favoriteCourses: courses
+                      })
+                    }
+                  }
+      
+                }
+              })
+            })
+
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
   const data = [
     {id: 'content1', type: 'content1'},
     {id: 'flatlist', type: 'flatlist'},
@@ -437,7 +551,7 @@ const CourseDetailScreen = ({route}) => {
               />
             </TouchableOpacity>
           </View>
-
+          {console.log('image', preItem.image)}
           {preItem.image === '' ? (
             <Image
               source={IMG_CPPBACKGROUND}
@@ -447,7 +561,7 @@ const CourseDetailScreen = ({route}) => {
           ) : (
             <Image
               source={{uri: preItem.image}}
-              resizeMode="contain"
+              resizeMode='contain'
               style={styles.image}
             />
           )}
@@ -521,7 +635,7 @@ const CourseDetailScreen = ({route}) => {
             </View> */}
           </View>
           {
-            isAuthor === true ? (
+            preItem.author !== name.email ? (
               <Text style={[styles.categoryText, {marginTop: scale(20, 'h')}]}>
                 Rate this course
               </Text>
@@ -529,7 +643,7 @@ const CourseDetailScreen = ({route}) => {
           }
 
           {
-            isAuthor === true ? (
+            preItem.author !== name.email ? (
               <Text style={styles.infoText}>
                 Tell others how do you like this course
               </Text>
@@ -537,7 +651,7 @@ const CourseDetailScreen = ({route}) => {
           }
 
           {
-            isAuthor === true ? (
+            preItem.author !== name.email ? (
               <StarRating
                 onChange={() => navigation.navigate('RatingScreen', {item: preItem})}
                 maxStars={5}
@@ -586,7 +700,7 @@ const CourseDetailScreen = ({route}) => {
             renderItem={renderEvaluationItem}
           />
           {preItem.author === name.email ? (
-            <TouchableOpacity style={styles.conDelete}>
+            <TouchableOpacity style={styles.conDelete} onPress = {() => handleDeleteCourse()}>
               <Text style={styles.txtDelete}>Delete this course?</Text>
             </TouchableOpacity>
           ) : null}
