@@ -75,7 +75,7 @@ const SearchScreen = () => {
                 onPress={() =>
                   navigation.navigate('CourseStack', {
                     screen: 'CourseDetail',
-                    params: {item: item},
+                    params: {preItem: item},
                   })
                 }>
                 <ItemSearchCourse

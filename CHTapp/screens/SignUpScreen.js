@@ -28,6 +28,7 @@ const SignUpScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [favor, setFavor] = useState([])
 
   registerUser = async (email, password, name) => {
     await firebase
@@ -56,6 +57,7 @@ const SignUpScreen = () => {
               .set({
                 name,
                 email,
+                favoriteCourses: favor,
               });
           })
           .catch(error => {

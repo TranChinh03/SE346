@@ -89,37 +89,68 @@ const CourseScreen = ({route}) => {
 
     const authorRef = firebase.firestore().collection('users');
     const authorSnapshot = await authorRef.get();
-    const authorData = authorSnapshot.docs.map(doc => doc.data());
+    const authorData = authorSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
     const userRef = firebase.firestore().collection('users');
     const userSnapshot = await userRef.get();
-    const userData = userSnapshot.docs.map(doc => doc.data());
+    const userData = userSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    const filterUser = userData
+    .filter(filter => filter.email === curEmail)
+    console.log('curEmail', curEmail)
+    console.log('filterUser',filterUser[0].favoriteCourses)
+    console.log('userData', userData)
+    console.log('courseData', courseData)
+  
+    const favoriteCourse = filterUser[0].favoriteCourses
+    .filter(filter => filter.isFavor === true)
 
-    const joinedData = userData
-      .filter(filter => filter.email === curEmail)
-      .map(firstItem => {
-        let secondItem;
-        let thirdItem;
-        if (firstItem.favoriteCourses){
-          firstItem.favoriteCourses.find(subItem => {
-            if (subItem.isFavor === true) {
-              secondItem = courseData.find(
-                item =>
-                  item.title === subItem.courseTitle &&
-                  item.author === subItem.courseAuthor,
-              );
-              thirdItem = authorData.find(
-                item => item.email === secondItem.author
-              )
-            }
-          }); 
-          return {...firstItem, ...secondItem, ...thirdItem}; 
-        }
-        else {
-          return;
-        }
-      });
-    return joinedData;
+    // console.log(favoriteCourse)
+    .map(firstItem => {
+      console.log('firstItem', firstItem)
+      const secondItem = courseData.find(
+        item => item.title === firstItem.courseTitle
+              && item.author === firstItem.courseAuthor)
+
+      const thirdItem = authorData.find(
+        item => item.email === secondItem.author
+      );
+      return {...firstItem, ...secondItem, ...thirdItem};
+    });
+
+
+    // const joinedData = userData
+    //   .filter(filter => filter.email === curEmail)
+    //   .map(firstItem => {
+    //     let secondItem;
+    //     let thirdItem;
+    //     if (firstItem.favoriteCourses){
+    //       firstItem.favoriteCourses.find(subItem => {
+    //         if (subItem.isFavor === true) {
+    //           secondItem = courseData.find(
+    //             item =>
+    //               item.title === subItem.courseTitle &&
+    //               item.author === subItem.courseAuthor,
+    //           );
+    //           thirdItem = authorData.find(
+    //             item => item.email === secondItem.author
+    //           )
+    //         }
+    //       }); 
+    //       return {...firstItem, ...secondItem, ...thirdItem}; 
+    //     }
+    //     else {
+    //       return;
+    //     }
+    //   });
+    // console.log('joinedData', joinedData)
+    // console.log('joinedMyFavorite', joinedData[0].favoriteCourses)
+    return favoriteCourse;
   }
 
   // useFocusEffect(
@@ -177,6 +208,37 @@ const CourseScreen = ({route}) => {
   }, [favorite]);
 
   const renderCourses = data => {
+    return (
+      <FlatList
+        numColumns={2}
+        columnWrapperStyle={{justifyContent: 'space-between'}}
+        data={data}      
+        renderItem={({item, index}) => {
+          return (
+            <CourseItem
+              language={item.programLanguage}
+              title={item.title}
+              author={item.name}
+              rating={item.rate}
+              view={item.numofAttendants}
+              image={item.image}
+              onPress={() =>
+                navigation.navigate('CourseStack', {
+                  screen: 'CourseDetail',
+                  params: {preItem: item},
+                })
+              }
+            />
+          );
+        }}
+        ItemSeparatorComponent={() => <View style={{height: scale(20, 'h')}} />}
+        showsVerticalScrollIndicator={false}
+        keyExtractor={item => item.id} ></FlatList>
+    );
+  };
+
+
+  const renderFavor = data => {
     return (
       <FlatList
         numColumns={2}

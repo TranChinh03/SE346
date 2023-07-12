@@ -90,7 +90,7 @@ import {
     //           item.title === firstItem.courseTitle,
     //       );
   
-    //       const thirdItem = authorData.find(
+    //       const m = authorData.find(
     //         item => item.email === secondItem.author,
     //       );
   

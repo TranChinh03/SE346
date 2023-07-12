@@ -129,10 +129,11 @@ const ProfileEditScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.bgContainer}>
-        <ImageBackground
-          style={styles.background}
-          source={IMG_PROFILEBACKGROUND}
-        />
+        <TouchableOpacity style={styles.background}> 
+          <ImageBackground
+            source={IMG_PROFILEBACKGROUND}
+          />
+        </TouchableOpacity>
         <View
           style={{
             justifyContent: 'center',
