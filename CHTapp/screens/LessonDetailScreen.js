@@ -11,7 +11,7 @@ import {
   Image,
   Alert,
   PermissionsAndroid,
-  NativeModules
+  NativeModules,
 } from 'react-native';
 import React, {Component, useState, useEffect} from 'react';
 import {
@@ -45,13 +45,13 @@ import BackButton from '../src/components/backButton';
 import {IC_Edit, IC_LeftArrow} from '../src/assets/iconsvg';
 import {IC_EYE, IC_VIEW} from '../src/assets/icons';
 import CusRatingBar from '../src/components/CusRatingBar';
-import {firebase} from '../configs/FirebaseConfig'
+import {firebase} from '../configs/FirebaseConfig';
 import RNFetchBlob from 'rn-fetch-blob';
 import ItemPdf from '../src/components/ItemPdf';
-
+import ItemPDFDetail from '../src/components/ItemPDFDetail';
 
 const LessonDetailScreen = ({route}) => {
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   const {item, item1} = route.params;
   const [materials, setMaterials] = useState([]);
   const [tests, setTests] = useState([])
@@ -73,6 +73,7 @@ const LessonDetailScreen = ({route}) => {
       });
   }, []);
 
+
   async function MaterialList() {
     const lessonRef = firebase.firestore().collection('lessons');
     const lessonSnapshot = await lessonRef.get();
@@ -81,20 +82,19 @@ const LessonDetailScreen = ({route}) => {
       ...doc.data(),
     }));
 
-    console.log('joinedData')
-    const joinedData = lessonData
-      .filter(
-        filter =>
-          filter.courseAuthor === item.courseAuthor &&
-          filter.courseTitle === item.courseTitle &&
-          filter.chapterTitle === item.chapterTitle &&
-          filter.lessonTitle === item.lessonTitle
-      )
-    const finalData = 
-      joinedData[0].files
-      .map((file) => firebase.storage().refFromURL(file))
+    console.log('joinedData');
+    const joinedData = lessonData.filter(
+      filter =>
+        filter.courseAuthor === item.courseAuthor &&
+        filter.courseTitle === item.courseTitle &&
+        filter.chapterTitle === item.chapterTitle &&
+        filter.lessonTitle === item.lessonTitle,
+    );
+    const finalData = joinedData[0].files.map(file =>
+      firebase.storage().refFromURL(file),
+    );
 
-      console.log(finalData)
+    console.log(finalData);
     return finalData;
   }
 
@@ -118,25 +118,23 @@ const LessonDetailScreen = ({route}) => {
       ...doc.data(),
     }));
 
-    console.log('joinedData')
-    const joinedData = lessonData
-      .filter(
-        filter =>
-          filter.courseAuthor === item.courseAuthor &&
-          filter.courseTitle === item.courseTitle &&
-          filter.chapterTitle === item.chapterTitle &&
-          filter.lessonTitle === item.lessonTitle
-      )
-    const finalData = 
-      joinedData[0].tests
-      .map((file) => firebase.storage().refFromURL(file))
+    console.log('joinedData');
+    const joinedData = lessonData.filter(
+      filter =>
+        filter.courseAuthor === item.courseAuthor &&
+        filter.courseTitle === item.courseTitle &&
+        filter.chapterTitle === item.chapterTitle &&
+        filter.lessonTitle === item.lessonTitle,
+    );
+    const finalData = joinedData[0].tests.map(file =>
+      firebase.storage().refFromURL(file),
+    );
 
-      console.log(finalData)
+    console.log(finalData);
     return finalData;
   }
 
-  
-  const handleDownload = (myItem) => {
+  const handleDownload = myItem => {
     firebase
       .firestore()
       .collection('lessons')
@@ -145,67 +143,75 @@ const LessonDetailScreen = ({route}) => {
       .where('courseAuthor', '==', item.courseAuthor)
       .where('chapterTitle', '==', item.chapterTitle)
       .get()
-      .then((querySnapshot) => {
+      .then(querySnapshot => {
         let documentId;
         if (!querySnapshot.empty) {
           documentId = querySnapshot.docs[0].id;
         }
         return documentId;
       })
-      .then((documentId) => {
-        const docRef = firebase.firestore().collection('lessons').doc(documentId);
-  
+      .then(documentId => {
+        const docRef = firebase
+          .firestore()
+          .collection('lessons')
+          .doc(documentId);
+
         // Get the document from Firestore
-        docRef.get().then((doc) => {
+        docRef.get().then(doc => {
           if (doc.exists) {
             const storageRef1 = myItem;
             storageRef1
               .getDownloadURL()
-              .then((url) => {
-                const files = doc.data().files
+              .then(url => {
+                const files = doc.data().files;
                 if (files) {
-                  const index = files.findIndex((file) =>file === url)
-                  if(index !== -1) {
+                  const index = files.findIndex(file => file === url);
+                  if (index !== -1) {
                     const fileRef = doc.data().files[index];
                     const storageRef = firebase.storage().refFromURL(fileRef);
                     console.log('Download1!');
-                    storageRef.getDownloadURL().then(async(url) => {
+                    storageRef.getDownloadURL().then(async url => {
                       console.log('Download2!');
                       const granted = await PermissionsAndroid.request(
                         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
                         {
                           title: 'Storage Permission',
-                          message: 'This app needs access to your storage to download files.',
+                          message:
+                            'This app needs access to your storage to download files.',
                           buttonNeutral: 'Ask Me Later',
                           buttonNegative: 'Cancel',
                           buttonPositive: 'OK',
-                        }
+                        },
                       );
-        
+
                       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
                         // Permission granted
                         const {config, fs} = RNFetchBlob;
-                        const date = new Date()
-                        const fileDir = fs.dirs.DownloadDir
+                        const date = new Date();
+                        const fileDir = fs.dirs.DownloadDir;
                         config({
                           fileCache: true,
                           addAndroidDownloads: {
                             useDownloadManager: true,
                             notification: true,
-                            path: fileDir + '/download_' + Math.floor(date.getDate() + date.getSeconds() / 2) + '.pdf',
-                            description: 'file download'
-                          }
+                            path:
+                              fileDir +
+                              '/download_' +
+                              Math.floor(
+                                date.getDate() + date.getSeconds() / 2,
+                              ) +
+                              '.pdf',
+                            description: 'file download',
+                          },
                         })
-                        .fetch('GET', fileRef, {
-        
-                        })
-                        .then(res => {
-                          console.log ('The file saved to ', res)
-                          Alert.alert("Download sucessfully!")
-                        })
+                          .fetch('GET', fileRef, {})
+                          .then(res => {
+                            console.log('The file saved to ', res);
+                            Alert.alert('Download sucessfully!');
+                          });
                         // console.log(require('react-native').NativeModules)
                         // const DownloadManager = require('react-native').NativeModules.DownloadManager;
-        
+
                         // // Download the file from the URL
                         // DownloadManager.download(url, 'filename.pdf', 'Description', (result) => {
                         //   console.log('Download result:', result);
@@ -215,17 +221,18 @@ const LessonDetailScreen = ({route}) => {
                         console.log('Storage permission denied');
                       }
                     });
-                }}
+                  }
+                }
               })
-              .catch((error) => {
-                console.log(error.message)
+              .catch(error => {
+                console.log(error.message);
               });
           }
         });
       });
   };
 
-  const handleDownload1 = (myItem) => {
+  const handleDownload1 = myItem => {
     firebase
       .firestore()
       .collection('lessons')
@@ -234,67 +241,75 @@ const LessonDetailScreen = ({route}) => {
       .where('courseAuthor', '==', item.courseAuthor)
       .where('chapterTitle', '==', item.chapterTitle)
       .get()
-      .then((querySnapshot) => {
+      .then(querySnapshot => {
         let documentId;
         if (!querySnapshot.empty) {
           documentId = querySnapshot.docs[0].id;
         }
         return documentId;
       })
-      .then((documentId) => {
-        const docRef = firebase.firestore().collection('lessons').doc(documentId);
-  
+      .then(documentId => {
+        const docRef = firebase
+          .firestore()
+          .collection('lessons')
+          .doc(documentId);
+
         // Get the document from Firestore
-        docRef.get().then((doc) => {
+        docRef.get().then(doc => {
           if (doc.exists) {
             const storageRef1 = myItem;
             storageRef1
               .getDownloadURL()
-              .then((url) => {
-                const files = doc.data().tests
+              .then(url => {
+                const files = doc.data().tests;
                 if (files) {
-                  const index = files.findIndex((file) =>file === url)
-                  if(index !== -1) {
+                  const index = files.findIndex(file => file === url);
+                  if (index !== -1) {
                     const fileRef = doc.data().files[index];
                     const storageRef = firebase.storage().refFromURL(fileRef);
                     console.log('Download1!');
-                    storageRef.getDownloadURL().then(async(url) => {
+                    storageRef.getDownloadURL().then(async url => {
                       console.log('Download2!');
                       const granted = await PermissionsAndroid.request(
                         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
                         {
                           title: 'Storage Permission',
-                          message: 'This app needs access to your storage to download files.',
+                          message:
+                            'This app needs access to your storage to download files.',
                           buttonNeutral: 'Ask Me Later',
                           buttonNegative: 'Cancel',
                           buttonPositive: 'OK',
-                        }
+                        },
                       );
-        
+
                       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
                         // Permission granted
                         const {config, fs} = RNFetchBlob;
-                        const date = new Date()
-                        const fileDir = fs.dirs.DownloadDir
+                        const date = new Date();
+                        const fileDir = fs.dirs.DownloadDir;
                         config({
                           fileCache: true,
                           addAndroidDownloads: {
                             useDownloadManager: true,
                             notification: true,
-                            path: fileDir + '/download_' + Math.floor(date.getDate() + date.getSeconds() / 2) + '.pdf',
-                            description: 'file download'
-                          }
+                            path:
+                              fileDir +
+                              '/download_' +
+                              Math.floor(
+                                date.getDate() + date.getSeconds() / 2,
+                              ) +
+                              '.pdf',
+                            description: 'file download',
+                          },
                         })
-                        .fetch('GET', fileRef, {
-        
-                        })
-                        .then(res => {
-                          console.log ('The file saved to ', res)
-                          Alert.alert("Download sucessfully!")
-                        })
+                          .fetch('GET', fileRef, {})
+                          .then(res => {
+                            console.log('The file saved to ', res);
+                            Alert.alert('Download sucessfully!');
+                          });
                         // console.log(require('react-native').NativeModules)
                         // const DownloadManager = require('react-native').NativeModules.DownloadManager;
-        
+
                         // // Download the file from the URL
                         // DownloadManager.download(url, 'filename.pdf', 'Description', (result) => {
                         //   console.log('Download result:', result);
@@ -304,10 +319,11 @@ const LessonDetailScreen = ({route}) => {
                         console.log('Storage permission denied');
                       }
                     });
-                }}
+                  }
+                }
               })
-              .catch((error) => {
-                console.log(error.message)
+              .catch(error => {
+                console.log(error.message);
               });
           }
         });
@@ -315,8 +331,13 @@ const LessonDetailScreen = ({route}) => {
   };
   return (
     <SafeAreaView style={styles.container}>
-    {console.log('item', item)}
-    {console.log('item1', item1)}
+      {console.log('item', item)}
+      {console.log('item1', item1)}
+      <BackButton
+        style={{marginBottom: scale(10, 'h')}}
+        type={1}
+        onPress={() => navigation.goBack()}
+      />
       <View>
         <View style={styles.container1}>
           <ImageBackground
@@ -352,13 +373,18 @@ const LessonDetailScreen = ({route}) => {
             </TouchableOpacity> */}
           </View>
           <FlatList
-              horizontal
-              numColumns={1}
-              data={materials}
-              renderItem={({item, index}) => {
-                return <ItemPdf title={item.name} onPress={() => handleDownload(item)}/>;
-              }}
-            />
+            horizontal
+            numColumns={1}
+            data={materials}
+            renderItem={({item, index}) => {
+              return (
+                <ItemPDFDetail
+                  title={item.name}
+                  onPress={() => handleDownload(item)}
+                />
+              );
+            }}
+          />
           <View style={styles.downloadContainer}>
             <View style={styles.infoTextContainer}>
               <Text style={styles.infoText}>Test:</Text>
@@ -369,12 +395,17 @@ const LessonDetailScreen = ({route}) => {
             </TouchableOpacity> */}
           </View>
           <FlatList
-              horizontal
-              numColumns={1}
-              data={tests}
-              renderItem={({item, index}) => {
-                return <ItemPdf title={item.name} onPress={() => handleDownload1(item)}/>;
-              }}
+            horizontal
+            numColumns={1}
+            data={tests}
+            renderItem={({item, index}) => {
+              return (
+                <ItemPDFDetail
+                  title={item.name}
+                  onPress={() => handleDownload1(item)}
+                />
+              );
+            }}
           />
           {/* <TouchableOpacity style={styles.nextButton}>
             <Text style={styles.nextBtnText}>Next</Text>
@@ -412,9 +443,7 @@ const LessonDetailScreen = ({route}) => {
       }
     </SafeAreaView>
   );
-}
-
-
+};
 
 export default LessonDetailScreen;
 
@@ -523,7 +552,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'flex-end',
-    bottom: scale(160, 'h'),
+    bottom: scale(100, 'h'),
     right: scale(35, 'w'),
     flexDirection: 'row',
     elevation: 7,

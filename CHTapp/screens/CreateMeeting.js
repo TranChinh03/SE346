@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     TextInput,
     ScrollView,
-    Alert
+    Alert,
   } from 'react-native';
   import React, {Component, useState, useEffect} from 'react';
   import BackButton from '../src/components/backButton';
@@ -21,8 +21,8 @@ import {
   import BtnDelete from '../src/components/BtnDelete';
   import ItemMeeting from '../src/components/ItemMeeting';
   import {useNavigation} from '@react-navigation/native';
-import DropDownPicker from 'react-native-dropdown-picker';
-import {firebase} from '../configs/FirebaseConfig'
+  import {firebase} from '../configs/FirebaseConfig'
+  import DropDownPicker from 'react-native-dropdown-picker';
 
   
   
@@ -42,160 +42,102 @@ import {firebase} from '../configs/FirebaseConfig'
     const [language, setLanguage] = useState('')
     const [host, setHost] = useState('')
 
-    useEffect(() => {
-      firebase.firestore().collection('users')
-      .doc(firebase.auth().currentUser.uid).get()
-      .then((snapshot) => {
-        if(snapshot.exists)
-        {
-          setHost(snapshot.data())
-        }
-        else {
-          console.log('User does not exist')
-        }
-      })
-    }, [])
+    const [myCourse, setMyCourse] = useState('');
 
+    const [name, setName] = useState('')
+    const [meetingName, setMeetingName] = useState('')
+    const [time, setTime] = useState('')
+    const [date, setDate] = useState('')
+    const [link, setLink] = useState('')
 
     const navigation = useNavigation();
 
     useEffect(() => {
-      const fetchData = async () => {
-        setMyCourse([])
-        // Check if name.email is defined
-        if (host.email) {
-          // Fetch data from Firestore and filter the results
-          const querySnapshot = await firebase.firestore()
-            .collection('courses')
-            .get();
-            console.log('querySnapshot', querySnapshot)
-        
-    
-          // Update the state with the new data
-          let index = 0;
-          querySnapshot.forEach(documentSnapshot => {
-            const fieldValue = documentSnapshot.get('title');
-            console.log(fieldValue)
-            setMyCourse(prevData => [
-              ...prevData,
-              {label: fieldValue, value: index.toString()},
-            ]);
-            index++;
-          });
-        }
-        console.log('myCourse', myCourse)
-      };
-    
-      fetchData();
-    }, [host.email]);
+      firebase
+        .firestore()
+        .collection('users')
+        .doc(firebase.auth().currentUser.uid)
+        .get()
+        .then(snapshot => {
+          if (snapshot.exists) {
+            setName(snapshot.data());
+            console.log(name);
+          } else {
+            console.log('User does not exist');
+          }
+        });
+
+        setCourse([])
+
+        firebase
+        .firestore()
+        .collection('courses')
+        .get()
+        .then(snapshot => {
+          snapshot.forEach(documentSnapshot => {
+            const documentData = documentSnapshot.data();
+            // Process the document data as needed
+            if (documentData.author === name.email)
+            {
+              const newCourse = {
+                label: documentData.title,
+                value: documentData.title,
+              }
+              setCourse(prevCourse => [...prevCourse, newCourse])
+              console.log('course', course)
+            }
+          })
+        })
+    }, [name.email]);
+
+    // useEffect(() => {
+    //   firebase
+    //   .firestore()
+    //   .collection('courses')
+    //   .get()
+    //   .then(snapshot => {
+    //     snapshot.forEach(documentSnapshot => {
+    //       const documentData = documentSnapshot.data();
+    //       // Process the document data as needed
+    //       if (documentData.author === name.email)
+    //       {
+    //         const newCourse = {
+    //           label: documentData.title,
+    //           value: documentData.title,
+    //         }
+    //         setCourse(prevCourse => [...prevCourse, newCourse])
+    //         console.log('course', course)
+    //       }
+    //     })
+    //   })
+    // }, [])
 
     const addMeeting = async () => {
       try {
-         if(name !== '' && time !== '' && date !== '' && course !== '' && link!== ''&&language!== '')
+        console.log(name, time, date, myCourse, link)
+
+        if (name !== '' && time !== '' && date !== '' && myCourse !== '' && link !== '')
          {
-      
-          // Add a new course document to the 'courses' collection
-          await firebase.firestore().collection('meetings').add({
-            host: host.name,
-            date: date,
-            joinUrl: link,
-            time: time,
-            title: name,
-            subject: language,
-          });
-      
-          Alert.alert('Add Meeting Successfully!');
-          navigation.goBack();
-         }
-         else {
-          Alert.alert('Please fill full information!');
-         }
+            await firebase.firestore().collection('meetings').add({
+              host: name.name,
+              date: date,
+              title: meetingName,
+              time: time,
+              joinUrl: link,
+              subject: myCourse,
+            })
+            
+            Alert.alert("Add meeting successfully!")
+            navigation.navigate('YourMeeting')
+          }
+          else
+            Alert.alert('Please fill full information!')
       } catch (error) {
-        console.log('Error adding meeting:', error);
-      }
-    };
-
-    const renderItem = ({item}) => {
-      if(item.type ==='content1'){
-        return  (
-          <View>
-            <View>
-              <Text style={styles.txtTiltle}>Meeting Name</Text>
-              <TextInput style={styles.txtInput} onChangeText={(name) => setName(name)}></TextInput>
-            </View>
-
-            <View>
-              <Text style={styles.txtTiltle}>Time</Text>
-              <TextInput style={styles.txtInput} onChangeText={(time) => setTime(time)}></TextInput>
-            </View>
-
-            <View>
-              <Text style={styles.txtTiltle}>Date</Text>
-              <TextInput style={styles.txtInput} onChangeText={(date) => setDate(date)}></TextInput>
-            </View>
-
-            <View>
-              <Text style={styles.txtTiltle}>Language</Text>
-              <TextInput style={styles.txtInput} onChangeText={(language) => setLanguage(language)}></TextInput>
-            </View>
-          </View>
-        )
-      }
-      else if(item.type === 'dropdown')
-      {
-        return (
-          <View>
-            <Text style={styles.txtTiltle}>Course</Text>
-            <View style={styles.conDropDown}>
-              <DropDownPicker
-                style={styles.dropDown}
-                textStyle={styles.txtDropDown}
-                dropDownDirection="TOP"
-                dropDownContainerStyle={styles.condropdown2}
-                open={open1}
-                value={value1}
-                items={myCourse}
-                setOpen={setOpen1}
-                setValue={setValue1}
-                setItems={setMyCourse}
-                multiple={false}
-                mode="BADGE"
-                badgeDotColors={['#e76f51', '#00b4d8']}
-                onChangeValue={(value) => {
-                  // Find the selected item
-                  const selectedItem = myCourse.find(item => item.value === value);
-                  // Set the myCourse state to the label of the selected item
-                  if (selectedItem) {
-                    setCourse(selectedItem.label);
-                  }
-                }}
-              />
-            </View>
-
-            <View>
-              <Text style={styles.txtTiltle}>Link</Text>
-              <TextInput style={styles.txtInput} onChangeText={(link) => setLink(link)}></TextInput>
-            </View>
-
-            <View style={styles.space}/>
-          </View>
-        )
-      }
-      else {
-        return (
-          <View>
-            <View style={styles.space}>
-              <View style={[styles.space]}></View>
-           </View>
-          </View>
-        )
+        console.log('Error adding course:', error)
       }
     }
 
-    const data = [
-      { id: 'content1', type: 'content1'},
-      { id: 'dropdown', type: 'dropdown' },
-    ];
+  
 
       return (
         <SafeAreaView style={styles.container}>
@@ -209,13 +151,60 @@ import {firebase} from '../configs/FirebaseConfig'
             </View>
           </ImageBackground>
           <View style={styles.content}>
-            <FlatList
-            showsVerticalScrollIndicator={false}
-            data={data}
-            renderItem={renderItem}
-            keyExtractor={item => item.id}></FlatList>
+            <ScrollView showsVerticalScrollIndicator={false}>
+            <View>
+              <Text style={styles.txtTiltle}>Meeting Name</Text>
+              <TextInput style={styles.txtInput} onChangeText={(meetingName) => setMeetingName(meetingName)}></TextInput>
+            </View>
+
+            <View>
+              <Text style={styles.txtTiltle}>Time</Text>
+              <TextInput style={styles.txtInput} onChangeText={(time) => setTime(time)}></TextInput>
+            </View>
+
+            <View>
+              <Text style={styles.txtTiltle}>Date</Text>
+              <TextInput style={styles.txtInput} onChangeText={(date) => setDate(date)}></TextInput>
+            </View>
+
+            <Text style={styles.txtTiltle}>Course</Text>
+            <View style={styles.conDropDown}>
+              <DropDownPicker
+                style={styles.dropDown}
+                textStyle={styles.txtDropDown}
+                dropDownDirection="TOP"
+                dropDownContainerStyle={styles.condropdown2}
+                open={open}
+                value={value}
+                items={course}
+                setOpen={setOpen}
+                setValue={setValue}
+                setItems={setCourse}
+                multiple={false}
+                mode="BADGE"
+                badgeDotColors={['#e76f51', '#00b4d8']}
+                onChangeValue={(value) => {
+                  // Find the selected item
+                  const selectedItem = course.find(item => item.value === value);
+                  // Set the myCourse state to the label of the selected item
+                  if (selectedItem) {
+                    setMyCourse(selectedItem.label);
+                    console.log(myCourse)
+                  }
+                }}
+              />
+            </View>
+
+            <View>
+              <Text style={styles.txtTiltle}>Link</Text>
+              <TextInput style={styles.txtInput} onChangeText={(link) => setLink(link)}></TextInput>
+            </View>
+
+            <View style={styles.space}/>
+              
+            </ScrollView>
           </View>
-          <BtnTick onPress = {() => addMeeting()}/>
+          <BtnTick onPress = {() => {addMeeting()}}/>
         </SafeAreaView>
       );
     }
@@ -334,6 +323,13 @@ export default CreateMeeting
       fontSize: CUSTOM_SIZES.medium,
       fontFamily: CUSTOM_FONTS.regular,
       backgroundColor: 'transparent',
+    },
+    conDropDown: {
+      height: scale(45, 'h'),
+      width: scale(320, 'w'),
+      //backgroundColor: 'yellow',
+      alignSelf: 'center',
+      //marginLeft: scale(15, 'w'),
     },
     condropdown2: {
       borderColor: CUSTOM_COLORS.usBlue,
