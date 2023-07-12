@@ -367,7 +367,7 @@ const AddCourseScreen = ({route}) => {
         });
     
         Alert.alert('Add Course Successfully!');
-        navigation.navigate('Course');
+        navigation.navigate('Course', {item: 'AllCourses'});
        }
        else {
         Alert.alert('Please fill full information!');

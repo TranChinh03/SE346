@@ -648,7 +648,7 @@ const AddLessonScreen = () => {
       })
       .then(() => {
         Alert.alert('Add Lesson Successfully!');
-        navigation.navigate('Course');
+        navigation.navigate('Course', {item: 'AllCourses'});
       });
   };
 

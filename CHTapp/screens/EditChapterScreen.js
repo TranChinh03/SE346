@@ -35,6 +35,7 @@ const  EditChapterScreen = ({route})  => {
   const [name, setName] = useState('')
 
 
+
   useEffect (() => {
     LessonList().then(data => setLessons(data));
   }, [preItem.title, preItem.courseAuthor, lessons])
@@ -254,7 +255,7 @@ const  EditChapterScreen = ({route})  => {
           />
       </View>
 
-      <BtnTick onPress={() => (updateChapter(), navigation.goBack)}/>
+      <BtnTick onPress={() => (updateChapter(), navigation.navigate('EditCourse', {preItem: preItem }))}/>
     </SafeAreaView>
   );
 }

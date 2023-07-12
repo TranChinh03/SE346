@@ -55,7 +55,6 @@ const LessonDetailScreen = ({route}) => {
   const {item, item1} = route.params;
   const [materials, setMaterials] = useState([]);
   const [tests, setTests] = useState([])
-  const [isAuthor, setIsAuthor] = useState(false)
   const [name, setName] = useState('')
 
   useEffect(() => {
@@ -98,16 +97,10 @@ const LessonDetailScreen = ({route}) => {
     return finalData;
   }
 
-  async function CheckAuthor() {
-    if(item.courseAuthor === name.email)
-      return true
-    return false
-  }
 
   useEffect(() => {
     MaterialList().then(data => setMaterials(data))
     TestList().then(data => setTests(data))
-    CheckAuthor().then(data => setIsAuthor(data))
   }, [])
 
   async function TestList() {
@@ -429,7 +422,7 @@ const LessonDetailScreen = ({route}) => {
         </View>
       </View>
       {
-        isAuthor === true ? (
+        item.courseAuthor === name.email ? (
           <TouchableOpacity
             style={styles.fixedBtnEdit}
             onPress={() =>

@@ -10,7 +10,7 @@ import {
   TextInput,
 } from 'react-native';
 import React, {Component, useState, useEffect} from 'react';
-import {IMG_PROFILEBACKGROUND, IMG_AVT} from '../src/assets/img';
+import {IMG_PROFILEBACKGROUND, IMG_AVT, IMG_CPP} from '../src/assets/img';
 import {IC_EDIT_PRO5, IC_SETTING} from '../src/assets/icons';
 import CUSTOM_COLORS from '../src/constants/colors';
 import scale from '../src/constants/responsive';
@@ -22,6 +22,11 @@ import {useNavigation} from '@react-navigation/native';
 import TextInputDisplayBox from '../src/components/textInputDisplayBox';
 import {IC_Tick} from '../src/assets/iconsvg';
 import BackButton from '../src/components/backButton';
+import uuid from 'react-native-uuid';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker'
+import {utils} from '@react-native-firebase/app'
+import storage from '@react-native-firebase/storage'
+
 
 const ProfileEditScreen = () => {
   const [profile, setProfile] = useState('');
@@ -32,6 +37,7 @@ const ProfileEditScreen = () => {
   // const [job, setJob] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [imageUri, setImageUri] = useState(null)
 
   const navigation = useNavigation();
 
@@ -47,10 +53,7 @@ const ProfileEditScreen = () => {
         if (snapshot.exists) {
           setProfile(snapshot.data());
           setName(profile.name);
-          // setFirstName(profile.firstname);
-          // setLastName(profile.lastname);
           setBirthday(profile.birthday);
-          // setJob(profile.job);
           setEmail(profile.email);
           setPhone(profile.phone);
         } else {
@@ -59,8 +62,10 @@ const ProfileEditScreen = () => {
       });
   }, []);
 
-  const updateProfile = () => {
+  const updateProfile = async() => {
     const updateData = {};
+
+    const imageUrl = await handleUpload();
 
     if (name !== undefined) {
       updateData.name = name;
@@ -85,6 +90,9 @@ const ProfileEditScreen = () => {
       updateData.phone = phone;
     }
 
+    if (imageUrl !== undefined) {
+      updateData.ava = imageUrl;
+    }
     firebase
       .firestore()
       .collection('users')
@@ -126,14 +134,62 @@ const ProfileEditScreen = () => {
     }
   };
 
+  const handleButtonPress = () => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: false,
+      maxHeight: 200,
+      maxWidth: 200,
+    };
+  
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        setImageUri(response.assets[0].uri);
+        console.log('imageUri', imageUri)
+      }
+    });
+  };
+
+  const handleUpload = async () => {
+    if (imageUri) {
+      try {
+        const reference = storage().ref(`images/${Date.now()}.jpg`);
+        const task = reference.putFile(imageUri);
+        task.on('state_changed', (snapshot) => {
+          console.log(
+            `${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}% completed`
+          );
+        });
+  
+        await task;
+        const url = await reference.getDownloadURL();
+        console.log('Image uploaded to Firebase storage:', url);
+        return url;
+  
+        // const pathToFile = `${utils.FilePath.imageUri}`
+  
+        // reference.put(imageUri).then((snapshot) => {
+        //   console.log('test',snapshot.ref.getDownloadURL())
+        //   return snapshot.ref.getDownloadURL();
+        // });
+      } catch (error) {
+        Alert.alert(error.message);
+      }
+    }
+  };
+  
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.bgContainer}>
-        <TouchableOpacity style={styles.background}> 
-          <ImageBackground
+        <ImageBackground
             source={IMG_PROFILEBACKGROUND}
+            style={styles.background}
           />
-        </TouchableOpacity>
         <View
           style={{
             justifyContent: 'center',
@@ -158,9 +214,14 @@ const ProfileEditScreen = () => {
 
       <View style={styles.contentContainer}>
         <View style={styles.avtContainer}>
-          <View style={styles.avtFrame}>
-            <Image style={styles.avt} source={IMG_AVT} />
-          </View>
+          <TouchableOpacity style={styles.avtFrame} onPress={() => handleButtonPress()}>
+            {imageUri ? <Image style={styles.avt} source={{uri: imageUri}} /> : 
+              (
+                profile.ava === "" ? 
+                <Image style={styles.avt} source={IMG_AVT} /> : 
+                <Image style={styles.avt} source={{uri: profile.ava}} />
+              )}
+          </TouchableOpacity>
         </View>
 
         <View style={styles.nameContainer}>
@@ -231,6 +292,7 @@ const ProfileEditScreen = () => {
               <TextInputDisplayBox
                 label="Date of birth"
                 text={profile.birthday}
+                onChangeText={myBirthday => setBirthday(myBirthday)}
               />
             </View>
             {/* <View style={styles.contentRow}>

@@ -3,7 +3,7 @@ import React, { Component, useState, useEffect } from 'react'
 import BackButton from '../src/components/backButton'
 import scale from '../src/constants/responsive'
 import CUSTOM_COLORS from '../src/constants/colors'
-import { IMG_AVT } from '../src/assets/img'
+import { IMG_AVT, IMG_CPP } from '../src/assets/img'
 import { IC_RightArrow, IC_Help, IC_Language, IC_Moon, IC_Notification, IC_LOGOUT } from '../src/assets/iconsvg'
 // import SwitchButton from '../src/components/switch'
 import {firebase} from '../configs/FirebaseConfig';
@@ -218,7 +218,15 @@ const SettingScreen = ()  => {
                 <View style={styles.accountContent}>
                     <View style={{flex: 3}}>
                         <View style={styles.avtFrame}>
-                            <Image style={styles.avt} source={IMG_AVT}/>
+                        {profile.ava === '' ? 
+                        <Image
+                            source={IMG_AVT}
+                            style={styles.avt}/>
+                        : 
+                        <Image
+                            source={{uri: profile.ava}}
+                            style={styles.avt}/>
+                        }
                         </View>
                     </View>
                     <View style={{flex: 5, padding: scale(20, 'w')}}>

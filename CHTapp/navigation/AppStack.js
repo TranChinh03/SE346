@@ -35,6 +35,7 @@ import SearchScreen from '../screens/SearchScreen';
 import RatingScreen from '../screens/RatingScreen';
 import EditChapterScreen from '../screens/EditChapterScreen';
 import EditLessonScreen from '../screens/EditLessonScreen';
+import { CommonActions } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 
@@ -56,6 +57,20 @@ const HomeTabs = () => {
       <Tab.Screen
         name="HomeStack"
         component={HomeStack}
+        listeners={({ navigation }) => ({
+          tabPress: e => {
+            // Prevent default behavior
+            e.preventDefault();
+
+            // Reset the state of the CourseStack
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+              })
+            );
+          },
+        })}
         options={{
           tabBarIcon: ({focused}) => (
             <View>
@@ -71,6 +86,20 @@ const HomeTabs = () => {
       <Tab.Screen
         name="CourseStack"
         component={CourseStack}
+        listeners={({ navigation }) => ({
+          tabPress: e => {
+            // Prevent default behavior
+            e.preventDefault();
+
+            // Reset the state of the CourseStack
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Course' }],
+              })
+            );
+          },
+        })}
         options={{
           tabBarIcon: ({focused}) => (
             <View>
@@ -86,6 +115,20 @@ const HomeTabs = () => {
       <Tab.Screen
         name="MeetingStack"
         component={MeetingStack}
+        listeners={({ navigation }) => ({
+          tabPress: e => {
+            // Prevent default behavior
+            e.preventDefault();
+
+            // Reset the state of the CourseStack
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'YourMeeting' }],
+              })
+            );
+          },
+        })}
         options={{
           tabBarIcon: ({focused}) => (
             <View>
@@ -116,6 +159,20 @@ const HomeTabs = () => {
       <Tab.Screen
         name="SettingStack"
         component={SettingStack}
+        listeners={({ navigation }) => ({
+          tabPress: e => {
+            // Prevent default behavior
+            e.preventDefault();
+
+            // Reset the state of the CourseStack
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Setting' }],
+              })
+            );
+          },
+        })}
         options={{
           tabBarIcon: ({focused}) => (
             <View>

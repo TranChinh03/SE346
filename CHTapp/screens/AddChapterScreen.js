@@ -313,7 +313,7 @@ const AddChapterScreen = ({route}) => {
       })
       .then(() => {
         Alert.alert('Add Chapter Successfully!')
-        navigation.navigate('Course')
+        navigation.navigate('Course', {item: 'AllCourses'})
       })
     }
     else {

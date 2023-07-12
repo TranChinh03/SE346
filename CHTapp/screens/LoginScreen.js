@@ -10,6 +10,7 @@ import BackButton from '../src/components/backButton';
 import {useNavigation} from '@react-navigation/native';
 import {firebase} from '../configs/FirebaseConfig';
 import CUSTOM_FONTS from '../src/constants/fonts';
+import { CommonActions } from '@react-navigation/native';
 import {
   Text,
   View,
@@ -35,7 +36,14 @@ const LoginScreen = () => {
     try {
       const user = await firebase.auth().signInWithEmailAndPassword(email, password)
       if(user)
-        navigation.navigate('HomeTabs'
+        // navigation.navigate('HomeTabs'
+        // );
+      
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'HomeTabs' }],
+          })
         );
     } catch (error) {
       Alert.alert('Email or password is incorrect!');

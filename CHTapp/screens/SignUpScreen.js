@@ -58,6 +58,9 @@ const SignUpScreen = () => {
                 name,
                 email,
                 favoriteCourses: favor,
+                phone: '',
+                birthday: '',
+                ava: '',
               });
           })
           .catch(error => {
