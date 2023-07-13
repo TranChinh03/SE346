@@ -323,6 +323,15 @@ const EditCourseScreen = ({route}) => {
       language !== '' &&
       myProgramLanguage !== ''
     ) {
+
+      preItem.title = title
+      preItem.description = description
+      preItem.language = language
+      preItem.programLanguage = myProgramLanguage
+      preItem.lastUpdate = now
+
+      console.log('preItem after edit', preItem)
+
       firebase
         .firestore()
         .collection('courses')
@@ -333,6 +342,7 @@ const EditCourseScreen = ({route}) => {
           if (!querrySnapshot.empty) {
             const documentId = querrySnapshot.docs[0].id;
             if (imageUrl) {
+              preItem.image = imageUrl
               console.log('Hi');
               firebase
                 .firestore()
@@ -346,8 +356,8 @@ const EditCourseScreen = ({route}) => {
                   lastUpdate: now,
                   image: imageUrl,
                 });
-            } else {
-              console.log('Hello');
+            }else {
+              console.log('Hello1');
               firebase
                 .firestore()
                 .collection('courses')
@@ -358,7 +368,6 @@ const EditCourseScreen = ({route}) => {
                   language: language,
                   programLanguage: myProgramLanguage,
                   lastUpdate: now,
-                  image: '',
                 });
             }
           }
@@ -456,6 +465,12 @@ const EditCourseScreen = ({route}) => {
             }
           });
         });
+
+        navigation.navigate('CourseStack', {
+          screen: 'CourseDetail',
+          params: {preItem: preItem},
+        });
+        
     } else {
       Alert.alert('Please fill full enough information!');
     }
@@ -481,10 +496,6 @@ const EditCourseScreen = ({route}) => {
       <BtnTick
         onPress={() => {
           updateCourse();
-          navigation.navigate('CourseStack', {
-            screen: 'CourseDetail',
-            params: {preItem: preItem},
-          });
         }}
       />
     </SafeAreaView>

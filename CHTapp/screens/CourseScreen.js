@@ -42,7 +42,6 @@ const CourseScreen = ({route}) => {
       .then(snapshot => {
         if (snapshot.exists) {
           setName(snapshot.data());
-          console.log('name', name)
         } else {
           console.log('User does not exist');
         }
@@ -99,7 +98,7 @@ const CourseScreen = ({route}) => {
     return joinedData;
   }
 
-  async function joinedMyFavorite() {
+  async function joinedMyFavorite(curEmail) {
     const courseRef = firebase.firestore().collection('courses');
     const courseSnapshot = await courseRef.get();
     const courseData = courseSnapshot.docs.map(doc => ({
@@ -121,20 +120,7 @@ const CourseScreen = ({route}) => {
       ...doc.data(),
     }));
 
-    firebase
-    .firestore()
-    .collection('users')
-    .doc(firebase.auth().currentUser.uid)
-    .get()
-    .then(snapshot => {
-      if (snapshot.exists) {
-        setCurAccount(snapshot.data());
-      } else {
-        console.log('User does not exist');
-      }
-    });
-    console.log('curAccount', curAccount.email)
-    const filterUser = userData.filter(filter => filter.email === curAccount.email);
+    const filterUser = userData.filter(filter => filter.email === curEmail);
     if (filterUser.length > 0) {
       const favoriteCourse = filterUser[0].favoriteCourses
         .filter(filter => filter.isFavor === true)
@@ -147,9 +133,12 @@ const CourseScreen = ({route}) => {
           const thirdItem = authorData.find(item => item.email === secondItem.author);
           return { ...firstItem, ...secondItem, ...thirdItem };
         });
+        return favoriteCourse;
     } else {
       console.log("Don't have filerUser")
     }
+
+    return;
 
 
     // const joinedData = userData
@@ -178,7 +167,6 @@ const CourseScreen = ({route}) => {
     //   });
     // console.log('joinedData', joinedData)
     // console.log('joinedMyFavorite', joinedData[0].favoriteCourses)
-    return favoriteCourse;
   }
 
   // useFocusEffect(
@@ -214,7 +202,7 @@ const CourseScreen = ({route}) => {
 
   useEffect(() => {
     async function getData() {
-      const favorite = await joinedMyFavorite();
+      const favorite = await joinedMyFavorite(name.email);
       setFavorite(favorite);
     }
 

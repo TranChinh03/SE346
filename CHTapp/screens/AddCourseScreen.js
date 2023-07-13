@@ -66,7 +66,7 @@ const AddCourseScreen = ({route}) => {
 
   const [name, setName] = useState('')
 
-  const [imageUri, setImageUri] = useState(null)
+  const [imageUri, setImageUri] = useState('')
 
   const handleButtonPress = () => {
     const options = {
@@ -89,7 +89,7 @@ const AddCourseScreen = ({route}) => {
   };
 
   const handleUpload = async () => {
-    if (imageUri) {
+    if (imageUri !== '') {
       try {
         const reference = storage().ref(`images/${Date.now()}.jpg`);
         const task = reference.putFile(imageUri);

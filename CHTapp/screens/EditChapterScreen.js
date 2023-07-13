@@ -48,8 +48,6 @@ const EditChapterScreen = ({route}) => {
         if (snapshot.exists) {
           setName(snapshot.data());
           setTitle(preItem.title);
-          console.log('preItem', preItem);
-          console.log('title', title);
         } else {
           console.log('User does not exist');
         }
@@ -174,16 +172,17 @@ const EditChapterScreen = ({route}) => {
         <View>
           <Text style={styles.txtChapter}>Chapter name</Text>
           <TextInput
-            cursorColor={CUSTOM_COLORS.usBlue}
             multiline
             style={styles.txbChapterName}
-            onChangeText={myTitle => setTitle(myTitle)}>
-            {preItem.title}
-          </TextInput>
+            onChangeText={myTitle => setTitle(myTitle)}
+          >{preItem.title}</TextInput>
           <Text style={styles.txtChapter}>Lesson</Text>
           <TouchableOpacity
             style={styles.conAddLesson}
-            onPress={() => navigation.navigate('AddLessonScreen2')}>
+            onPress={() => navigation.navigate('CourseStack', {
+              screen: 'AddLessonScreen2',
+              params: {preItem: preItem},
+            })}>
             <Text style={styles.txtInfo}>Add Lesson</Text>
             <IC_RightArrow2 />
           </TouchableOpacity>
