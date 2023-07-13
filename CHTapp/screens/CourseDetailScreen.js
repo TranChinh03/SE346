@@ -430,7 +430,7 @@ const CourseDetailScreen = ({route}) => {
                       .delete()
                       .then(() => {
                         console.log('Courses is deleted!');
-                        navigate.goBack();
+                        navigation.goBack();
                       });
                   });
                 }
@@ -548,7 +548,6 @@ const CourseDetailScreen = ({route}) => {
               />
             </TouchableOpacity>
           </View>
-          {console.log('image', preItem.image)}
           {preItem.image === '' ? (
             <Image
               source={IMG_CPPBACKGROUND}
@@ -714,6 +713,7 @@ const CourseDetailScreen = ({route}) => {
 
   return (
     <SafeAreaView style={styles.container}>
+    {console.log('preItem of Course Detail', preItem)}
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}

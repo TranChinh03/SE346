@@ -48,18 +48,19 @@ var titles = [
   'C++.pdf',
 ];
 
-const AddLessonScreen2 = () => {
+const AddLessonScreen2 = ({route}) => {
+  const {preItem} = route.params;
   const [refreshMaterial, setRefreshMaterial] = useState(false);
   const [refreshTest, setRefreshTest] = useState(false);
   const [typeDoc, setTypeDoc] = useState(1);
-  //const navigation = useNavigation();
+  const navigation = useNavigation();
   const [shouldShow, setShouldShow] = useState(false);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
   const [open1, setOpen1] = useState(false);
   const [value1, setValue1] = useState('');
   const [chapter, setChapter] = useState([]);
-
+  const [parameter, setParameter] = useState('');
   const [course, setCourse] = useState([]);
   const [files, setFiles] = useState([]);
   const [documents, setDocuments] = useState([]);
@@ -73,20 +74,20 @@ const AddLessonScreen2 = () => {
 
   const [name, setName] = useState('');
 
-  //   useEffect(() => {
-  //     firebase
-  //       .firestore()
-  //       .collection('users')
-  //       .doc(firebase.auth().currentUser.uid)
-  //       .get()
-  //       .then(snapshot => {
-  //         if (snapshot.exists) {
-  //           setName(snapshot.data());
-  //         } else {
-  //           console.log('User does not exist');
-  //         }
-  //       });
-  //   }, []);
+    useEffect(() => {
+      firebase
+        .firestore()
+        .collection('users')
+        .doc(firebase.auth().currentUser.uid)
+        .get()
+        .then(snapshot => {
+          if (snapshot.exists) {
+            setName(snapshot.data());
+          } else {
+            console.log('User does not exist');
+          }
+        });
+    }, []);
 
   //   useEffect(() => {
   //     const fetchData = async () => {
@@ -138,6 +139,177 @@ const AddLessonScreen2 = () => {
   //     }
   //   };
 
+  async function pickDocument() {
+    try {
+      let index = 0;
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
+
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
+
+      //   console.log(newResult)
+      setDocuments(prevData => [...prevData, result[0]]);
+
+      index++;
+
+      console.log(documents);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  async function pickDocument1() {
+    try {
+      let index = 0;
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
+
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
+
+      //   console.log(newResult)
+      setDocuments1(prevData => [...prevData, result[0]]);
+
+      index++;
+
+      console.log(documents1);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
+  async function deleteDocument(value2) {
+    try {
+      //let index = 0;
+      // Let's say it's Bob.
+      // console.log(documents);
+      // console.log(value2);
+
+      var index;
+      documents.map(temp => {
+        if (temp.name === value2) index = documents.indexOf(temp);
+      });
+      //var index = documents.indexOf(value2);
+      delete documents[index];
+      for (index; index < documents.length; index++) {
+        documents[index] = documents[index + 1];
+      }
+      documents.length--;
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
+
+      //   console.log(newResult)
+      //setDocuments(prevData => [...prevData, result[0]]);
+
+      //index++;
+
+      setRefreshMaterial(!refreshMaterial);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
+
+
+  async function deleteDocument1(value2) {
+    try {
+      //let index = 0;
+      // Let's say it's Bob.
+      // console.log(documents);
+      // console.log(value2);
+
+      var index;
+      documents1.map(temp => {
+        if (temp.name === value2) index = documents1.indexOf(temp);
+      });
+      delete documents1[index];
+      for (index; index < documents1.length; index++) {
+        documents1[index] = documents1[index + 1];
+      }
+      documents1.length--;
+      // const newResult = result.map(item =>({
+      //   ...item,
+      //   key: index.toString()
+      //   }))
+
+      //   console.log(newResult)
+      //setDocuments(prevData => [...prevData, result[0]]);
+
+      //index++;
+
+      setRefreshTest(!refreshTest);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  async function requestStoragePermission() {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission',
+          message:
+            'This app needs access to your storage ' +
+            'so you can upload files.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can now access storage');
+      } else {
+        console.log('Storage permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  }
+
+  async function uriToBlob(uri) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function () {
+        reject(new Error('uriToBlob failed'));
+      };
+      xhr.responseType = 'blob';
+      xhr.open('GET', uri, true);
+      xhr.send(null);
+    });
+  }
+
+
+
+  
+
+
   const renderItem = ({item}) => {
     if (item.type === 'space') {
       return <View style={{height: scale(100, 'h')}} />;
@@ -156,10 +328,10 @@ const AddLessonScreen2 = () => {
       return (
         <View>
           <Text style={styles.txtTiltle}>Course</Text>
-          <Text style={styles.txtInput}>C++ for beginer</Text>
+          <Text style={styles.txtInput}>{preItem.courseTitle}</Text>
 
           <Text style={styles.txtTiltle}>Chapter</Text>
-          <Text style={styles.txtInput}>Chapter 1</Text>
+          <Text style={styles.txtInput}>{preItem.title}</Text>
         </View>
       );
     } else {
@@ -354,7 +526,6 @@ const AddLessonScreen2 = () => {
 
       index++;
 
-      console.log(documents);
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         // User cancelled the picker
@@ -381,7 +552,6 @@ const AddLessonScreen2 = () => {
 
       index++;
 
-      console.log(documents1);
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         // User cancelled the picker
@@ -402,7 +572,6 @@ const AddLessonScreen2 = () => {
         if (temp.name === value2) index = documents.indexOf(temp);
       });
       //var index = documents.indexOf(value2);
-      console.log('index: ' + index);
       delete documents[index];
       for (index; index < documents.length; index++) {
         documents[index] = documents[index + 1];
@@ -419,8 +588,6 @@ const AddLessonScreen2 = () => {
       //index++;
 
       setRefreshMaterial(!refreshMaterial);
-      console.log(documents);
-      console.log('index: ' + index);
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         // User cancelled the picker
@@ -442,7 +609,6 @@ const AddLessonScreen2 = () => {
         if (temp.name === value2) index = documents1.indexOf(temp);
       });
       //var index = documents.indexOf(value2);
-      console.log('index: ' + index);
       delete documents1[index];
       for (index; index < documents1.length; index++) {
         documents1[index] = documents1[index + 1];
@@ -459,8 +625,6 @@ const AddLessonScreen2 = () => {
       //index++;
 
       setRefreshTest(!refreshTest);
-      console.log(documents1);
-      console.log('index: ' + index);
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         // User cancelled the picker
@@ -577,29 +741,47 @@ const AddLessonScreen2 = () => {
 
   const now = firebase.firestore.Timestamp.now();
 
-  //   const addLesson = async () => {
-  //     const fileUrls = await handleUpload();
-  //     const fileUrls1 = await handleUpload1();
+    const addLesson = async () => {
+      const fileUrls = await handleUpload();
+      const fileUrls1 = await handleUpload1();
 
-  //     await firebase
-  //       .firestore()
-  //       .collection('lessons')
-  //       .add({
-  //         courseAuthor: name.email,
-  //         courseTitle: myCourse,
-  //         chapterTitle: myChapter,
-  //         lessonTitle: title,
-  //         files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
-  //         tests: firebase.firestore.FieldValue.arrayUnion(...fileUrls1),
-  //       })
-  //       .then(() => {
-  //         Alert.alert('Add Lesson Successfully!');
-  //         navigation.navigate('Course', {item: 'AllCourses'});
-  //       });
-  //   };
+      await firebase
+        .firestore()
+        .collection('lessons')
+        .add({
+          courseAuthor: name.email,
+          courseTitle: preItem.courseTitle,
+          chapterTitle: preItem.title,
+          lessonTitle: title,
+          files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
+          tests: firebase.firestore.FieldValue.arrayUnion(...fileUrls1),
+        })
+        .then(() => {
+          Alert.alert('Add Lesson Successfully!');
+          firebase
+          .firestore()
+          .collection('courses')
+          .where('title', '==', preItem.courseTitle)
+          .where('author', '==', preItem.courseAuthor)
+          .get()
+          .then(querySnapshot => {
+            if(!querySnapshot.empty) {
+              console.log(querySnapshot.docs[0].data())
+               setParameter(querySnapshot.docs[0].data())
+               navigation.navigate({
+                name: 'CourseDetail',
+                params: { preItem: querySnapshot.docs[0].data() },
+              });
+            }
+          })
+          
+          
+        });
+    };
 
   return (
     <SafeAreaView style={styles.container}>
+    {console.log ('preItem in addlesson2', preItem)}
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
           {/* <BackButton onPress={() => navigation.goBack()} /> */}
@@ -615,11 +797,11 @@ const AddLessonScreen2 = () => {
         />
       </View>
 
-      {/* <BtnTick
+      <BtnTick
         onPress={() => {
           addLesson();
         }}
-      /> */}
+      />
     </SafeAreaView>
   );
 };
