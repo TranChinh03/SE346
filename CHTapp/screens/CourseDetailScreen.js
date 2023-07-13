@@ -88,7 +88,6 @@ const CourseDetailScreen = ({route}) => {
   //   return unsubscribe;
   // });
 
-
   useEffect(() => {
     firebase
       .firestore()
@@ -98,7 +97,6 @@ const CourseDetailScreen = ({route}) => {
       .then(snapshot => {
         if (snapshot.exists) {
           setName(snapshot.data());
-          
         } else {
           console.log('User does not exist');
         }
@@ -133,9 +131,6 @@ const CourseDetailScreen = ({route}) => {
         }
       });
   }, [chapters, lessons, evaluation]);
-
-
-
 
   useEffect(() => {
     ChapterList().then(data => setChapters(data));
@@ -405,7 +400,6 @@ const CourseDetailScreen = ({route}) => {
     return starPercentage.toFixed(1);
   };
 
-
   const handleDeleteCourse = () => {
     Alert.alert(
       'Delete Course',
@@ -420,115 +414,118 @@ const CourseDetailScreen = ({route}) => {
           text: 'OK',
           onPress: () => {
             firebase
-            .firestore()
-            .collection('courses')
-            .where('title', '==', preItem.title)
-            .where('author', '==', preItem.author)
-            .get().then((querrySnapshot) => {
-              if(!querrySnapshot.empty)
-              {
-                querrySnapshot.forEach((doc) => {
-                  const documentId1 = doc.id
-                  firebase
-                  .firestore()
-                  .collection('courses')
-                  .doc(documentId1)
-                  .delete()
-                  .then(() => {
-                    console.log('Courses is deleted!')
-                    navigate.goBack()
-                  })
-                })
-              }
-            })
-
-            firebase
-            .firestore()
-            .collection('chapters')
-            .where('courseTitle', '==', preItem.title)
-            .where('courseAuthor', '==', preItem.author)
-            .get().then((querrySnapshot) => {
-              if(!querrySnapshot.empty)
-              {
-                querrySnapshot.forEach((doc) => {
-                  const documentId = doc.id
-                  firebase
-                  .firestore()
-                  .collection('chapters')
-                  .doc(documentId)
-                  .delete()
-                })
-              }
-            })
-
-            firebase
-            .firestore()
-            .collection('lessons')
-            .where('courseTitle', '==', preItem.title)
-            .where('courseAuthor', '==', preItem.author)
-            .get().then((querrySnapshot) => {
-              if(!querrySnapshot.empty)
-              {
-                querrySnapshot.forEach((doc) => {
-                  const documentId = doc.id
-                  firebase
-                  .firestore()
-                  .collection('lessons')
-                  .doc(documentId)
-                  .delete()
-                })
-              }
-            })
-
-            firebase
-            .firestore()
-            .collection('evaluate')
-            .where('courseTitle', '==', preItem.title)
-            .where('courseAuthor', '==', preItem.author)
-            .get().then((querrySnapshot) => {
-              if(!querrySnapshot.empty)
-              {
-                querrySnapshot.forEach((doc) => {
-                  const documentId = doc.id
-                  firebase
-                  .firestore()
-                  .collection('evaluate')
-                  .doc(documentId)
-                  .delete()
-                })
-              }
-            })
-
-            firebase
-            .firestore()
-            .collection('users')
-            .get().then((querrySnapshot) => {
-              querrySnapshot.forEach((doc) => {
-                if(doc.exists) {
-                  const documentId = doc.id
-                  const courses = doc.data().favoriteCourses;
-                  if(courses) {
-                    const index = courses.findIndex((course) => course.courseTitle === preItem.title && course.courseAuthor === preItem.author)
-                    if (index !== -1) {
-                      courses.splice(index , 1)
-                      firebase
+              .firestore()
+              .collection('courses')
+              .where('title', '==', preItem.title)
+              .where('author', '==', preItem.author)
+              .get()
+              .then(querrySnapshot => {
+                if (!querrySnapshot.empty) {
+                  querrySnapshot.forEach(doc => {
+                    const documentId1 = doc.id;
+                    firebase
                       .firestore()
-                      .collection('users')
+                      .collection('courses')
+                      .doc(documentId1)
+                      .delete()
+                      .then(() => {
+                        console.log('Courses is deleted!');
+                        navigate.goBack();
+                      });
+                  });
+                }
+              });
+
+            firebase
+              .firestore()
+              .collection('chapters')
+              .where('courseTitle', '==', preItem.title)
+              .where('courseAuthor', '==', preItem.author)
+              .get()
+              .then(querrySnapshot => {
+                if (!querrySnapshot.empty) {
+                  querrySnapshot.forEach(doc => {
+                    const documentId = doc.id;
+                    firebase
+                      .firestore()
+                      .collection('chapters')
                       .doc(documentId)
-                      .update({
-                        favoriteCourses: courses
-                      })
+                      .delete();
+                  });
+                }
+              });
+
+            firebase
+              .firestore()
+              .collection('lessons')
+              .where('courseTitle', '==', preItem.title)
+              .where('courseAuthor', '==', preItem.author)
+              .get()
+              .then(querrySnapshot => {
+                if (!querrySnapshot.empty) {
+                  querrySnapshot.forEach(doc => {
+                    const documentId = doc.id;
+                    firebase
+                      .firestore()
+                      .collection('lessons')
+                      .doc(documentId)
+                      .delete();
+                  });
+                }
+              });
+
+            firebase
+              .firestore()
+              .collection('evaluate')
+              .where('courseTitle', '==', preItem.title)
+              .where('courseAuthor', '==', preItem.author)
+              .get()
+              .then(querrySnapshot => {
+                if (!querrySnapshot.empty) {
+                  querrySnapshot.forEach(doc => {
+                    const documentId = doc.id;
+                    firebase
+                      .firestore()
+                      .collection('evaluate')
+                      .doc(documentId)
+                      .delete();
+                  });
+                }
+              });
+
+            firebase
+              .firestore()
+              .collection('users')
+              .get()
+              .then(querrySnapshot => {
+                querrySnapshot.forEach(doc => {
+                  if (doc.exists) {
+                    const documentId = doc.id;
+                    const courses = doc.data().favoriteCourses;
+                    if (courses) {
+                      const index = courses.findIndex(
+                        course =>
+                          course.courseTitle === preItem.title &&
+                          course.courseAuthor === preItem.author,
+                      );
+                      if (index !== -1) {
+                        courses.splice(index, 1);
+                        firebase
+                          .firestore()
+                          .collection('users')
+                          .doc(documentId)
+                          .update({
+                            favoriteCourses: courses,
+                          });
+                      }
                     }
                   }
-      
-                }
-              })
-            })
-
+                });
+              });
           },
         },
       ],
-      { cancelable: false }
+      {cancelable: false},
     );
   };
   const data = [
@@ -561,7 +558,7 @@ const CourseDetailScreen = ({route}) => {
           ) : (
             <Image
               source={{uri: preItem.image}}
-              resizeMode='contain'
+              resizeMode="contain"
               style={styles.image}
             />
           )}
@@ -621,7 +618,13 @@ const CourseDetailScreen = ({route}) => {
             <Image style={styles.avaImage} source={IMG_LECTURERAVA} />
             <View style={styles.infoLecturer}>
               <Text
-                style={[styles.normalText, {fontFamily: CUSTOM_FONTS.medium}]}>
+                style={[
+                  styles.normalText,
+                  {
+                    fontFamily: CUSTOM_FONTS.medium,
+                    fontSize: CUSTOM_SIZES.medium,
+                  },
+                ]}>
                 {preItem.name}
               </Text>
               {/* <Text style={styles.infoText}>{preItem.phone}</Text> */}
@@ -634,38 +637,33 @@ const CourseDetailScreen = ({route}) => {
               </Text>
             </View> */}
           </View>
-          {
-            preItem.author !== name.email ? (
-              <Text style={[styles.categoryText, {marginTop: scale(20, 'h')}]}>
-                Rate this course
-              </Text>
-            ) : null
-          }
+          {preItem.author !== name.email ? (
+            <Text style={[styles.categoryText, {marginTop: scale(20, 'h')}]}>
+              Rate this course
+            </Text>
+          ) : null}
 
-          {
-            preItem.author !== name.email ? (
-              <Text style={styles.infoText}>
-                Tell others how do you like this course
-              </Text>
-            ) : null
-          }
+          {preItem.author !== name.email ? (
+            <Text style={styles.infoText}>
+              Tell others how do you like this course
+            </Text>
+          ) : null}
 
-          {
-            preItem.author !== name.email ? (
-              <StarRating
-                onChange={() => navigation.navigate('RatingScreen', {item: preItem})}
-                maxStars={5}
-                starSize={scale(40, 'w')}
-                rating={0}
-                starStyle={[
-                  styles.star,
-                  {marginHorizontal: scale(7, 'w'), marginTop: scale(10, 'w')},
-                ]}
-              />
-            ) : null
-          }
+          {preItem.author !== name.email ? (
+            <StarRating
+              onChange={() =>
+                navigation.navigate('RatingScreen', {item: preItem})
+              }
+              maxStars={5}
+              starSize={scale(40, 'w')}
+              rating={0}
+              starStyle={[
+                styles.star,
+                {marginHorizontal: scale(7, 'w'), marginTop: scale(10, 'w')},
+              ]}
+            />
+          ) : null}
 
-          
           <Text style={[styles.categoryText, {marginTop: scale(20, 'h')}]}>
             Reviews
           </Text>
@@ -700,7 +698,9 @@ const CourseDetailScreen = ({route}) => {
             renderItem={renderEvaluationItem}
           />
           {preItem.author === name.email ? (
-            <TouchableOpacity style={styles.conDelete} onPress = {() => handleDeleteCourse()}>
+            <TouchableOpacity
+              style={styles.conDelete}
+              onPress={() => handleDeleteCourse()}>
               <Text style={styles.txtDelete}>Delete this course?</Text>
             </TouchableOpacity>
           ) : null}
@@ -851,16 +851,16 @@ const styles = StyleSheet.create({
     marginLeft: scale(10, 'w'),
   },
   infoLecturer: {
-    width: scale(180, 'w'),
+    //width: scale(200, 'w'),
     height: '100%',
     marginLeft: scale(10, 'w'),
     justifyContent: 'center',
-    borderRightWidth: 2,
-    borderRightColor: CUSTOM_COLORS.black,
+    //borderRightWidth: 2,
+    //borderRightColor: CUSTOM_COLORS.black,
   },
   infoText: {
-    fontSize: scale(12, 'w'),
-    fontWeight: '300',
+    fontSize: CUSTOM_SIZES.small,
+    fontFamily: CUSTOM_FONTS.light,
     color: CUSTOM_COLORS.black,
   },
   infoCourse: {
