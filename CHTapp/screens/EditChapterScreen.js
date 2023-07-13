@@ -7,7 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
-  Alert
+  Alert,
 } from 'react-native';
 import React, {Component, useEffect, useState} from 'react';
 import {IMG_BG1} from '../src/assets/img';
@@ -23,41 +23,39 @@ import CourseAttendedBox from '../src/components/courseAttendedBox';
 import LessonBox from '../src/components/lessonBox';
 import LessonBox2 from '../src/components/LessonBox2';
 import BtnDelete from '../src/components/BtnDelete';
-import { useNavigation } from '@react-navigation/native';
-import {firebase} from '../configs/FirebaseConfig'
+import {useNavigation} from '@react-navigation/native';
+import {firebase} from '../configs/FirebaseConfig';
 import uuid from 'react-native-uuid';
 
-const  EditChapterScreen = ({route})  => {
+const EditChapterScreen = ({route}) => {
   const {preItem} = route.params;
   const navigation = useNavigation();
-  const [lessons, setLessons] = useState([])
-  const [title, setTitle] = useState('')
-  const [name, setName] = useState('')
-
-
-
-  useEffect (() => {
-    LessonList().then(data => setLessons(data));
-  }, [preItem.title, preItem.courseAuthor, lessons])
+  const [lessons, setLessons] = useState([]);
+  const [title, setTitle] = useState('');
+  const [name, setName] = useState('');
 
   useEffect(() => {
-    firebase.firestore().collection('users')
-    .doc(firebase.auth().currentUser.uid).get()
-    .then((snapshot) => {
-      if(snapshot.exists)
-      {
-        setName(snapshot.data())
-        setTitle(preItem.title)
-        console.log('preItem',preItem)
-        console.log('title',title)
-      }
-      else {
-        console.log('User does not exist')
-      }
-    })
-  }, [])
+    LessonList().then(data => setLessons(data));
+  }, [preItem.title, preItem.courseAuthor, lessons]);
 
-  
+  useEffect(() => {
+    firebase
+      .firestore()
+      .collection('users')
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(snapshot => {
+        if (snapshot.exists) {
+          setName(snapshot.data());
+          setTitle(preItem.title);
+          console.log('preItem', preItem);
+          console.log('title', title);
+        } else {
+          console.log('User does not exist');
+        }
+      });
+  }, []);
+
   async function LessonList() {
     const lessonRef = firebase.firestore().collection('lessons');
     const lessonSnapshot = await lessonRef.get();
@@ -66,73 +64,68 @@ const  EditChapterScreen = ({route})  => {
       ...doc.data(),
     }));
 
-    const joinedData = lessonData
-      .filter(
-        filter =>
-          filter.courseAuthor === preItem.courseAuthor &&
-          filter.courseTitle === preItem.courseTitle &&
-          filter.chapterTitle === preItem.title
-      )
+    const joinedData = lessonData.filter(
+      filter =>
+        filter.courseAuthor === preItem.courseAuthor &&
+        filter.courseTitle === preItem.courseTitle &&
+        filter.chapterTitle === preItem.title,
+    );
     return joinedData;
   }
 
-  const updateChapter = async() => {
-    console.log('title1',title)
-    if ( title !== '') {
+  const updateChapter = async () => {
+    console.log('title1', title);
+    if (title !== '') {
       firebase
-      .firestore()
-      .collection('chapters')
-      .where('title', '==', preItem.title)
-      .where('courseTitle', '==', preItem.courseTitle)
-      .where('courseAuthor', '==', preItem.courseAuthor)
-      .get().then((querrySnapshot) => {
-        if(!querrySnapshot.empty)
-        {
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('chapters')
-          .doc(documentId)
-          .update({
-            title: title
-          })
-    
-          firebase
-          .firestore()
-          .collection('lessons')
-          .where('courseTitle', '==', preItem.courseTitle)
-          .where('courseAuthor', '==', preItem.courseAuthor)
-          .where('chapterTitle', '==', preItem.title)
-          .get().then((querrySnapshot) => {
-            if(!querrySnapshot.empty)
-            {
-              querrySnapshot.forEach((doc) => {
-                const documentId1 = doc.id
-                firebase
-                .firestore()
-                .collection('lessons')
-                .doc(documentId1)
-                .update({
-                  chapterTitle: title
-                })
-              })
-            }
-          })
+        .firestore()
+        .collection('chapters')
+        .where('title', '==', preItem.title)
+        .where('courseTitle', '==', preItem.courseTitle)
+        .where('courseAuthor', '==', preItem.courseAuthor)
+        .get()
+        .then(querrySnapshot => {
+          if (!querrySnapshot.empty) {
+            const documentId = querrySnapshot.docs[0].id;
+            firebase.firestore().collection('chapters').doc(documentId).update({
+              title: title,
+            });
 
-          Alert.alert('Edit chapter sucessfully!')
-        }
-        else {
-          Alert.alert('Please fill full enough information!');
-        }
-        })}
-  }
+            firebase
+              .firestore()
+              .collection('lessons')
+              .where('courseTitle', '==', preItem.courseTitle)
+              .where('courseAuthor', '==', preItem.courseAuthor)
+              .where('chapterTitle', '==', preItem.title)
+              .get()
+              .then(querrySnapshot => {
+                if (!querrySnapshot.empty) {
+                  querrySnapshot.forEach(doc => {
+                    const documentId1 = doc.id;
+                    firebase
+                      .firestore()
+                      .collection('lessons')
+                      .doc(documentId1)
+                      .update({
+                        chapterTitle: title,
+                      });
+                  });
+                }
+              });
+
+            Alert.alert('Edit chapter sucessfully!');
+          } else {
+            Alert.alert('Please fill full enough information!');
+          }
+        });
+    }
+  };
 
   const data = [
-    { id: 'content1', type: 'content1' },
-    { id: 'content2', type: 'content2' },
+    {id: 'content1', type: 'content1'},
+    {id: 'content2', type: 'content2'},
   ];
 
-  const handleDelete = (item) => {
+  const handleDelete = item => {
     Alert.alert(
       'Delete Lesson',
       'Are you sure you want to delete this lesson?',
@@ -146,101 +139,95 @@ const  EditChapterScreen = ({route})  => {
           text: 'OK',
           onPress: () => {
             firebase
-            .firestore()
-            .collection('lessons')
-            .where('courseTitle', '==', item.courseTitle)
-            .where('courseAuthor', '==', item.courseAuthor)
-            .where('chapterTitle', '==', item.chapterTitle)
-            .where('lessonTitle', '==', item.lessonTitle)
-            .get().then((querrySnapshot) => {
-              if(!querrySnapshot.empty)
-              {
-                querrySnapshot.forEach((doc) => {
-                  const documentId1 = doc.id
-                  firebase
-                  .firestore()
-                  .collection('lessons')
-                  .doc(documentId1)
-                  .delete()
-                  .then(() => {
-                    console.log('Lesson is deleted!')
-                  })
-                })
-              }
-            })
+              .firestore()
+              .collection('lessons')
+              .where('courseTitle', '==', item.courseTitle)
+              .where('courseAuthor', '==', item.courseAuthor)
+              .where('chapterTitle', '==', item.chapterTitle)
+              .where('lessonTitle', '==', item.lessonTitle)
+              .get()
+              .then(querrySnapshot => {
+                if (!querrySnapshot.empty) {
+                  querrySnapshot.forEach(doc => {
+                    const documentId1 = doc.id;
+                    firebase
+                      .firestore()
+                      .collection('lessons')
+                      .doc(documentId1)
+                      .delete()
+                      .then(() => {
+                        console.log('Lesson is deleted!');
+                      });
+                  });
+                }
+              });
           },
         },
       ],
-      { cancelable: false }
+      {cancelable: false},
     );
   };
 
   const renderItem = ({item}) => {
-    if(item.type ==='content1'){
-      return  (
+    if (item.type === 'content1') {
+      return (
         <View>
           <Text style={styles.txtChapter}>Chapter name</Text>
           <TextInput
             cursorColor={CUSTOM_COLORS.usBlue}
             multiline
             style={styles.txbChapterName}
-            onChangeText={(myTitle) =>setTitle(myTitle)}
-          >
+            onChangeText={myTitle => setTitle(myTitle)}>
             {preItem.title}
           </TextInput>
           <Text style={styles.txtChapter}>Lesson</Text>
           <TouchableOpacity
             style={styles.conAddLesson}
-            onPress={() => navigation.navigate('AddLessonScreen')}
-            >
+            onPress={() => navigation.navigate('AddLessonScreen2')}>
             <Text style={styles.txtInfo}>Add Lesson</Text>
             <IC_RightArrow2 />
           </TouchableOpacity>
         </View>
-      )
-    }
-    else
-    {
+      );
+    } else {
       return (
         <View>
           <View style={{flexDirection: 'row', flex: 1.5}}>
-          <FlatList
-            style={{
-              marginTop: scale(20, 'h'),
-              marginLeft: scale(5, 'h'),
-              marginBottom: scale(80, 'h'),
-            }}
-            showsVerticalScrollIndicator={false}
-            scrollEnabled={true}
-            numColumns={1}
-            data={lessons}
-            renderItem={({item, index}) => {
-              return (
-                <LessonBox2
-                  onPress={() => navigation.navigate('EditLesson', {preItem: item})}
-                  title={item.lessonTitle}
-                  time={item.time}
-                  onDeletedPress = {() => handleDelete(item)}
-                />
-              );
-            }}
-          />
-        </View>
-        <View style={styles.space}>
+            <FlatList
+              style={{
+                marginTop: scale(20, 'h'),
+                marginLeft: scale(5, 'h'),
+                marginBottom: scale(80, 'h'),
+              }}
+              showsVerticalScrollIndicator={false}
+              scrollEnabled={true}
+              numColumns={1}
+              data={lessons}
+              renderItem={({item, index}) => {
+                return (
+                  <LessonBox2
+                    onPress={() =>
+                      navigation.navigate('EditLesson', {preItem: item})
+                    }
+                    title={item.lessonTitle}
+                    time={item.time}
+                    onDeletedPress={() => handleDelete(item)}
+                  />
+                );
+              }}
+            />
+          </View>
+          <View style={styles.space}>
             <View style={[styles.space]}></View>
+          </View>
         </View>
-        </View>
-      )
+      );
     }
-  }
-
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ImageBackground
-        style={styles.vwImg}
-        source={IMG_BG1}
-        resizeMode="cover">
+      <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
           <BackButton onPress={() => navigation.goBack()} />
           <Text style={styles.txtHeader}>Edit Chapter</Text>
@@ -248,19 +235,23 @@ const  EditChapterScreen = ({route})  => {
       </ImageBackground>
       <View style={styles.content}>
         <FlatList
-            data={data}
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={item => item.id = uuid.v4()}
-            renderItem={renderItem}
-          />
+          data={data}
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={item => (item.id = uuid.v4())}
+          renderItem={renderItem}
+        />
       </View>
 
-      <BtnTick onPress={() => (updateChapter(), navigation.navigate('EditCourse', {preItem: preItem }))}/>
+      <BtnTick
+        onPress={() => (
+          updateChapter(), navigation.navigate('EditCourse', {preItem: preItem})
+        )}
+      />
     </SafeAreaView>
   );
-}
+};
 
-export default EditChapterScreen
+export default EditChapterScreen;
 
 const styles = StyleSheet.create({
   container: {

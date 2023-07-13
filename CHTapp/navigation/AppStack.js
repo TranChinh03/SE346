@@ -13,7 +13,13 @@ import {useNavigation} from '@react-navigation/native';
 
 import {View, StyleSheet, Alert} from 'react-native';
 import CUSTOM_COLORS from '../src/constants/colors';
-import {IC_Book, IC_Home, IC_Profile, IC_Schedule, IC_Setting} from '../src/assets/iconsvg';
+import {
+  IC_Book,
+  IC_Home,
+  IC_Profile,
+  IC_Schedule,
+  IC_Setting,
+} from '../src/assets/iconsvg';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import scale from '../src/constants/responsive';
 import CourseDetailScreen from '../screens/CourseDetailScreen';
@@ -35,7 +41,9 @@ import SearchScreen from '../screens/SearchScreen';
 import RatingScreen from '../screens/RatingScreen';
 import EditChapterScreen from '../screens/EditChapterScreen';
 import EditLessonScreen from '../screens/EditLessonScreen';
-import { CommonActions } from '@react-navigation/native';
+import {CommonActions} from '@react-navigation/native';
+import AddChapterScreen2 from '../screens/AddChapterScreen2';
+import AddLessonScreen2 from '../screens/AddLessonScreen2';
 
 const Tab = createBottomTabNavigator();
 
@@ -57,20 +65,20 @@ const HomeTabs = () => {
       <Tab.Screen
         name="HomeStack"
         component={HomeStack}
-        listeners={({ navigation }) => ({
-          tabPress: e => {
-            // Prevent default behavior
-            e.preventDefault();
+        // listeners={({ navigation }) => ({
+        //   tabPress: e => {
+        //     // Prevent default behavior
+        //     e.preventDefault();
 
-            // Reset the state of the CourseStack
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: 'Home' }],
-              })
-            );
-          },
-        })}
+        //     // Reset the state of the CourseStack
+        //     navigation.dispatch(
+        //       CommonActions.reset({
+        //         index: 0,
+        //         routes: [{ name: 'Home' }],
+        //       })
+        //     );
+        //   },
+        // })}
         options={{
           tabBarIcon: ({focused}) => (
             <View>
@@ -86,20 +94,20 @@ const HomeTabs = () => {
       <Tab.Screen
         name="CourseStack"
         component={CourseStack}
-        listeners={({ navigation }) => ({
-          tabPress: e => {
-            // Prevent default behavior
-            e.preventDefault();
+        // listeners={({ navigation }) => ({
+        //   tabPress: e => {
+        //     // Prevent default behavior
+        //     e.preventDefault();
 
-            // Reset the state of the CourseStack
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: 'Course' }],
-              })
-            );
-          },
-        })}
+        //     // Reset the state of the CourseStack
+        //     navigation.dispatch(
+        //       CommonActions.reset({
+        //         index: 0,
+        //         routes: [{ name: 'Course' }],
+        //       })
+        //     );
+        //   },
+        // })}
         options={{
           tabBarIcon: ({focused}) => (
             <View>
@@ -115,20 +123,20 @@ const HomeTabs = () => {
       <Tab.Screen
         name="MeetingStack"
         component={MeetingStack}
-        listeners={({ navigation }) => ({
-          tabPress: e => {
-            // Prevent default behavior
-            e.preventDefault();
+        // listeners={({ navigation }) => ({
+        //   tabPress: e => {
+        //     // Prevent default behavior
+        //     e.preventDefault();
 
-            // Reset the state of the CourseStack
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: 'YourMeeting' }],
-              })
-            );
-          },
-        })}
+        //     // Reset the state of the CourseStack
+        //     navigation.dispatch(
+        //       CommonActions.reset({
+        //         index: 0,
+        //         routes: [{ name: 'YourMeeting' }],
+        //       })
+        //     );
+        //   },
+        // })}
         options={{
           tabBarIcon: ({focused}) => (
             <View>
@@ -159,25 +167,27 @@ const HomeTabs = () => {
       <Tab.Screen
         name="SettingStack"
         component={SettingStack}
-        listeners={({ navigation }) => ({
-          tabPress: e => {
-            // Prevent default behavior
-            e.preventDefault();
+        // listeners={({ navigation }) => ({
+        //   tabPress: e => {
+        //     // Prevent default behavior
+        //     e.preventDefault();
 
-            // Reset the state of the CourseStack
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: 'Setting' }],
-              })
-            );
-          },
-        })}
+        //     // Reset the state of the CourseStack
+        //     navigation.dispatch(
+        //       CommonActions.reset({
+        //         index: 0,
+        //         routes: [{ name: 'Setting' }],
+        //       })
+        //     );
+        //   },
+        // })}
         options={{
           tabBarIcon: ({focused}) => (
             <View>
               <IC_Setting
-                stroke={focused ? CUSTOM_COLORS.primary : CUSTOM_COLORS.lightGray}
+                stroke={
+                  focused ? CUSTOM_COLORS.primary : CUSTOM_COLORS.lightGray
+                }
                 fill2={
                   focused ? CUSTOM_COLORS.primary : 'transparent'
                 }></IC_Setting>
@@ -248,8 +258,18 @@ const CourseStack = () => {
         options={{headerShown: false}}
       />
       <Stack.Screen
+        name="AddChapterScreen2"
+        component={AddChapterScreen2}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
         name="AddLessonScreen"
         component={AddLessonScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="AddLessonScreen2"
+        component={AddLessonScreen2}
         options={{headerShown: false}}
       />
 

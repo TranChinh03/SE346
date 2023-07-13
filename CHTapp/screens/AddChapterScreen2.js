@@ -32,7 +32,7 @@ import BtnDelete from '../src/components/BtnDelete';
 import BtnTick from '../src/components/BtnTick';
 import {firebase} from '../configs/FirebaseConfig';
 
-const AddChapterScreen = ({route}) => {
+const AddChapterScreen2 = ({route}) => {
   // const {txtHeader} = route.params;
   const navigation = useNavigation();
   const [shouldShow, setShouldShow] = useState(false);
@@ -133,52 +133,30 @@ const AddChapterScreen = ({route}) => {
       return (
         <View>
           {/* <Text style={styles.txtTiltle}>Chapter</Text>
-          <View style={styles.conDropDown}>
-            <DropDownPicker
-              style={styles.dropDown}
-              textStyle={styles.txtDropDown}
-              dropDownDirection="TOP"
-              dropDownContainerStyle={styles.condropdown2}
-              open={open}
-              value={value}
-              items={chapter}
-              setOpen={setOpen}
-              setValue={setValue}
-              setItems={setChapter}
-              multiple={false}
-              dropDownMaxHeight={200}
-              listMode='SCROLLVIEW'
-              scrollViewProps={{nestedScrollEnabled: true}}
-              // mode="BADGE"
-              // badgeDotColors={['#e76f51', '#00b4d8']}
-              onChangeValue={(mychapter) => setMyChapter(mychapter) }
-            />
-          </View> */}
+            <View style={styles.conDropDown}>
+              <DropDownPicker
+                style={styles.dropDown}
+                textStyle={styles.txtDropDown}
+                dropDownDirection="TOP"
+                dropDownContainerStyle={styles.condropdown2}
+                open={open}
+                value={value}
+                items={chapter}
+                setOpen={setOpen}
+                setValue={setValue}
+                setItems={setChapter}
+                multiple={false}
+                dropDownMaxHeight={200}
+                listMode='SCROLLVIEW'
+                scrollViewProps={{nestedScrollEnabled: true}}
+                // mode="BADGE"
+                // badgeDotColors={['#e76f51', '#00b4d8']}
+                onChangeValue={(mychapter) => setMyChapter(mychapter) }
+              />
+            </View> */}
           <Text style={styles.txtTiltle}>Course</Text>
           <View style={styles.conDropDown}>
-            <DropDownPicker
-              style={styles.dropDown}
-              textStyle={styles.txtDropDown}
-              dropDownDirection="TOP"
-              dropDownContainerStyle={styles.condropdown2}
-              open={open1}
-              value={value1}
-              items={course}
-              setOpen={setOpen1}
-              setValue={setValue1}
-              setItems={setCourse}
-              multiple={false}
-              mode="BADGE"
-              badgeDotColors={['#e76f51', '#00b4d8']}
-              onChangeValue={value => {
-                // Find the selected item
-                const selectedItem = course.find(item => item.value === value);
-                // Set the myCourse state to the label of the selected item
-                if (selectedItem) {
-                  setMyCourse(selectedItem.label);
-                }
-              }}
-            />
+            <Text style={styles.txtInput}>Chapter 1</Text>
           </View>
         </View>
       );
@@ -187,86 +165,86 @@ const AddChapterScreen = ({route}) => {
         <View>
           {/* <Text style={styles.txtTiltle}>Chapter</Text> */}
           {/* <View style={styles.conSpeedDial}>
-            <SpeedDial
-              DropDownPicker="left"
-              flexDirection="right"
-              color={CUSTOM_COLORS.usBlue}
-              style={styles.btnSd}
-              isOpen={openSpeedDial}
-              icon={{name: 'edit', color: '#fff'}}
-              openIcon={{name: 'close', color: '#fff'}}
-              onOpen={() => setOpenSpeedDial(!openSpeedDial)}
-              onClose={() => setOpenSpeedDial(!openSpeedDial)}>
-              <SpeedDial.Action
+              <SpeedDial
+                DropDownPicker="left"
+                flexDirection="right"
                 color={CUSTOM_COLORS.usBlue}
-                icon={{name: 'add', color: '#fff'}}
-                title="Chapter"
-
-                //onPress={() => console.log('Add Something')}
-              />
-              <SpeedDial.Action
-                color={CUSTOM_COLORS.usBlue}
-                icon={{name: 'delete', color: '#fff'}}
-                title="Lesson"
-                //onPress={() => console.log('Delete Something')}
-              />
-            </SpeedDial>
-          </View> */}
+                style={styles.btnSd}
+                isOpen={openSpeedDial}
+                icon={{name: 'edit', color: '#fff'}}
+                openIcon={{name: 'close', color: '#fff'}}
+                onOpen={() => setOpenSpeedDial(!openSpeedDial)}
+                onClose={() => setOpenSpeedDial(!openSpeedDial)}>
+                <SpeedDial.Action
+                  color={CUSTOM_COLORS.usBlue}
+                  icon={{name: 'add', color: '#fff'}}
+                  title="Chapter"
+  
+                  //onPress={() => console.log('Add Something')}
+                />
+                <SpeedDial.Action
+                  color={CUSTOM_COLORS.usBlue}
+                  icon={{name: 'delete', color: '#fff'}}
+                  title="Lesson"
+                  //onPress={() => console.log('Delete Something')}
+                />
+              </SpeedDial>
+            </View> */}
           {/* <View style={styles.conSpeedDial}>
-            <TouchableOpacity
-              style={styles.btnSD}
-              onPress={() => setShouldShow(!shouldShow)}>
-              <Text style={styles.txtSD}>+</Text>
-            </TouchableOpacity>
-            {shouldShow ? (
-              <View
-                style={{
-                  height: '100%',
-                  justifyContent: 'space-between',
-                  backfaceVisibility: 'hidden',
-                }}>
-                <TouchableOpacity
-                  style={styles.spAction}
-                  onPress={() =>
-                    navigation.navigate('AddChapterScreen', {
-                      txtHeader: 'Add Chapter',
-                    })
-                  }>
-                  <Text style={styles.txtSDAction}>Chapter</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.spAction}
-                  onPress={() => navigation.navigate('AddLessonScreen')}>
-                  <Text style={styles.txtSDAction}>Lesson</Text>
-                </TouchableOpacity>
-              </View>
-            ) : null}
-          </View> */}
+              <TouchableOpacity
+                style={styles.btnSD}
+                onPress={() => setShouldShow(!shouldShow)}>
+                <Text style={styles.txtSD}>+</Text>
+              </TouchableOpacity>
+              {shouldShow ? (
+                <View
+                  style={{
+                    height: '100%',
+                    justifyContent: 'space-between',
+                    backfaceVisibility: 'hidden',
+                  }}>
+                  <TouchableOpacity
+                    style={styles.spAction}
+                    onPress={() =>
+                      navigation.navigate('AddChapterScreen', {
+                        txtHeader: 'Add Chapter',
+                      })
+                    }>
+                    <Text style={styles.txtSDAction}>Chapter</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.spAction}
+                    onPress={() => navigation.navigate('AddLessonScreen')}>
+                    <Text style={styles.txtSDAction}>Lesson</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : null}
+            </View> */}
           {/* <View
-            style={{
-              width: scale(320, 'w'),
-              alignSelf: 'center',
-              marginBottom: scale(15, 'h'),
-              flexDirection: 'row',
-            }}>
-            <FlatList
-              scrollEnabled={false}
-              numColumns={1}
-              data={lesson}
-              renderItem={({item, index}) => {
-                return <LessonBoxAdd title={item.title} time={item.time} />;
-              }}
-            />
-            <FlatList
-              style={{marginTop: scale(10, 'h'), marginLeft: scale(5, 'h')}}
-              scrollEnabled={false}
-              numColumns={1}
-              data={lesson}
-              renderItem={({item, index}) => {
-                return <BtnDelete />;
-              }}
-            />
-          </View> */}
+              style={{
+                width: scale(320, 'w'),
+                alignSelf: 'center',
+                marginBottom: scale(15, 'h'),
+                flexDirection: 'row',
+              }}>
+              <FlatList
+                scrollEnabled={false}
+                numColumns={1}
+                data={lesson}
+                renderItem={({item, index}) => {
+                  return <LessonBoxAdd title={item.title} time={item.time} />;
+                }}
+              />
+              <FlatList
+                style={{marginTop: scale(10, 'h'), marginLeft: scale(5, 'h')}}
+                scrollEnabled={false}
+                numColumns={1}
+                data={lesson}
+                renderItem={({item, index}) => {
+                  return <BtnDelete />;
+                }}
+              />
+            </View> */}
           <View style={styles.space}>
             <View style={[styles.space]}></View>
           </View>
@@ -342,7 +320,7 @@ const AddChapterScreen = ({route}) => {
   );
 };
 
-export default AddChapterScreen;
+export default AddChapterScreen2;
 
 const styles = StyleSheet.create({
   container: {
