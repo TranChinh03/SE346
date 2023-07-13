@@ -22,7 +22,7 @@ import ListItemCustom from '../src/components/ListItemCustom';
 import CUSTOM_FONTS from '../src/constants/fonts';
 import CUSTOM_SIZES from '../src/constants/size';
 import CUSTOM_COLORS from '../src/constants/colors';
-import {IC_Camera} from '../src/assets/iconsvg';
+import {IC_Camera, IC_RightArrow, IC_RightArrow2} from '../src/assets/iconsvg';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {SpeedDial} from '@rneui/themed';
 import LessonBox from '../src/components/lessonBox';
@@ -30,11 +30,11 @@ import LessonBoxAdd from '../src/components/LessonBoxAdd';
 import {useNavigation} from '@react-navigation/native';
 import BtnDelete from '../src/components/BtnDelete';
 import BtnTick from '../src/components/BtnTick';
-import {firebase} from '../configs/FirebaseConfig'
+import {firebase} from '../configs/FirebaseConfig';
 import uuid from 'react-native-uuid';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker'
-import {utils} from '@react-native-firebase/app'
-import storage from '@react-native-firebase/storage'
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {utils} from '@react-native-firebase/app';
+import storage from '@react-native-firebase/storage';
 
 const EditCourseScreen = ({route}) => {
   const {preItem} = route.params;
@@ -64,102 +64,106 @@ const EditCourseScreen = ({route}) => {
 
   const [myProgramLanguage, setMyProgramLanguage] = useState('');
 
-  const [name, setName] = useState('')
+  const [name, setName] = useState('');
 
-  const [imageUri, setImageUri] = useState(null)
-  const [chapters, setChapters] = useState([])
+  const [imageUri, setImageUri] = useState(null);
+  const [chapters, setChapters] = useState([]);
 
-  useEffect (() => {
+  useEffect(() => {
     ChapterList().then(data => setChapters(data));
-  },[preItem.title, preItem.author])
+  }, [preItem.title, preItem.author]);
 
-const handleButtonPress = () => {
-  const options = {
-    mediaType: 'photo',
-    includeBase64: false,
-    maxHeight: 200,
-    maxWidth: 200,
+  const handleButtonPress = () => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: false,
+      maxHeight: 200,
+      maxWidth: 200,
+    };
+
+    launchImageLibrary(options, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        setImageUri(response.assets[0].uri);
+        console.log('imageUri', imageUri);
+      }
+    });
   };
 
-  launchImageLibrary(options, (response) => {
-    if (response.didCancel) {
-      console.log('User cancelled image picker');
-    } else if (response.error) {
-      console.log('ImagePicker Error: ', response.error);
-    } else {
-      setImageUri(response.assets[0].uri);
-      console.log('imageUri', imageUri)
+  const handleUpload = async () => {
+    if (imageUri) {
+      try {
+        const reference = storage().ref(`images/${Date.now()}.jpg`);
+        const task = reference.putFile(imageUri);
+        task.on('state_changed', snapshot => {
+          console.log(
+            `${
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            }% completed`,
+          );
+        });
+
+        await task;
+        const url = await reference.getDownloadURL();
+        console.log('Image uploaded to Firebase storage:', url);
+        return url;
+
+        // const pathToFile = `${utils.FilePath.imageUri}`
+
+        // reference.put(imageUri).then((snapshot) => {
+        //   console.log('test',snapshot.ref.getDownloadURL())
+        //   return snapshot.ref.getDownloadURL();
+        // });
+      } catch (error) {
+        Alert.alert(error.message);
+      }
     }
-  });
-};
+  };
 
-const handleUpload = async () => {
-  if (imageUri) {
-    try {
-      const reference = storage().ref(`images/${Date.now()}.jpg`);
-      const task = reference.putFile(imageUri);
-      task.on('state_changed', (snapshot) => {
-        console.log(
-          `${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}% completed`
-        );
-      });
+  async function ChapterList() {
+    const chapeterRef = firebase.firestore().collection('chapters');
+    const chapterSnapshot = await chapeterRef.get();
+    const chapterData = chapterSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-      await task;
-      const url = await reference.getDownloadURL();
-      console.log('Image uploaded to Firebase storage:', url);
-      return url;
-
-      // const pathToFile = `${utils.FilePath.imageUri}`
-
-      // reference.put(imageUri).then((snapshot) => {
-      //   console.log('test',snapshot.ref.getDownloadURL())
-      //   return snapshot.ref.getDownloadURL();
-      // });
-    } catch (error) {
-      Alert.alert(error.message);
-    }
+    const chapterList = chapterData.filter(
+      chapter =>
+        chapter.courseTitle === preItem.title &&
+        chapter.courseAuthor === preItem.author,
+    );
+    return chapterList;
   }
-};
 
-async function ChapterList() {
-  const chapeterRef = firebase.firestore().collection('chapters');
-  const chapterSnapshot = await chapeterRef.get();
-  const chapterData = chapterSnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
-
-  const chapterList = chapterData.filter(
-    chapter =>
-      chapter.courseTitle === preItem.title &&
-      chapter.courseAuthor === preItem.author,
-  );
-  return chapterList;
-}
-
-const renderChapterItem = ({item: chapter, index}) => {
-  return (
-    <TouchableOpacity onPress = {() => {navigation.navigate('EditChapter', {preItem: chapter})}}>
-      <View style={styles.horizontalContainer}>
-        <Text style={[styles.normalText2, {fontWeight: '500'}]}>
-          Chapter {index + 1}: {' '}
-        </Text>
-        <Text style={styles.normalText2}>{chapter.title}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
-
-
+  const renderChapterItem = ({item: chapter, index}) => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('EditChapter', {preItem: chapter});
+        }}>
+        <View style={styles.horizontalContainer}>
+          <Text style={[styles.normalText2, {fontWeight: '500'}]}>
+            Chapter {index + 1}:{' '}
+          </Text>
+          <Text style={styles.normalText2}>{chapter.title}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const renderItem = ({item}) => {
-    if(item.type ==='content1'){
-      return  (
+    if (item.type === 'content1') {
+      return (
         <View>
           <Text style={styles.txtTiltle}>Thumbnail</Text>
           <View style={styles.vwThumnail}>
-            <TouchableOpacity style={styles.btnThumnail}
-            onPress = {handleButtonPress}>
+            <TouchableOpacity
+              style={styles.btnThumnail}
+              onPress={handleButtonPress}>
               <IC_Camera style={styles.icCamera} />
               <Text style={styles.txtThumnail}>Upload from your device</Text>
             </TouchableOpacity>
@@ -169,24 +173,45 @@ const renderChapterItem = ({item: chapter, index}) => {
                     source={{uri: preItem.image}}
                     resizeMode="cover"
                   /> */}
-              {imageUri ? <Image source={{ uri: imageUri }} style={styles.imgThumnail} resizeMode='cover'/> : 
-              (
-                preItem.image === '' ? 
-                <Image source={IMG_CPP} style={styles.imgThumnail} resizeMode='cover'/> : 
-                <Image source={{uri: preItem.image}} style={styles.imgThumnail} resizeMode='cover'/>
+              {imageUri ? (
+                <Image
+                  source={{uri: imageUri}}
+                  style={styles.imgThumnail}
+                  resizeMode="cover"
+                />
+              ) : preItem.image === '' ? (
+                <Image
+                  source={IMG_CPP}
+                  style={styles.imgThumnail}
+                  resizeMode="cover"
+                />
+              ) : (
+                <Image
+                  source={{uri: preItem.image}}
+                  style={styles.imgThumnail}
+                  resizeMode="cover"
+                />
               )}
             </View>
           </View>
           <Text style={styles.txtTiltle}>Title</Text>
-          <TextInput multiline style={styles.txtInput} onChangeText={(myTitle) => setTitle(myTitle)}>{preItem.title}</TextInput>
+          <TextInput
+            multiline
+            style={styles.txtInput}
+            onChangeText={myTitle => setTitle(myTitle)}>
+            {preItem.title}
+          </TextInput>
           <Text style={styles.txtTiltle}>Description</Text>
-          <TextInput multiline style={styles.txtInput2} onChangeText={(myDescription) => setDescription(myDescription)}>{preItem.description}</TextInput>
+          <TextInput
+            multiline
+            style={styles.txtInput2}
+            onChangeText={myDescription => setDescription(myDescription)}>
+            {preItem.description}
+          </TextInput>
           <Text style={styles.txtTiltle}>Program Language</Text>
         </View>
-      )
-    }
-    else if(item.type === 'dropdown')
-    {
+      );
+    } else if (item.type === 'dropdown') {
       return (
         <View>
           <View style={styles.conDropDown}>
@@ -202,10 +227,12 @@ const renderChapterItem = ({item: chapter, index}) => {
               setValue={setValue}
               setItems={setProgramLanguage}
               multiple={false}
-              defaultValue= {preItem.programLanguage}
+              defaultValue={preItem.programLanguage}
               // mode="BADGE"
               // badgeDotColors={['#e76f51', '#00b4d8']}
-              onChangeValue={(myProgramLanguage) => setMyProgramLanguage(myProgramLanguage) }
+              onChangeValue={myProgramLanguage =>
+                setMyProgramLanguage(myProgramLanguage)
+              }
             />
           </View>
           <Text style={styles.txtTiltle}>Language</Text>
@@ -225,204 +252,214 @@ const renderChapterItem = ({item: chapter, index}) => {
               mode="BADGE"
               defaultValue={preItem.language}
               badgeDotColors={['#e76f51', '#00b4d8']}
-              onChangeValue={(myLanguage) => setLanguage(myLanguage) }
+              onChangeValue={myLanguage => setLanguage(myLanguage)}
             />
           </View>
 
           <View>
-            <Text style= {styles.txtTiltle}>Chapters in this course: </Text>
+            <Text style={styles.txtTiltle}>Chapters in this course: </Text>
             <FlatList
               data={chapters}
               showsHorizontalScrollIndicator={false}
-              keyExtractor={item => item.id = uuid.v4()}
+              keyExtractor={item => (item.id = uuid.v4())}
               renderItem={renderChapterItem}
             />
           </View>
+
+          <TouchableOpacity
+            style={styles.conAddLesson}
+            onPress={() => navigation.navigate('AddChapterScreen2')}>
+            <Text style={styles.txtInfo}>Add Chapter</Text>
+            <IC_RightArrow2 />
+          </TouchableOpacity>
         </View>
-      )
-    }
-    else {
+      );
+    } else {
       return (
         <View>
           <View style={styles.space}>
             <View style={[styles.space]}></View>
-         </View>
+          </View>
         </View>
-      )
+      );
     }
-  }
+  };
 
   const data = [
-    { id: 'content1', type: 'content1' },
-    { id: 'dropdown', type: 'dropdown' },
-    { id: 'content2', type: 'content2' },
+    {id: 'content1', type: 'content1'},
+    {id: 'dropdown', type: 'dropdown'},
+    {id: 'content2', type: 'content2'},
   ];
 
   useEffect(() => {
-    firebase.firestore().collection('users')
-    .doc(firebase.auth().currentUser.uid).get()
-    .then((snapshot) => {
-      if(snapshot.exists)
-      {
-        setName(snapshot.data())
-        setTitle(preItem.title)
-        setDescription(preItem.description)
-        setMyProgramLanguage(preItem.programLanguage)
-        setLanguage(preItem.language)
-      }
-      else {
-        console.log('User does not exist')
-      }
-    })
-  }, [])
-
-  const now = firebase.firestore.Timestamp.now()
-
-  const updateCourse = async() => {
-
-    const imageUrl = await handleUpload();
-
-    console.log('imageUrl', imageUrl)
-
-    if ( title !== '' && description !== '' &&language !== '' &&myProgramLanguage !== '' ) {
-      firebase
-      .firestore()
-      .collection('courses')
-      .where('title', '==', preItem.title)
-      .where('author', '==', name.email)
-      .get().then((querrySnapshot) => {
-        if(!querrySnapshot.empty)
-        {
-          const documentId = querrySnapshot.docs[0].id
-          if(imageUrl) {
-            console.log ("Hi")
-            firebase
-            .firestore()
-            .collection('courses')
-            .doc(documentId)
-            .update({
-              title : title,
-              description: description,
-              language: language,
-              programLanguage: myProgramLanguage,
-              lastUpdate: now,
-              image: imageUrl,
-            })
-          }
-          else {
-            console.log("Hello")
-            firebase
-            .firestore()
-            .collection('courses')
-            .doc(documentId)
-            .update({
-              title : title,
-              description: description,
-              language: language,
-              programLanguage: myProgramLanguage,
-              lastUpdate: now,
-              image: '',
-            })
-          }
-        }
-      })
-
-      firebase
-      .firestore()
-      .collection('chapters')
-      .where('courseTitle', '==', preItem.title)
-      .where('courseAuthor', '==', name.email)
-      .get().then((querrySnapshot) => {
-        if(!querrySnapshot.empty)
-        {
-          querrySnapshot.forEach((doc) => {
-            const documentId = doc.id
-            firebase
-            .firestore()
-            .collection('chapters')
-            .doc(documentId)
-            .update({
-              courseTitle: title
-            })
-          })
-        }
-      })
-
-      firebase
-      .firestore()
-      .collection('evaluate')
-      .where('courseTitle', '==', preItem.title)
-      .where('courseAuthor', '==', name.email)
-      .get().then((querrySnapshot) => {
-        if(!querrySnapshot.empty)
-        {
-          querrySnapshot.forEach((doc) => {
-            const documentId = doc.id
-            firebase
-            .firestore()
-            .collection('evaluate')
-            .doc(documentId)
-            .update({
-              courseTitle: title
-            })
-          })
-        }
-      })
-
-      firebase
-      .firestore()
-      .collection('lessons')
-      .where('courseTitle', '==', preItem.title)
-      .where('courseAuthor', '==', name.email)
-      .get().then((querrySnapshot) => {
-        if(!querrySnapshot.empty)
-        {
-          querrySnapshot.forEach((doc) => {
-            const documentId = doc.id
-            firebase
-            .firestore()
-            .collection('lessons')
-            .doc(documentId)
-            .update({
-              courseTitle: title
-            })
-          })
-        }
-      })
-
-      
-      firebase
+    firebase
       .firestore()
       .collection('users')
-      .get().then((querrySnapshot) => {
-        querrySnapshot.forEach((doc) => {
-          if(doc.exists) {
-            const documentId = doc.id
-            const courses = doc.data().favoriteCourses;
-            if(courses) {
-              const index = courses.findIndex((course) => course.courseTitle === preItem.title && course.courseAuthor === name.email)
-              if (index !== -1) {
-                courses[index].courseTitle = title
-                firebase
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(snapshot => {
+        if (snapshot.exists) {
+          setName(snapshot.data());
+          setTitle(preItem.title);
+          setDescription(preItem.description);
+          setMyProgramLanguage(preItem.programLanguage);
+          setLanguage(preItem.language);
+        } else {
+          console.log('User does not exist');
+        }
+      });
+  }, []);
+
+  const now = firebase.firestore.Timestamp.now();
+
+  const updateCourse = async () => {
+    const imageUrl = await handleUpload();
+
+    console.log('imageUrl', imageUrl);
+
+    if (
+      title !== '' &&
+      description !== '' &&
+      language !== '' &&
+      myProgramLanguage !== ''
+    ) {
+      firebase
+        .firestore()
+        .collection('courses')
+        .where('title', '==', preItem.title)
+        .where('author', '==', name.email)
+        .get()
+        .then(querrySnapshot => {
+          if (!querrySnapshot.empty) {
+            const documentId = querrySnapshot.docs[0].id;
+            if (imageUrl) {
+              console.log('Hi');
+              firebase
                 .firestore()
-                .collection('users')
+                .collection('courses')
                 .doc(documentId)
                 .update({
-                  favoriteCourses: courses
-                })
+                  title: title,
+                  description: description,
+                  language: language,
+                  programLanguage: myProgramLanguage,
+                  lastUpdate: now,
+                  image: imageUrl,
+                });
+            } else {
+              console.log('Hello');
+              firebase
+                .firestore()
+                .collection('courses')
+                .doc(documentId)
+                .update({
+                  title: title,
+                  description: description,
+                  language: language,
+                  programLanguage: myProgramLanguage,
+                  lastUpdate: now,
+                  image: '',
+                });
+            }
+          }
+        });
+
+      firebase
+        .firestore()
+        .collection('chapters')
+        .where('courseTitle', '==', preItem.title)
+        .where('courseAuthor', '==', name.email)
+        .get()
+        .then(querrySnapshot => {
+          if (!querrySnapshot.empty) {
+            querrySnapshot.forEach(doc => {
+              const documentId = doc.id;
+              firebase
+                .firestore()
+                .collection('chapters')
+                .doc(documentId)
+                .update({
+                  courseTitle: title,
+                });
+            });
+          }
+        });
+
+      firebase
+        .firestore()
+        .collection('evaluate')
+        .where('courseTitle', '==', preItem.title)
+        .where('courseAuthor', '==', name.email)
+        .get()
+        .then(querrySnapshot => {
+          if (!querrySnapshot.empty) {
+            querrySnapshot.forEach(doc => {
+              const documentId = doc.id;
+              firebase
+                .firestore()
+                .collection('evaluate')
+                .doc(documentId)
+                .update({
+                  courseTitle: title,
+                });
+            });
+          }
+        });
+
+      firebase
+        .firestore()
+        .collection('lessons')
+        .where('courseTitle', '==', preItem.title)
+        .where('courseAuthor', '==', name.email)
+        .get()
+        .then(querrySnapshot => {
+          if (!querrySnapshot.empty) {
+            querrySnapshot.forEach(doc => {
+              const documentId = doc.id;
+              firebase
+                .firestore()
+                .collection('lessons')
+                .doc(documentId)
+                .update({
+                  courseTitle: title,
+                });
+            });
+          }
+        });
+
+      firebase
+        .firestore()
+        .collection('users')
+        .get()
+        .then(querrySnapshot => {
+          querrySnapshot.forEach(doc => {
+            if (doc.exists) {
+              const documentId = doc.id;
+              const courses = doc.data().favoriteCourses;
+              if (courses) {
+                const index = courses.findIndex(
+                  course =>
+                    course.courseTitle === preItem.title &&
+                    course.courseAuthor === name.email,
+                );
+                if (index !== -1) {
+                  courses[index].courseTitle = title;
+                  firebase
+                    .firestore()
+                    .collection('users')
+                    .doc(documentId)
+                    .update({
+                      favoriteCourses: courses,
+                    });
+                }
               }
             }
-
-          }
-        })
-      })
-    }
-    else {
+          });
+        });
+    } else {
       Alert.alert('Please fill full enough information!');
     }
-
-    
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -433,26 +470,26 @@ const renderChapterItem = ({item: chapter, index}) => {
         </View>
       </ImageBackground>
       <View style={styles.content}>
-        <FlatList 
-        showsVerticalScrollIndicator={false}
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}>
-          
-        </FlatList>
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+        />
       </View>
 
-      <BtnTick onPress={() => {
-        updateCourse()
-        navigation.navigate('CourseStack', {
-                  screen: 'CourseDetail',
-                  params: {preItem: preItem},
-                })
-      }} />
+      <BtnTick
+        onPress={() => {
+          updateCourse();
+          navigation.navigate('CourseStack', {
+            screen: 'CourseDetail',
+            params: {preItem: preItem},
+          });
+        }}
+      />
     </SafeAreaView>
   );
-  }
-
+};
 
 export default EditCourseScreen;
 
@@ -652,6 +689,25 @@ const styles = StyleSheet.create({
   normalText2: {
     color: CUSTOM_COLORS.black,
     fontSize: CUSTOM_SIZES.medium,
-    textDecorationLine: 'underline'
+    textDecorationLine: 'underline',
+  },
+  conAddLesson: {
+    height: scale(60, 'h'),
+    width: scale(320, 'w'),
+    marginTop: scale(30, 'w'),
+    borderWidth: scale(1, 'w'),
+    borderRadius: scale(15, 'w'),
+    borderColor: CUSTOM_COLORS.usBlue,
+    alignSelf: 'flex-start',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: scale(15, 'w'),
+    flexDirection: 'row',
+    alignSelf: 'center',
+  },
+  txtInfo: {
+    color: CUSTOM_COLORS.usBlue,
+    fontFamily: CUSTOM_FONTS.regular,
+    fontSize: CUSTOM_SIZES.medium,
   },
 });
