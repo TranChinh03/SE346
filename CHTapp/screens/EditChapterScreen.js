@@ -4,10 +4,10 @@ import {
   View,
   SafeAreaView,
   ImageBackground,
-  TextInput,
   TouchableOpacity,
   FlatList,
   Alert,
+  TextInput,
 } from 'react-native';
 import React, {Component, useEffect, useState} from 'react';
 import {IMG_BG1} from '../src/assets/img';
@@ -48,14 +48,15 @@ const EditChapterScreen = ({route}) => {
         if (snapshot.exists) {
           setName(snapshot.data());
           setTitle(preItem.title);
+          console.log('1', title)
         } else {
           console.log('User does not exist');
         }
       });
-  }, []);
+  }, [preItem.title]);
 
   async function LessonList() {
-    const lessonRef = firebase.firestore().collection('lessons');
+    const lessonRef = firebase.firestore().collection('lessons').orderBy('openDate');
     const lessonSnapshot = await lessonRef.get();
     const lessonData = lessonSnapshot.docs.map(doc => ({
       id: doc.id,
@@ -74,6 +75,10 @@ const EditChapterScreen = ({route}) => {
   const updateChapter = async () => {
     console.log('title1', title);
     if (title !== '') {
+      console.log('preItem before editing chapter', preItem)
+      preItem.title = preItem.courseTitle
+      preItem.author = preItem.courseAuthor
+      console.log('preItem after editing chapter', preItem)
       firebase
         .firestore()
         .collection('chapters')
@@ -109,7 +114,7 @@ const EditChapterScreen = ({route}) => {
                   });
                 }
               });
-
+            navigation.navigate('EditCourse', {preItem: preItem})
             Alert.alert('Edit chapter sucessfully!');
           } else {
             Alert.alert('Please fill full enough information!');
@@ -174,8 +179,22 @@ const EditChapterScreen = ({route}) => {
           <TextInput
             multiline
             style={styles.txbChapterName}
-            onChangeText={myTitle => setTitle(myTitle)}
-          >{preItem.title}</TextInput>
+            onChangeText={myTitle => {
+              console.log('onChangeText called with:', myTitle);
+              setTitle(myTitle);
+            }}
+            defaultValue={title}
+          />
+          {/* <TextInput
+            style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+            onChangeText={() => {}}
+            value={'Hello'}
+          /> */}
+          {/* <TextInput
+            style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+            onChangeText={(title) => setTitle(title)}
+            value={preItem.title}
+          /> */}
           <Text style={styles.txtChapter}>Lesson</Text>
           <TouchableOpacity
             style={styles.conAddLesson}
@@ -243,7 +262,7 @@ const EditChapterScreen = ({route}) => {
 
       <BtnTick
         onPress={() => (
-          updateChapter(), navigation.navigate('EditCourse', {preItem: preItem})
+          updateChapter()
         )}
       />
     </SafeAreaView>

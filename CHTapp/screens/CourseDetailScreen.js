@@ -133,8 +133,6 @@ const CourseDetailScreen = ({route}) => {
   }, [chapters, lessons, evaluation]);
 
   useEffect(() => {
-    ChapterList().then(data => setChapters(data));
-    LessonList().then(data => setLessons(data));
     EvaluationList().then(data => setEvaluation(data));
     getStarPercentage(5).then(data => setFiveStar(data));
     getStarPercentage(4).then(data => setFourStar(data));
@@ -142,7 +140,12 @@ const CourseDetailScreen = ({route}) => {
     getStarPercentage(2).then(data => setTwoStar(data));
     getStarPercentage(1).then(data => setOneStar(data));
     // GetEvaluation().then((data) => setEvaluation(data))
-  }, [preItem.title, preItem.rate]);
+  }, [preItem.rate]);
+
+  useEffect(() => {
+    ChapterList().then(data => setChapters(data));
+    LessonList().then(data => setLessons(data));
+  }, [preItem])
 
   // useEffect(() => {
   //   // Listen for when the screen is focused again
@@ -257,7 +260,33 @@ const CourseDetailScreen = ({route}) => {
     );
   };
 
+  // const renderChapterItem = ({item: chapter, index}) => {
+  //   return (
+  //     <View>
+  //       <View style={styles.horizontalContainer}>
+  //         <Text style={[styles.normalText2, {fontWeight: '500'}]}>
+  //           Chapter {index + 1}:{' '}
+  //         </Text>
+  //         <Text style={styles.normalText2}>{chapter.title}</Text>
+  //       </View>
+  //       <FlatList
+  //         data={lessons}
+  //         showsHorizontalScrollIndicator={false}
+  //         keyExtractor={item => (item.id = uuid.v4())}
+  //         renderItem={renderLessonItem}
+  //       />
+  //     </View>
+  //   );
+  // };
+
+
   const renderChapterItem = ({item: chapter, index}) => {
+    const chapterLessons = lessons.filter(
+      lesson => lesson.chapterTitle === chapter.title &&
+                lesson.courseAuthor === chapter.courseAuthor &&
+                lesson.courseTitle === chapter.courseTitle
+    );
+  
     return (
       <View>
         <View style={styles.horizontalContainer}>
@@ -267,7 +296,7 @@ const CourseDetailScreen = ({route}) => {
           <Text style={styles.normalText2}>{chapter.title}</Text>
         </View>
         <FlatList
-          data={lessons}
+          data={chapterLessons}
           showsHorizontalScrollIndicator={false}
           keyExtractor={item => (item.id = uuid.v4())}
           renderItem={renderLessonItem}
@@ -284,7 +313,7 @@ const CourseDetailScreen = ({route}) => {
   };
 
   async function ChapterList() {
-    const chapeterRef = firebase.firestore().collection('chapters');
+    const chapeterRef = firebase.firestore().collection('chapters').orderBy('openDate');
     const chapterSnapshot = await chapeterRef.get();
     const chapterData = chapterSnapshot.docs.map(doc => ({
       id: doc.id,
@@ -307,7 +336,7 @@ const CourseDetailScreen = ({route}) => {
       ...doc.data(),
     }));
 
-    const lessonRef = firebase.firestore().collection('lessons');
+    const lessonRef = firebase.firestore().collection('lessons').orderBy('openDate');
     const lessonSnapshot = await lessonRef.get();
     const lessonData = lessonSnapshot.docs.map(doc => ({
       id: doc.id,
@@ -335,7 +364,7 @@ const CourseDetailScreen = ({route}) => {
   }
 
   async function EvaluationList() {
-    const evaluationRef = firebase.firestore().collection('evaluate');
+    const evaluationRef = firebase.firestore().collection('evaluate').orderBy('date');
     const evaluationSnapshot = await evaluationRef.get();
     const evaluationData = evaluationSnapshot.docs.map(doc => ({
       id: doc.id,
@@ -766,6 +795,8 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     alignSelf: 'center',
+    width: scale(200,'w'),
+    height: scale(200,'w')
   },
   title: {
     color: CUSTOM_COLORS.black,

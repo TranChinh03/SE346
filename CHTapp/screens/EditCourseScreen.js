@@ -124,7 +124,7 @@ const EditCourseScreen = ({route}) => {
   };
 
   async function ChapterList() {
-    const chapeterRef = firebase.firestore().collection('chapters');
+    const chapeterRef = firebase.firestore().collection('chapters').orderBy('openDate');
     const chapterSnapshot = await chapeterRef.get();
     const chapterData = chapterSnapshot.docs.map(doc => ({
       id: doc.id,
@@ -268,7 +268,10 @@ const EditCourseScreen = ({route}) => {
 
           <TouchableOpacity
             style={styles.conAddLesson}
-            onPress={() => navigation.navigate('AddChapterScreen2')}>
+            onPress={() => navigation.navigate('CourseStack', {
+              screen: 'AddChapterScreen2',
+              params: {preItem: preItem}
+            })}>
             <Text style={styles.txtInfo}>Add Chapter</Text>
             <IC_RightArrow2 />
           </TouchableOpacity>

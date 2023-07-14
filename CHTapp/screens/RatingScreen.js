@@ -60,7 +60,10 @@ const  RatingScreen = ({route}) => {
     console.log("totalRating", totalRating)
     const averageRating = (totalRating / ratings.length).toFixed(1);
     console.log("averageRating", averageRating)
-  
+    
+    item.rate = averageRating
+    
+
     await firebase
     .firestore()
     .collection('courses')
@@ -79,6 +82,8 @@ const  RatingScreen = ({route}) => {
         })
       }
     })
+    console.log('item after editing', item)
+    navigation.navigate('CourseDetail', {preItem: item})
   }
 
 const now = firebase.firestore.Timestamp.now();
@@ -96,9 +101,7 @@ const now = firebase.firestore.Timestamp.now();
         });
 
         updateCourseRating();
-    
         Alert.alert('Thank you for rating!');
-        navigation.goBack();
        }
        else {
         Alert.alert('You have not rated!');

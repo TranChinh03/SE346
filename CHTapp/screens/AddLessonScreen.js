@@ -645,6 +645,7 @@ const AddLessonScreen = () => {
         lessonTitle: title,
         files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
         tests: firebase.firestore.FieldValue.arrayUnion(...fileUrls1),
+        openDate: now,
       })
       .then(() => {
         Alert.alert('Add Lesson Successfully!');
