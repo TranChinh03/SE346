@@ -307,6 +307,7 @@ const AddChapterScreen = ({route}) => {
           courseAuthor: name.email,
           courseTitle: myCourse,
           title: title,
+          openDate: now,
         })
         .then(() => {
           Alert.alert('Add Chapter Successfully!');

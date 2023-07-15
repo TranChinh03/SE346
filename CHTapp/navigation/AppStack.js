@@ -65,20 +65,18 @@ const HomeTabs = () => {
       <Tab.Screen
         name="HomeStack"
         component={HomeStack}
-        // listeners={({ navigation }) => ({
-        //   tabPress: e => {
-        //     // Prevent default behavior
-        //     e.preventDefault();
+        listeners={({ navigation }) => ({
+          tabPress: e => {
 
-        //     // Reset the state of the CourseStack
-        //     navigation.dispatch(
-        //       CommonActions.reset({
-        //         index: 0,
-        //         routes: [{ name: 'Home' }],
-        //       })
-        //     );
-        //   },
-        // })}
+            // Reset the state of the CourseStack
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'HomeStack' }],
+              })
+            );
+          },
+        })}
         options={{
           tabBarIcon: ({focused}) => (
             <View>
@@ -94,20 +92,18 @@ const HomeTabs = () => {
       <Tab.Screen
         name="CourseStack"
         component={CourseStack}
-        // listeners={({ navigation }) => ({
-        //   tabPress: e => {
-        //     // Prevent default behavior
-        //     e.preventDefault();
+        listeners={({ navigation }) => ({
+          tabPress: e => {
 
-        //     // Reset the state of the CourseStack
-        //     navigation.dispatch(
-        //       CommonActions.reset({
-        //         index: 0,
-        //         routes: [{ name: 'Course' }],
-        //       })
-        //     );
-        //   },
-        // })}
+            // Reset the state of the CourseStack
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'CourseStack' }],
+              })
+            );
+          },
+        })}
         options={{
           tabBarIcon: ({focused}) => (
             <View>
@@ -123,20 +119,17 @@ const HomeTabs = () => {
       <Tab.Screen
         name="MeetingStack"
         component={MeetingStack}
-        // listeners={({ navigation }) => ({
-        //   tabPress: e => {
-        //     // Prevent default behavior
-        //     e.preventDefault();
-
-        //     // Reset the state of the CourseStack
-        //     navigation.dispatch(
-        //       CommonActions.reset({
-        //         index: 0,
-        //         routes: [{ name: 'YourMeeting' }],
-        //       })
-        //     );
-        //   },
-        // })}
+        listeners={({ navigation }) => ({
+          tabPress: e => {
+            // Reset the state of the CourseStack
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'MeetingStack' }],
+              })
+            );
+          },
+        })}
         options={{
           tabBarIcon: ({focused}) => (
             <View>
@@ -167,20 +160,17 @@ const HomeTabs = () => {
       <Tab.Screen
         name="SettingStack"
         component={SettingStack}
-        // listeners={({ navigation }) => ({
-        //   tabPress: e => {
-        //     // Prevent default behavior
-        //     e.preventDefault();
-
-        //     // Reset the state of the CourseStack
-        //     navigation.dispatch(
-        //       CommonActions.reset({
-        //         index: 0,
-        //         routes: [{ name: 'Setting' }],
-        //       })
-        //     );
-        //   },
-        // })}
+        listeners={({ navigation }) => ({
+          tabPress: e => {
+            // Reset the state of the CourseStack
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'SettingStack' }],
+              })
+            );
+          },
+        })}
         options={{
           tabBarIcon: ({focused}) => (
             <View>

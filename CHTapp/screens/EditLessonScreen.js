@@ -615,6 +615,9 @@ const EditLessonScreen = ({route}) => {
     const fileUrls = await handleUpload();
     const fileUrls1 = await handleUpload1();
 
+    preItem.title = preItem.courseTitle
+    preItem.author = preItem.courseAuthor
+
     await firebase
       .firestore()
       .collection('lessons')
@@ -640,7 +643,7 @@ const EditLessonScreen = ({route}) => {
       })
       .then(() => {
         Alert.alert('Edit Lesson Successfully!');
-        navigation.goBack();
+        navigation.navigate('CourseDetail', {preItem: preItem})
       });
   };
 

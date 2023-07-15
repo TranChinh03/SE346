@@ -33,7 +33,7 @@ import BtnTick from '../src/components/BtnTick';
 import {firebase} from '../configs/FirebaseConfig';
 
 const AddChapterScreen2 = ({route}) => {
-  // const {txtHeader} = route.params;
+  const {preItem} = route.params;
   const navigation = useNavigation();
   const [shouldShow, setShouldShow] = useState(false);
   const [open, setOpen] = useState(false);
@@ -156,7 +156,7 @@ const AddChapterScreen2 = ({route}) => {
             </View> */}
           <Text style={styles.txtTiltle}>Course</Text>
           <View style={styles.conDropDown}>
-            <Text style={styles.txtInput}>Chapter 1</Text>
+            <Text style={styles.txtInput}>{preItem.title}</Text>
           </View>
         </View>
       );
@@ -277,14 +277,15 @@ const AddChapterScreen2 = ({route}) => {
   const now = firebase.firestore.Timestamp.now();
 
   const addChapter = () => {
-    if (myCourse !== '' && title !== '') {
+    if (title !== '') {
       firebase
         .firestore()
         .collection('chapters')
         .add({
           courseAuthor: name.email,
-          courseTitle: myCourse,
+          courseTitle: preItem.title,
           title: title,
+          openDate: now,
         })
         .then(() => {
           Alert.alert('Add Chapter Successfully!');
