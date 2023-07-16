@@ -4,7 +4,7 @@ import scale from '../constants/responsive';
 import CUSTOM_FONTS from '../constants/fonts';
 import CUSTOM_COLORS from '../constants/colors';
 import {IMG_COURSEBACKGROUND, IMG_CPPBACKGROUND} from '../assets/img';
-import { IMG_CPP } from '../assets/img';
+import {IMG_CPP} from '../assets/img';
 import {IC_Star} from '../assets/iconsvg';
 
 export default class ItemSearchCourse extends Component {
@@ -25,18 +25,18 @@ export default class ItemSearchCourse extends Component {
             </View>
           </View>
           {this.props.image === '' ? (
-          <Image 
-          source={IMG_CPP}
-          resizeMode="contain"
-          style={styles.imgCourse}
-          />
-        ) : (
-          <Image
-          source = {{uri : this.props.image}}
-          resizeMode="contain"
-          style={styles.imgCourse}
-        />
-        )}
+            <Image
+              source={IMG_CPP}
+              resizeMode="contain"
+              style={styles.imgCourse}
+            />
+          ) : (
+            <Image
+              source={{uri: this.props.image}}
+              resizeMode="contain"
+              style={styles.imgCourse}
+            />
+          )}
         </View>
       </View>
     );
@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
   txtCourseName: {
     fontFamily: CUSTOM_FONTS.bold,
     flexWrap: 'wrap',
+    color: CUSTOM_COLORS.gray,
     //backgroundColor: 'pink',
   },
   conSub: {
@@ -80,11 +81,13 @@ const styles = StyleSheet.create({
     fontFamily: CUSTOM_FONTS.regular,
     flexWrap: 'wrap',
     marginTop: scale(5, 'h'),
+    color: CUSTOM_COLORS.gray,
   },
   txtDetail2: {
     fontFamily: CUSTOM_FONTS.regular,
     flexWrap: 'wrap',
     //marginTop: scale(5, 'h'),
+    color: CUSTOM_COLORS.gray,
   },
   txtRate: {
     color: CUSTOM_COLORS.yellow,

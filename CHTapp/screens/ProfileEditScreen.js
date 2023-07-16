@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  Alert,
 } from 'react-native';
 import React, {Component, useState, useEffect} from 'react';
 import {IMG_PROFILEBACKGROUND, IMG_AVT, IMG_CPP} from '../src/assets/img';
@@ -20,13 +21,13 @@ import TextDisplayBox from '../src/components/textDisplayBox';
 import {firebase} from '../configs/FirebaseConfig';
 import {useNavigation} from '@react-navigation/native';
 import TextInputDisplayBox from '../src/components/textInputDisplayBox';
-import {IC_Tick} from '../src/assets/iconsvg';
+import {IC_Camera, IC_Camera2, IC_Tick} from '../src/assets/iconsvg';
 import BackButton from '../src/components/backButton';
 import uuid from 'react-native-uuid';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker'
-import {utils} from '@react-native-firebase/app'
-import storage from '@react-native-firebase/storage'
-
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {utils} from '@react-native-firebase/app';
+import storage from '@react-native-firebase/storage';
+import CUSTOM_SIZES from '../src/constants/size';
 
 const ProfileEditScreen = () => {
   const [profile, setProfile] = useState('');
@@ -37,7 +38,7 @@ const ProfileEditScreen = () => {
   // const [job, setJob] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [imageUri, setImageUri] = useState(null)
+  const [imageUri, setImageUri] = useState(null);
 
   const navigation = useNavigation();
 
@@ -62,7 +63,17 @@ const ProfileEditScreen = () => {
       });
   }, []);
 
-  const updateProfile = async() => {
+  const backButtonAlert = () =>
+    Alert.alert('Warning', 'Changes that you made may not be save', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'Leave & Discard', onPress: () => navigation.goBack()},
+    ]);
+
+  const updateProfile = async () => {
     const updateData = {};
 
     const imageUrl = await handleUpload();
@@ -141,15 +152,15 @@ const ProfileEditScreen = () => {
       maxHeight: 200,
       maxWidth: 200,
     };
-  
-    launchImageLibrary(options, (response) => {
+
+    launchImageLibrary(options, response => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
       } else {
         setImageUri(response.assets[0].uri);
-        console.log('imageUri', imageUri)
+        console.log('imageUri', imageUri);
       }
     });
   };
@@ -159,19 +170,21 @@ const ProfileEditScreen = () => {
       try {
         const reference = storage().ref(`images/${Date.now()}.jpg`);
         const task = reference.putFile(imageUri);
-        task.on('state_changed', (snapshot) => {
+        task.on('state_changed', snapshot => {
           console.log(
-            `${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}% completed`
+            `${
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            }% completed`,
           );
         });
-  
+
         await task;
         const url = await reference.getDownloadURL();
         console.log('Image uploaded to Firebase storage:', url);
         return url;
-  
+
         // const pathToFile = `${utils.FilePath.imageUri}`
-  
+
         // reference.put(imageUri).then((snapshot) => {
         //   console.log('test',snapshot.ref.getDownloadURL())
         //   return snapshot.ref.getDownloadURL();
@@ -181,15 +194,14 @@ const ProfileEditScreen = () => {
       }
     }
   };
-  
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.bgContainer}>
         <ImageBackground
-            source={IMG_PROFILEBACKGROUND}
-            style={styles.background}
-          />
+          source={IMG_PROFILEBACKGROUND}
+          style={styles.background}
+        />
         <View
           style={{
             justifyContent: 'center',
@@ -197,7 +209,7 @@ const ProfileEditScreen = () => {
             top: scale(20, 'h'),
             width: '100%',
           }}>
-          <BackButton onPress={() => navigation.goBack()} />
+          <BackButton onPress={backButtonAlert} />
           <View style={styles.screenTitleContainer}>
             <Text style={styles.screenTitle}>Edit Profile</Text>
           </View>
@@ -214,29 +226,40 @@ const ProfileEditScreen = () => {
 
       <View style={styles.contentContainer}>
         <View style={styles.avtContainer}>
-          <TouchableOpacity style={styles.avtFrame} onPress={() => handleButtonPress()}>
-            {imageUri ? <Image style={styles.avt} source={{uri: imageUri}} /> : 
-              (
-                profile.ava === "" ? 
-                <Image style={styles.avt} source={IMG_AVT} /> : 
-                <Image style={styles.avt} source={{uri: profile.ava}} />
-              )}
+          {/* <TouchableOpacity
+            style={styles.avtFrame}
+            onPress={() => handleButtonPress()}>
+            <Image style={styles.avt} source={IMG_AVT} />
+          </TouchableOpacity> */}
+          <TouchableOpacity
+            style={styles.avtFrame}
+            onPress={() => handleButtonPress()}>
+            {imageUri ? (
+              <Image style={styles.avt} source={{uri: imageUri}} />
+            ) : profile.ava === '' ? (
+              <Image style={styles.avt} source={IMG_AVT} />
+            ) : (
+              <Image style={styles.avt} source={{uri: profile.ava}} />
+            )}
           </TouchableOpacity>
+          <View style={styles.frameCamera}>
+            <IC_Camera2 style={styles.camera} />
+          </View>
         </View>
-
-        <View style={styles.nameContainer}>
+        {/* <View style={styles.nameContainer}>
           <View style={styles.nameFrame}>
             <TextInput
               onChangeText={myName => setName(myName)}
               style={styles.name}
               cursorColor={CUSTOM_COLORS.black}>
               {profile.name}
+              Text={'Xuan Thao'}
             </TextInput>
           </View>
           {/* <View style={styles.subNameContainer}>
                       <Text style={styles.subName}>Hyu</Text>
                   </View> */}
-        </View>
+        {/* </View> */}
         {/* 
                 <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
                   <View style={{display: 'flex', flexDirection: 'row'}}>
@@ -257,8 +280,21 @@ const ProfileEditScreen = () => {
                       </View>
                   </View>
                   </ScrollView> */}
-
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={styles.nameContainer}>
+            <View style={styles.nameFrame}>
+              <TextInput
+                onChangeText={myName => setName(myName)}
+                style={styles.name}
+                cursorColor={CUSTOM_COLORS.black}>
+                {profile.name}
+              </TextInput>
+            </View>
+            {/* <View style={styles.subNameContainer}>
+                      <Text style={styles.subName}>Hyu</Text>
+                  </View> */}
+          </View>
+
           {/* {profile.job === 'Student' ? (
             <View style={{display: 'flex', flexDirection: 'row'}}>
               <View style={styles.contentRow}>
@@ -372,14 +408,16 @@ const styles = StyleSheet.create({
     borderColor: CUSTOM_COLORS.FrenchViolet,
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: scale(50, 'w'),
+    alignSelf: 'center',
+    //marginHorizontal: scale(50, 'w'),
     marginTop: scale(15, 'h'),
     paddingLeft: scale(10, 'w'),
+    height: scale(60, 'h'),
+    width: scale(300, 'h'),
   },
   name: {
-    fontSize: scale(30, 'w'),
-    color: CUSTOM_COLORS.black,
+    fontSize: CUSTOM_SIZES.xLarge,
+    color: CUSTOM_COLORS.gray,
     alignSelf: 'center',
   },
   icEdit: {
@@ -432,5 +470,21 @@ const styles = StyleSheet.create({
     fontSize: scale(13, 'w'),
     color: CUSTOM_COLORS.stateBlue,
     fontWeight: 'bold',
+  },
+  frameCamera: {
+    height: scale(40, 'h'),
+    width: scale(40, 'h'),
+    borderRadius: scale(40 / 2, 'h'),
+    backgroundColor: 'white',
+    borderColor: CUSTOM_COLORS.primary,
+    borderWidth: scale(0.5, 'w'),
+    alignSelf: 'center',
+    position: 'absolute',
+    top: scale(45, 'h'),
+    right: scale(120, 'h'),
+    justifyContent: 'center',
+  },
+  camera: {
+    alignSelf: 'center',
   },
 });

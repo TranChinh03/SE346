@@ -145,7 +145,7 @@ const CourseDetailScreen = ({route}) => {
   useEffect(() => {
     ChapterList().then(data => setChapters(data));
     LessonList().then(data => setLessons(data));
-  }, [preItem])
+  }, [preItem]);
 
   // useEffect(() => {
   //   // Listen for when the screen is focused again
@@ -279,14 +279,14 @@ const CourseDetailScreen = ({route}) => {
   //   );
   // };
 
-
   const renderChapterItem = ({item: chapter, index}) => {
     const chapterLessons = lessons.filter(
-      lesson => lesson.chapterTitle === chapter.title &&
-                lesson.courseAuthor === chapter.courseAuthor &&
-                lesson.courseTitle === chapter.courseTitle
+      lesson =>
+        lesson.chapterTitle === chapter.title &&
+        lesson.courseAuthor === chapter.courseAuthor &&
+        lesson.courseTitle === chapter.courseTitle,
     );
-  
+
     return (
       <View>
         <View style={styles.horizontalContainer}>
@@ -313,7 +313,10 @@ const CourseDetailScreen = ({route}) => {
   };
 
   async function ChapterList() {
-    const chapeterRef = firebase.firestore().collection('chapters').orderBy('openDate');
+    const chapeterRef = firebase
+      .firestore()
+      .collection('chapters')
+      .orderBy('openDate');
     const chapterSnapshot = await chapeterRef.get();
     const chapterData = chapterSnapshot.docs.map(doc => ({
       id: doc.id,
@@ -336,7 +339,10 @@ const CourseDetailScreen = ({route}) => {
       ...doc.data(),
     }));
 
-    const lessonRef = firebase.firestore().collection('lessons').orderBy('openDate');
+    const lessonRef = firebase
+      .firestore()
+      .collection('lessons')
+      .orderBy('openDate');
     const lessonSnapshot = await lessonRef.get();
     const lessonData = lessonSnapshot.docs.map(doc => ({
       id: doc.id,
@@ -364,7 +370,10 @@ const CourseDetailScreen = ({route}) => {
   }
 
   async function EvaluationList() {
-    const evaluationRef = firebase.firestore().collection('evaluate').orderBy('date');
+    const evaluationRef = firebase
+      .firestore()
+      .collection('evaluate')
+      .orderBy('date');
     const evaluationSnapshot = await evaluationRef.get();
     const evaluationData = evaluationSnapshot.docs.map(doc => ({
       id: doc.id,
@@ -567,7 +576,10 @@ const CourseDetailScreen = ({route}) => {
       return (
         <View style={styles.container1}>
           <View style={styles.conOperator}>
-            <BackButton onPress={() => navigation.goBack()} type={1} />
+            <BackButton
+              onPress={() => navigation.navigate('Course')}
+              type={1}
+            />
             <TouchableOpacity
               onPress={() => {
                 setFavorite(!favorite), updateFavor();
@@ -742,7 +754,7 @@ const CourseDetailScreen = ({route}) => {
 
   return (
     <SafeAreaView style={styles.container}>
-    {console.log('preItem of Course Detail', preItem)}
+      {console.log('preItem of Course Detail', preItem)}
       <FlatList
         showsVerticalScrollIndicator={false}
         data={data}
@@ -795,8 +807,8 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     alignSelf: 'center',
-    width: scale(200,'w'),
-    height: scale(200,'w')
+    width: scale(200, 'w'),
+    height: scale(200, 'w'),
   },
   title: {
     color: CUSTOM_COLORS.black,
