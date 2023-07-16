@@ -6,6 +6,7 @@ import {
   ImageBackground,
   FlatList,
   TouchableOpacity,
+  Alert
 } from 'react-native';
 import React, {Component, useState, useEffect} from 'react';
 import BackButton from '../src/components/backButton';

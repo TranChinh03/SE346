@@ -1,4 +1,4 @@
-import {Text, StyleSheet, View, TouchableOpacity, Linking} from 'react-native';
+import {Text, StyleSheet, View, TouchableOpacity, Linking, Alert} from 'react-native';
 import React, {Component} from 'react';
 import scale from '../constants/responsive';
 import CUSTOM_COLORS from '../constants/colors';
@@ -27,8 +27,19 @@ export default class ItemMeeting extends Component {
             </View> */}
             <View style={styles.conBtn}>
               <TouchableOpacity
-                onPress={() => Linking.openURL(this.props.link)}
-                style={styles.btnJoin}>
+                onPress={async () => {
+                const supported = await Linking.canOpenURL(this.props.link);
+                
+                {console.log('item.joinUrl',this.props.link)}
+
+                if (supported) {
+                  {console.log('item.joinUrl',this.props.link)}
+                  Linking.openURL(this.props.link);
+                } else {
+                  Alert.alert('This link is wrong!');
+                }
+              }}
+              style={styles.btnJoin}>
                 <Text style={styles.txtJoin}>Join</Text>
               </TouchableOpacity>
               <TouchableOpacity

@@ -37,6 +37,7 @@ import {utils} from '@react-native-firebase/app';
 import storage from '@react-native-firebase/storage';
 // import RNFetchBlob from 'rn-fetch-blob'
 import {PermissionsAndroid} from 'react-native';
+import { preset } from '../jest.config';
 
 var titles = [
   'Python.pdf',
@@ -166,10 +167,11 @@ const EditLessonScreen = ({route}) => {
 
   useEffect(() => {
     MaterialList().then(data => setMaterials(data))
-    TestList().then(data => setTests(data))
+  }, [materials])
 
-    console.log('tests', tests)
-  }, [])
+  useEffect(() => {
+    TestList().then(data => setTests(data))
+  }, [tests])
 
   const handleDelete = (item) => {
     console.log('item', item)
@@ -615,10 +617,8 @@ const EditLessonScreen = ({route}) => {
     const fileUrls = await handleUpload();
     const fileUrls1 = await handleUpload1();
 
-    preItem.title = preItem.courseTitle
-    preItem.author = preItem.courseAuthor
-
-    await firebase
+    if(title !== '') {
+      firebase
       .firestore()
       .collection('lessons')
       .where('lessonTitle', '==', preItem.lessonTitle)
@@ -628,6 +628,7 @@ const EditLessonScreen = ({route}) => {
       .get().then((querrySnapshot) => {
         if(!querrySnapshot.empty)
         {
+          console.log('1')
           const documentId = querrySnapshot.docs[0].id
           firebase
           .firestore()
@@ -640,11 +641,42 @@ const EditLessonScreen = ({route}) => {
           })
 
         }
+
       })
-      .then(() => {
-        Alert.alert('Edit Lesson Successfully!');
-        navigation.navigate('CourseDetail', {preItem: preItem})
-      });
+
+    
+
+      firebase
+      .firestore()
+      .collection('courses')
+      .where('title', '==', preItem.courseTitle)
+      .where('author', '==', preItem.courseAuthor)
+      .get().then((querrySnapshot) => {
+        if(!querrySnapshot.empty)
+        {
+          console.log('Da vao day!')
+          const data = querrySnapshot.docs[0].data()
+          preItem.language = data.language
+          preItem.lastUpdate = now,
+          preItem.description = data.description,
+          preItem.programLanguage = data.programLanguage
+          preItem.image = data.image
+          
+          preItem.title = preItem.courseTitle
+          preItem.author = preItem.courseAuthor
+    
+          console.log('preItem after edit lessons', preItem)
+    
+    
+          navigation.navigate('CourseDetail', {preItem: preItem})
+          Alert.alert('Edit Lesson Successfully!');
+        }
+      })
+
+
+    } else {
+      Alert.alert('Please fill full enough information!');
+    }
   };
 
   return (

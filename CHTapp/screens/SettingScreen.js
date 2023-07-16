@@ -16,13 +16,14 @@ const SettingScreen = ()  => {
     const [newCourse, setNewCourse] = useState([]);
     const navigation = useNavigation();
     const [name, setName] = useState('');
+    const [data, setData] = useState([]);
 
-    const renderCourses = (data, category) => {
+    const renderCourses = () => {
         const navigation = useNavigation();
         return (
           <View>
             <View style={styles.titlePartCourses}>
-              <Text style={styles.categoryName}>{category}</Text>
+              <Text style={styles.categoryName}>My Courses</Text>
               <TouchableOpacity
                 style={styles.loadAllPart}
                 onPress={() =>
@@ -64,105 +65,93 @@ const SettingScreen = ()  => {
         );
       };
 
-      async function joinedMyCourse(curEmail) {
-        const courseRef = firebase.firestore().collection('courses');
-        const courseSnapshot = await courseRef.get();
-        const courseData = courseSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+      // async function joinedMyCourse(curEmail) {
+      //   const courseRef = firebase.firestore().collection('courses');
+      //   const courseSnapshot = await courseRef.get();
+      //   const courseData = courseSnapshot.docs.map(doc => ({
+      //     id: doc.id,
+      //     ...doc.data(),
+      //   }));
     
-        const authorRef = firebase.firestore().collection('users');
-        const authorSnapshot = await authorRef.get();
-        const authorData = authorSnapshot.docs.map(doc => doc.data());
+      //   const authorRef = firebase.firestore().collection('users');
+      //   const authorSnapshot = await authorRef.get();
+      //   const authorData = authorSnapshot.docs.map(doc => doc.data());
     
-        const studyRef = firebase.firestore().collection('study');
-        const studySnapshot = await studyRef.get();
-        const studyData = studySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+      //   const studyRef = firebase.firestore().collection('study');
+      //   const studySnapshot = await studyRef.get();
+      //   const studyData = studySnapshot.docs.map(doc => ({
+      //     id: doc.id,
+      //     ...doc.data(),
+      //   }));
     
-        const joinedData = studyData
-          .filter(firstItem => firstItem.student === curEmail)
-          .map(firstItem => {
-            const secondItem = courseData.find(
-              item =>
-                item.author === firstItem.courseAuthor &&
-                item.title === firstItem.courseTitle,
-            );
+      //   const joinedData = studyData
+      //     .filter(firstItem => firstItem.student === curEmail)
+      //     .map(firstItem => {
+      //       const secondItem = courseData.find(
+      //         item =>
+      //           item.author === firstItem.courseAuthor &&
+      //           item.title === firstItem.courseTitle,
+      //       );
     
-            const thirdItem = authorData.find(
-              item => item.email === secondItem.author,
-            );
+      //       const thirdItem = authorData.find(
+      //         item => item.email === secondItem.author,
+      //       );
     
-            return {...firstItem, ...secondItem, ...thirdItem};
-          });
+      //       return {...firstItem, ...secondItem, ...thirdItem};
+      //     });
     
-        return joinedData;
-      }
+      //   return joinedData;
+      // }
 
-      async function joinedMyCourse2(curEmail) {
-        const courseRef = firebase.firestore().collection('courses');
-        const courseSnapshot = await courseRef.get();
-        const courseData = courseSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+      // async function joinedMyCourse2(curEmail) {
+      //   const courseRef = firebase.firestore().collection('courses');
+      //   const courseSnapshot = await courseRef.get();
+      //   const courseData = courseSnapshot.docs.map(doc => ({
+      //     id: doc.id,
+      //     ...doc.data(),
+      //   }));
     
-        const authorRef = firebase.firestore().collection('users');
-        const authorSnapshot = await authorRef.get();
-        const authorData = authorSnapshot.docs.map(doc => doc.data());
+      //   const authorRef = firebase.firestore().collection('users');
+      //   const authorSnapshot = await authorRef.get();
+      //   const authorData = authorSnapshot.docs.map(doc => doc.data());
     
-        const joinedData = courseData
-          .filter(item => item.author === curEmail)
-          .map(firstItem => {
-            const secondItem = authorData.find(
-              item => item.email === firstItem.author,
-            );
+      //   const joinedData = courseData
+      //     .filter(item => item.author === curEmail)
+      //     .map(firstItem => {
+      //       const secondItem = authorData.find(
+      //         item => item.email === firstItem.author,
+      //       );
     
-            return {...firstItem, ...secondItem};
-          });
+      //       return {...firstItem, ...secondItem};
+      //     });
     
-        return joinedData;
-      }
+      //   return joinedData;
+      // }
 
-      async function joinedCourse() {
-        //const navigation = useNavigation();
-        const courseRef = firebase.firestore().collection('courses');
-        const courseSnapshot = await courseRef.get();
-        const courseData = courseSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+      // async function joinedCourse() {
+      //   //const navigation = useNavigation();
+      //   const courseRef = firebase.firestore().collection('courses');
+      //   const courseSnapshot = await courseRef.get();
+      //   const courseData = courseSnapshot.docs.map(doc => ({
+      //     id: doc.id,
+      //     ...doc.data(),
+      //   }));
     
-        const authorRef = firebase.firestore().collection('users');
-        const authorSnapshot = await authorRef.get();
-        const authorData = authorSnapshot.docs.map(doc => doc.data());
+      //   const authorRef = firebase.firestore().collection('users');
+      //   const authorSnapshot = await authorRef.get();
+      //   const authorData = authorSnapshot.docs.map(doc => doc.data());
     
-        const joinedData = courseData.map(firstItem => {
-          const secondItem = authorData.find(
-            item => item.email === firstItem.author,
-          );
+      //   const joinedData = courseData.map(firstItem => {
+      //     const secondItem = authorData.find(
+      //       item => item.email === firstItem.author,
+      //     );
     
-          return {...firstItem, ...secondItem};
-        });
+      //     return {...firstItem, ...secondItem};
+      //   });
     
-        return joinedData;
-      }
+      //   return joinedData;
+      // }
 
-    const handleSignOut = () => {
-        firebase.auth()
-          .signOut()
-          .then(() => {
-            navigation.replace("Loading")
-          })
-          .catch(error => alert(error.message))
-      }
-    
-      const [profile, setProfile] = useState('');
-    
-    
       useEffect(() => {
         firebase
           .firestore()
@@ -171,37 +160,100 @@ const SettingScreen = ()  => {
           .get()
           .then(snapshot => {
             if (snapshot.exists) {
-              setProfile(snapshot.data());
+              setName(snapshot.data());
             } else {
               console.log('User does not exist');
             }
           });
-        }, [name.email]);
+      }, []);
 
-        useEffect(() => {
-            async function getData() {
-              if (name.job === 'Student') {
-                const myCourse = (await joinedMyCourse(name.email)).slice(0, 5);
-                setMyCourse(myCourse);
-              } else {
-                const myCourse = (await joinedMyCourse2(name.email)).slice(0, 5);
-                setMyCourse(myCourse);
-              }
-            }
-        
-            getData();
-          }, [myCourse]);
+      async function joinedMyCourses() {
+        const courseRef = firebase.firestore().collection('courses');
+        const courseSnapshot = await courseRef.get();
+        const courseData = courseSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+    
+    
+    
+        const authorRef = firebase.firestore().collection('users');
+        const authorSnapshot = await authorRef.get();
+        const authorData = authorSnapshot.docs.map(doc => doc.data());
+    
+    
+        const joinedData = courseData
+          .filter(filter => filter.author === name.email)
+          .map(firstItem => {
+            const secondItem = authorData.find(
+              item => item.email === firstItem.author,
+            );
+            return {...firstItem, ...secondItem};
+          });
+    
+        return joinedData;
+      }
 
-          useEffect(() => {
-            async function getData() {
-              const newCourse = (await joinedCourse())
-                .sort((a, b) => b.openDate - a.openDate)
-                .slice(0, 5);
-              setNewCourse(newCourse);
-            }
+      useEffect(() => {
+        async function getData() {
+          const myCourses = await joinedMyCourses();
+          setData(myCourses);
+        }
+    
+        getData();
+      }, [data]);
+
+    const handleSignOut = () => {
+        firebase.auth()
+          .signOut()
+          .then(() => {
+            navigation.replace("Login")
+          })
+          .catch(error => alert(error.message))
+      }
+    
+      // const [profile, setProfile] = useState('');
+    
+    
+      // useEffect(() => {
+      //   firebase
+      //     .firestore()
+      //     .collection('users')
+      //     .doc(firebase.auth().currentUser.uid)
+      //     .get()
+      //     .then(snapshot => {
+      //       if (snapshot.exists) {
+      //         setProfile(snapshot.data());
+      //       } else {
+      //         console.log('User does not exist');
+      //       }
+      //     });
+      //   }, [name.email]);
+
+      //   useEffect(() => {
+      //       async function getData() {
+      //         if (name.job === 'Student') {
+      //           const myCourse = (await joinedMyCourse(name.email)).slice(0, 5);
+      //           setMyCourse(myCourse);
+      //         } else {
+      //           const myCourse = (await joinedMyCourse2(name.email)).slice(0, 5);
+      //           setMyCourse(myCourse);
+      //         }
+      //       }
         
-            getData();
-          }, [newCourse]);
+      //       getData();
+      //     }, [myCourse]);
+
+      //     useEffect(() => {
+      //       async function getData() {
+      //         const newCourse = (await joinedCourse())
+      //           .sort((a, b) => b.openDate - a.openDate)
+      //           .slice(0, 5);
+      //         setNewCourse(newCourse);
+      //       }
+        
+      //       getData();
+      //     }, [newCourse]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -218,19 +270,19 @@ const SettingScreen = ()  => {
                 <View style={styles.accountContent}>
                     <View style={{flex: 3}}>
                         <View style={styles.avtFrame}>
-                        {profile.ava === '' ? 
+                        {name.ava === '' ? 
                         <Image
                             source={IMG_AVT}
                             style={styles.avt}/>
                         : 
                         <Image
-                            source={{uri: profile.ava}}
+                            source={{uri: name.ava}}
                             style={styles.avt}/>
                         }
                         </View>
                     </View>
                     <View style={{flex: 5, padding: scale(20, 'w')}}>
-                        <Text style={styles.name}>{profile.name}</Text>
+                        <Text style={styles.name}>{name.name}</Text>
                     </View>
                     <View style={{flex: 2, padding: scale(10, 'w')}}>
                         <TouchableOpacity
@@ -365,7 +417,7 @@ const SettingScreen = ()  => {
             </View> */}
             <View style={{flex: 3, padding: scale(20, 'w')}}>
                 <ScrollView showsVerticalScrollIndicator={false}>
-                    {renderCourses(myCourse, 'MY COURSES')}
+                    {renderCourses()}
                 </ScrollView>
             </View>
             <View style={styles.logOutContainer}>

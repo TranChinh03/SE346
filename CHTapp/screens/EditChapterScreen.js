@@ -39,6 +39,10 @@ const EditChapterScreen = ({route}) => {
   }, [preItem.title, preItem.courseAuthor, lessons]);
 
   useEffect(() => {
+    console.log('title', title)
+  }, [title]);
+
+  useEffect(() => {
     firebase
       .firestore()
       .collection('users')
@@ -75,10 +79,6 @@ const EditChapterScreen = ({route}) => {
   const updateChapter = async () => {
     console.log('title1', title);
     if (title !== '') {
-      console.log('preItem before editing chapter', preItem)
-      preItem.title = preItem.courseTitle
-      preItem.author = preItem.courseAuthor
-      console.log('preItem after editing chapter', preItem)
       firebase
         .firestore()
         .collection('chapters')
@@ -114,14 +114,39 @@ const EditChapterScreen = ({route}) => {
                   });
                 }
               });
-            navigation.navigate('EditCourse', {preItem: preItem})
+
+
+              firebase
+                .firestore()
+                .collection('courses')
+                .where('title', '==', preItem.courseTitle)
+                .where('author', '==', preItem.courseAuthor)
+                .get()
+                .then(querrySnapshot => {
+                  if (!querrySnapshot.empty) {
+                    const documentId = querrySnapshot.docs[0].id;
+                    const data = querrySnapshot.docs[0].data()
+                    preItem.image = data.image
+                    preItem.language = data.language
+                    preItem.description = data.description
+                    preItem.openDate = data.openDate
+                    preItem.programLanguage = data.programLanguage
+                    preItem.rate = data.rate
+
+              const now = firebase.firestore.Timestamp.now();
+              preItem.title = preItem.courseTitle
+              preItem.author = preItem.courseAuthor
+              preItem.lastUpdate = now
+              
+              console.log('preItem after editing chapter', preItem)
+            navigation.navigate('CourseDetail', {preItem: preItem})
             Alert.alert('Edit chapter sucessfully!');
           } else {
             Alert.alert('Please fill full enough information!');
           }
         });
     }
-  };
+  })}};
 
   const data = [
     {id: 'content1', type: 'content1'},
@@ -175,16 +200,6 @@ const EditChapterScreen = ({route}) => {
     if (item.type === 'content1') {
       return (
         <View>
-          <Text style={styles.txtChapter}>Chapter name</Text>
-          <TextInput
-            multiline
-            style={styles.txbChapterName}
-            onChangeText={myTitle => {
-              console.log('onChangeText called with:', myTitle);
-              setTitle(myTitle);
-            }}
-            defaultValue={title}
-          />
           {/* <TextInput
             style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
             onChangeText={() => {}}
@@ -251,6 +266,17 @@ const EditChapterScreen = ({route}) => {
           <Text style={styles.txtHeader}>Edit Chapter</Text>
         </View>
       </ImageBackground>
+      <Text style={[styles.txtChapter,{ marginLeft: scale(35, 'w')}]}>Chapter name</Text>
+          <TextInput
+            multiline
+            style={styles.txbChapterName}
+            onChangeText={myTitle => {
+              console.log('onChangeText called with:', myTitle);
+              setTitle(myTitle);
+            }}
+          >
+            {preItem.title}
+          </TextInput>
       <View style={styles.content}>
         <FlatList
           data={data}
@@ -342,6 +368,7 @@ const styles = StyleSheet.create({
     color: CUSTOM_COLORS.usBlue,
     fontSize: scale(17, 'w'),
     padding: scale(15, 'w'),
+    marginLeft: scale(20, 'w')
   },
   txtChapter: {
     color: CUSTOM_COLORS.usBlue,

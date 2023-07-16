@@ -321,6 +321,10 @@ const CourseScreen = ({route}) => {
           <Text style={styles.start}>+</Text>
         </TouchableOpacity>
       </ImageBackground>
+
+      <View style={styles.space}>
+        <View style={[styles.space]}></View>
+      </View>
     </SafeAreaView>
   );
 };
@@ -330,6 +334,7 @@ export default CourseScreen;
 const styles = StyleSheet.create({
   container: {
     height: '100%',
+    backgroundColor: CUSTOM_COLORS.white
   },
   image: {
     flex: 1,
@@ -418,5 +423,9 @@ const styles = StyleSheet.create({
     fontSize: scale(40, 'w'),
     fontWeight: '300',
     color: CUSTOM_COLORS.white,
+  },
+  space: {
+    height: scale(80, 'h'),
+    // backgroundColor: 'pink',
   },
 });
