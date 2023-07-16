@@ -9,6 +9,7 @@ import {
   TextInput,
   ScrollView,
   Alert,
+  Button,
 } from 'react-native';
 import React, {Component, useState, useEffect} from 'react';
 import BackButton from '../src/components/backButton';
@@ -23,6 +24,8 @@ import ItemMeeting from '../src/components/ItemMeeting';
 import {useNavigation} from '@react-navigation/native';
 import {firebase} from '../configs/FirebaseConfig';
 import DropDownPicker from 'react-native-dropdown-picker';
+import DatePicker from 'react-native-date-picker';
+import {IC_Calendar} from '../src/assets/iconsvg';
 
 const CreateMeeting = () => {
   const [shouldShow, setShouldShow] = useState(false);
@@ -39,7 +42,7 @@ const CreateMeeting = () => {
   const [name, setName] = useState('');
   // const [meetingName, setMeetingName] = useState('')
   const [time, setTime] = useState('');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState(new Date());
   const [link, setLink] = useState('');
 
   const navigation = useNavigation();
@@ -170,7 +173,6 @@ const CreateMeeting = () => {
     {id: 'content1', type: 'content1'},
     {id: 'dropdown', type: 'dropdown'},
   ];
-
   const renderItem = ({item}) => {
     if (item.type === 'content1') {
       return (
@@ -191,9 +193,31 @@ const CreateMeeting = () => {
 
           <View>
             <Text style={styles.txtTiltle}>Date</Text>
-            <TextInput
+            {/* <TextInput
               style={styles.txtInput}
-              onChangeText={date => setDate(date)}></TextInput>
+              onChangeText={date => setDate(date)}></TextInput> */}
+            <TouchableOpacity
+              style={styles.conDate}
+              onPress={() => setOpen(true)}>
+              <Text style={styles.txtDate}>{date.toDateString()}</Text>
+              <IC_Calendar
+                stroke={CUSTOM_COLORS.usBlue}
+                style={{alignSelf: 'center'}}
+              />
+            </TouchableOpacity>
+            <DatePicker
+              modal
+              mode="date"
+              open={open}
+              date={date}
+              onConfirm={date => {
+                setOpen(false);
+                setDate(date);
+              }}
+              onCancel={() => {
+                setOpen(false);
+              }}
+            />
           </View>
 
           <View>
@@ -325,14 +349,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginLeft: scale(15, 'w'),
   },
-  txtTiltle: {
-    fontSize: CUSTOM_SIZES.xLarge,
-    fontFamily: CUSTOM_FONTS.medium,
-    color: CUSTOM_COLORS.stateBlue,
-    marginLeft: scale(30, 'w'),
-    marginTop: scale(30, 'h'),
-    marginBottom: scale(10, 'h'),
-  },
+  // txtTiltle: {
+  //   fontSize: CUSTOM_SIZES.xLarge,
+  //   fontFamily: CUSTOM_FONTS.medium,
+  //   color: CUSTOM_COLORS.stateBlue,
+  //   marginLeft: scale(30, 'w'),
+  //   marginTop: scale(30, 'h'),
+  //   marginBottom: scale(10, 'h'),
+  // },
   txtTiltle: {
     fontSize: CUSTOM_SIZES.large,
     fontFamily: CUSTOM_FONTS.medium,
@@ -388,13 +412,13 @@ const styles = StyleSheet.create({
     fontFamily: CUSTOM_FONTS.regular,
     backgroundColor: 'transparent',
   },
-  conDropDown: {
-    height: scale(45, 'h'),
-    width: scale(320, 'w'),
-    //backgroundColor: 'yellow',
-    alignSelf: 'center',
-    //marginLeft: scale(15, 'w'),
-  },
+  // conDropDown: {
+  //   height: scale(45, 'h'),
+  //   width: scale(320, 'w'),
+  //   //backgroundColor: 'yellow',
+  //   alignSelf: 'center',
+  //   //marginLeft: scale(15, 'w'),
+  // },
   condropdown2: {
     borderColor: CUSTOM_COLORS.usBlue,
     fontSize: CUSTOM_SIZES.medium,
@@ -403,5 +427,21 @@ const styles = StyleSheet.create({
   space: {
     height: scale(200, 'h'),
     // backgroundColor: 'pink',
+  },
+  conDate: {
+    borderColor: CUSTOM_COLORS.usBlue,
+    borderWidth: scale(0.75, 'w'),
+    height: scale(50, 'w'),
+    width: scale(200, 'w'),
+    borderRadius: scale(15, 'w'),
+    marginLeft: scale(20, 'w'),
+    justifyContent: 'space-around',
+    flexDirection: 'row',
+  },
+  txtDate: {
+    color: CUSTOM_COLORS.usBlue,
+    alignSelf: 'center',
+    fontSize: CUSTOM_SIZES.medium,
+    fontFamily: CUSTOM_FONTS.regular,
   },
 });

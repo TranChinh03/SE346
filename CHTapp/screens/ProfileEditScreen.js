@@ -21,17 +21,26 @@ import TextDisplayBox from '../src/components/textDisplayBox';
 import {firebase} from '../configs/FirebaseConfig';
 import {useNavigation} from '@react-navigation/native';
 import TextInputDisplayBox from '../src/components/textInputDisplayBox';
-import {IC_Camera, IC_Camera2, IC_Tick} from '../src/assets/iconsvg';
+import {
+  IC_Calendar,
+  IC_Camera,
+  IC_Camera2,
+  IC_Tick,
+} from '../src/assets/iconsvg';
 import BackButton from '../src/components/backButton';
 import uuid from 'react-native-uuid';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {utils} from '@react-native-firebase/app';
 import storage from '@react-native-firebase/storage';
 import CUSTOM_SIZES from '../src/constants/size';
+import DatePicker from 'react-native-date-picker';
+import CUSTOM_FONTS from '../src/constants/fonts';
 
 const ProfileEditScreen = () => {
   const [profile, setProfile] = useState('');
   const [name, setName] = useState('');
+  const [date, setDate] = useState('');
+  const [open, setOpen] = useState(false);
   // const [lastName, setLastName] = useState('');
   // const [firstName, setFirstName] = useState('');
   const [birthday, setBirthday] = useState('');
@@ -323,14 +332,30 @@ const ProfileEditScreen = () => {
             </View>
           </View> */}
 
+          <Text style={styles.txtLabel}>Date of birth</Text>
           <View style={{display: 'flex', flexDirection: 'row'}}>
-            <View style={styles.contentRow}>
-              <TextInputDisplayBox
-                label="Date of birth"
-                text={profile.birthday}
-                onChangeText={myBirthday => setBirthday(myBirthday)}
+            <TouchableOpacity
+              style={styles.conDate}
+              onPress={() => setOpen(true)}>
+              <Text style={styles.txtDate}>{profile.birthday}</Text>
+              <IC_Calendar
+                stroke={CUSTOM_COLORS.primary}
+                style={{alignSelf: 'center'}}
               />
-            </View>
+            </TouchableOpacity>
+            <DatePicker
+              modal
+              mode="date"
+              open={open}
+              date={new Date()}
+              onConfirm={date => {
+                setOpen(false);
+                setBirthday(date);
+              }}
+              onCancel={() => {
+                setOpen(false);
+              }}
+            />
             {/* <View style={styles.contentRow}>
               <TextDisplayBox label="Job" text={profile.job} />
             </View> */}
@@ -381,6 +406,13 @@ const styles = StyleSheet.create({
   },
   avtContainer: {
     flex: 0.2,
+  },
+  txtLabel: {
+    color: CUSTOM_COLORS.Grape,
+    fontSize: scale(12, 'w'),
+    marginBottom: scale(5, 'w'),
+    marginLeft: scale(20, 'w'),
+    marginTop: scale(20, 'w'),
   },
   avtFrame: {
     backgroundColor: CUSTOM_COLORS.white,
@@ -486,5 +518,21 @@ const styles = StyleSheet.create({
   },
   camera: {
     alignSelf: 'center',
+  },
+  conDate: {
+    borderColor: CUSTOM_COLORS.primary,
+    borderWidth: scale(1, 'w'),
+    height: scale(50, 'w'),
+    width: scale(200, 'w'),
+    borderRadius: scale(15, 'w'),
+    marginLeft: scale(10, 'w'),
+    justifyContent: 'space-around',
+    flexDirection: 'row',
+  },
+  txtDate: {
+    color: CUSTOM_COLORS.primary,
+    alignSelf: 'center',
+    fontSize: CUSTOM_SIZES.medium,
+    fontFamily: CUSTOM_FONTS.regular,
   },
 });
