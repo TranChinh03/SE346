@@ -1,4 +1,3 @@
-
 import React, {Component, useState} from 'react';
 import {IMG_AUTHBACKGROUND} from '../src/assets/img';
 import CUSTOM_COLORS from '../src/constants/colors';
@@ -10,7 +9,7 @@ import BackButton from '../src/components/backButton';
 import {useNavigation} from '@react-navigation/native';
 import {firebase} from '../configs/FirebaseConfig';
 import CUSTOM_FONTS from '../src/constants/fonts';
-import { CommonActions } from '@react-navigation/native';
+import {CommonActions} from '@react-navigation/native';
 import {
   Text,
   View,
@@ -25,7 +24,6 @@ import {
   ScrollView,
 } from 'react-native';
 
-
 const LoginScreen = () => {
   const navigation = useNavigation();
 
@@ -34,16 +32,18 @@ const LoginScreen = () => {
 
   loginUser = async (email, password) => {
     try {
-      const user = await firebase.auth().signInWithEmailAndPassword(email, password)
-      if(user)
+      const user = await firebase
+        .auth()
+        .signInWithEmailAndPassword(email, password);
+      if (user)
         // navigation.navigate('HomeTabs'
         // );
-      
+
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
-            routes: [{ name: 'HomeTabs' }],
-          })
+            routes: [{name: 'HomeTabs'}],
+          }),
         );
     } catch (error) {
       Alert.alert('Email or password is incorrect!');
@@ -209,9 +209,10 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     flexDirection: 'row',
-    position: 'absolute',
-    bottom: scale(20, 'h'),
+    //position: 'absolute',
+    //bottom: scale(20, 'h'),
     alignSelf: 'center',
+    marginTop: scale(20, 'h'),
   },
   bottomText: {
     fontSize: scale(16, 'w'),

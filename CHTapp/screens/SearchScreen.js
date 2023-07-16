@@ -13,6 +13,7 @@ import {IMG_CPPBACKGROUND, IMG_CSHARP} from '../src/assets/img';
 import {firebase} from '../configs/FirebaseConfig';
 import BackButton from '../src/components/backButton';
 import {useNavigation} from '@react-navigation/native';
+import scale from '../src/constants/responsive';
 
 const SearchScreen = () => {
   const [allCourses, setAllCourses] = useState([]);
@@ -102,6 +103,7 @@ const styles = StyleSheet.create({
   },
   conSearch: {
     flex: 1,
+    marginTop: scale(20, 'h'),
     justifyContent: 'center',
     // /backgroundColor: 'yellow',
   },

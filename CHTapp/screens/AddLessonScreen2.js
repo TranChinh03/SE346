@@ -74,20 +74,20 @@ const AddLessonScreen2 = ({route}) => {
 
   const [name, setName] = useState('');
 
-    useEffect(() => {
-      firebase
-        .firestore()
-        .collection('users')
-        .doc(firebase.auth().currentUser.uid)
-        .get()
-        .then(snapshot => {
-          if (snapshot.exists) {
-            setName(snapshot.data());
-          } else {
-            console.log('User does not exist');
-          }
-        });
-    }, []);
+  useEffect(() => {
+    firebase
+      .firestore()
+      .collection('users')
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(snapshot => {
+        if (snapshot.exists) {
+          setName(snapshot.data());
+        } else {
+          console.log('User does not exist');
+        }
+      });
+  }, []);
 
   //   useEffect(() => {
   //     const fetchData = async () => {
@@ -229,7 +229,6 @@ const AddLessonScreen2 = ({route}) => {
     }
   }
 
-
   async function deleteDocument1(value2) {
     try {
       //let index = 0;
@@ -304,11 +303,6 @@ const AddLessonScreen2 = ({route}) => {
       xhr.send(null);
     });
   }
-
-
-
-  
-
 
   const renderItem = ({item}) => {
     if (item.type === 'space') {
@@ -525,7 +519,6 @@ const AddLessonScreen2 = ({route}) => {
       setDocuments(prevData => [...prevData, result[0]]);
 
       index++;
-
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         // User cancelled the picker
@@ -551,7 +544,6 @@ const AddLessonScreen2 = ({route}) => {
       setDocuments1(prevData => [...prevData, result[0]]);
 
       index++;
-
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         // User cancelled the picker
@@ -741,51 +733,49 @@ const AddLessonScreen2 = ({route}) => {
 
   const now = firebase.firestore.Timestamp.now();
 
-    const addLesson = async () => {
-      const fileUrls = await handleUpload();
-      const fileUrls1 = await handleUpload1();
+  const addLesson = async () => {
+    const fileUrls = await handleUpload();
+    const fileUrls1 = await handleUpload1();
 
-      await firebase
-        .firestore()
-        .collection('lessons')
-        .add({
-          courseAuthor: name.email,
-          courseTitle: preItem.courseTitle,
-          chapterTitle: preItem.title,
-          lessonTitle: title,
-          files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
-          tests: firebase.firestore.FieldValue.arrayUnion(...fileUrls1),
-          openDate: now,
-        })
-        .then(() => {
-          Alert.alert('Add Lesson Successfully!');
-          firebase
+    await firebase
+      .firestore()
+      .collection('lessons')
+      .add({
+        courseAuthor: name.email,
+        courseTitle: preItem.courseTitle,
+        chapterTitle: preItem.title,
+        lessonTitle: title,
+        files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
+        tests: firebase.firestore.FieldValue.arrayUnion(...fileUrls1),
+        openDate: now,
+      })
+      .then(() => {
+        Alert.alert('Add Lesson Successfully!');
+        firebase
           .firestore()
           .collection('courses')
           .where('title', '==', preItem.courseTitle)
           .where('author', '==', preItem.courseAuthor)
           .get()
           .then(querySnapshot => {
-            if(!querySnapshot.empty) {
-              console.log(querySnapshot.docs[0].data())
-               setParameter(querySnapshot.docs[0].data())
-               navigation.navigate({
+            if (!querySnapshot.empty) {
+              console.log(querySnapshot.docs[0].data());
+              setParameter(querySnapshot.docs[0].data());
+              navigation.navigate({
                 name: 'CourseDetail',
-                params: { preItem: querySnapshot.docs[0].data() },
+                params: {preItem: querySnapshot.docs[0].data()},
               });
             }
-          })
-          
-          
-        });
-    };
+          });
+      });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-    {console.log ('preItem in addlesson2', preItem)}
+      {console.log('preItem in addlesson2', preItem)}
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          {/* <BackButton onPress={() => navigation.goBack()} /> */}
+          <BackButton onPress={() => navigation.goBack()} />
           <Text style={styles.txtHeader}>Add Lesson</Text>
         </View>
       </ImageBackground>
