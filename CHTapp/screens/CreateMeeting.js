@@ -219,7 +219,7 @@ import {
                   const selectedItem = myCourse.find(item => item.value === value);
                   // Set the myCourse state to the label of the selected item
                   if (selectedItem) {
-                    setMyCourse(selectedItem.label);
+                    setCourse(selectedItem.label);
                   }
                 }}
               />

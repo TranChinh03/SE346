@@ -111,7 +111,6 @@ const LessonDetailScreen = ({route}) => {
       ...doc.data(),
     }));
 
-    console.log('joinedData');
     const joinedData = lessonData.filter(
       filter =>
         filter.courseAuthor === item.courseAuthor &&
@@ -119,6 +118,7 @@ const LessonDetailScreen = ({route}) => {
         filter.chapterTitle === item.chapterTitle &&
         filter.lessonTitle === item.lessonTitle,
     );
+    console.log('joinedData');
     const finalData = joinedData[0].tests.map(file =>
       firebase.storage().refFromURL(file),
     );

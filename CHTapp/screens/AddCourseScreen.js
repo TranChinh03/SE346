@@ -45,16 +45,16 @@ const AddCourseScreen = ({route}) => {
   const [open1, setOpen1] = useState(false);
   const [value1, setValue1] = useState('');
   const [programLanguage, setProgramLanguage] = useState([
-    {label: 'Python', value: 'python'},
-    {label: 'Ruby', value: 'ruby'},
-    {label: 'C#', value: 'c#'},
-    {label: 'C++', value: 'c++'},
-    {label: 'JavaScript', value: 'javascript'},
+    {label: 'Python', value: 'Python'},
+    {label: 'Ruby', value: 'Ruby'},
+    {label: 'C#', value: 'C#'},
+    {label: 'C++', value: 'C++'},
+    {label: 'JavaScript', value: 'Javascript'},
   ]);
   
   const [items, setItems] = useState([
-    {label: 'English', value: 'english'},
-    {label: 'VietNamese', value: 'vietnamese'},
+    {label: 'English', value: 'English'},
+    {label: 'VietNamese', value: 'Vietnamese'},
   ]);
   
   const [title, setTitle] = useState('');
@@ -113,6 +113,8 @@ const AddCourseScreen = ({route}) => {
       } catch (error) {
         Alert.alert(error.message);
       }
+    } else {
+      return imageUri
     }
   };
 

@@ -45,17 +45,17 @@ const EditCourseScreen = ({route}) => {
   const [open1, setOpen1] = useState(false);
   const [value1, setValue1] = useState(preItem.language);
   const [programLanguage, setProgramLanguage] = useState([
-    {label: 'Python', value: 'python'},
-    {label: 'Java', value: 'java'},
-    {label: 'Ruby', value: 'ruby'},
-    {label: 'C#', value: 'c#'},
-    {label: 'C++', value: 'c++'},
-    {label: 'JavaScript', value: 'javascript'},
+    {label: 'Python', value: 'Python'},
+    {label: 'Java', value: 'Java'},
+    {label: 'Ruby', value: 'Ruby'},
+    {label: 'C#', value: 'C#'},
+    {label: 'C++', value: 'C++'},
+    {label: 'JavaScript', value: 'Javascript'},
   ]);
 
   const [items, setItems] = useState([
-    {label: 'English', value: 'english'},
-    {label: 'VietNamese', value: 'vietnamese'},
+    {label: 'English', value: 'English'},
+    {label: 'VietNamese', value: 'Vietnamese'},
   ]);
 
   const [title, setTitle] = useState('');
@@ -326,15 +326,6 @@ const EditCourseScreen = ({route}) => {
       language !== '' &&
       myProgramLanguage !== ''
     ) {
-
-      preItem.title = title
-      preItem.description = description
-      preItem.language = language
-      preItem.programLanguage = myProgramLanguage
-      preItem.lastUpdate = now
-
-      console.log('preItem after edit', preItem)
-
       firebase
         .firestore()
         .collection('courses')
@@ -346,6 +337,7 @@ const EditCourseScreen = ({route}) => {
             const documentId = querrySnapshot.docs[0].id;
             if (imageUrl) {
               preItem.image = imageUrl
+              console.log('preItem.image', preItem.image)
               console.log('Hi');
               firebase
                 .firestore()
@@ -468,6 +460,11 @@ const EditCourseScreen = ({route}) => {
             }
           });
         });
+
+        preItem.title = title
+        preItem.description = description,
+        preItem.language = language,
+        preItem.programLanguage = myProgramLanguage
 
         navigation.navigate('CourseStack', {
           screen: 'CourseDetail',
