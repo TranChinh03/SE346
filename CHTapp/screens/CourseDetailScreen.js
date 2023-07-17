@@ -21,6 +21,7 @@ import {
   IMG_RUBY,
   IMG_JAVASCRIPT,
   IMG_PYTHON,
+  IMG_COURSEDEFAULT,
 } from '../src/assets/img';
 import CUSTOM_COLORS from '../src/constants/colors';
 import scale from '../src/constants/responsive';
@@ -591,7 +592,7 @@ const CourseDetailScreen = ({route}) => {
           </View>
           {preItem.image === '' ? (
             <Image
-              source={IMG_CPPBACKGROUND}
+              source={IMG_COURSEDEFAULT}
               resizeMode="contain"
               style={styles.image}
             />

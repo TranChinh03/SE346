@@ -28,20 +28,34 @@ import {
 // import SwitchButton from '../src/components/switch'
 import {firebase} from '../configs/FirebaseConfig';
 import {useNavigation} from '@react-navigation/native';
-import {IMG_LOGOUTBACKGROUND} from '../src/assets/imgsvg';
+// import {IMG_LOGOUTBACKGROUND} from '../src/assets/imgsvg';
 import {IC_SEARCH, IC_VIEW_MORE} from '../src/assets/icons';
 import CUSTOM_FONTS from '../src/constants/fonts';
 import CUSTOM_SIZES from '../src/constants/size';
+import { IMG_LOGOUTBACKGROUND } from '../src/assets/img';
 
 const SettingScreen = () => {
-  const [myCourse, setMyCourse] = useState([]);
-  const [newCourse, setNewCourse] = useState([]);
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [data, setData] = useState([]);
 
+  
+  useEffect(() => {
+    firebase
+      .firestore()
+      .collection('users')
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(snapshot => {
+        if (snapshot.exists) {
+          setName(snapshot.data());
+        } else {
+          console.log('User does not exist');
+        }
+      });
+  }, [name]);
+
   const renderCourses = () => {
-    const navigation = useNavigation();
     return (
       <View>
         <TouchableOpacity
@@ -65,7 +79,6 @@ const SettingScreen = () => {
           onPress={() =>
             navigation.navigate('CourseStack', {
               screen: 'AddOption',
-              //params: {item: 'MyCourses'},
             })
           }>
           <IC_AddCourse />
@@ -83,169 +96,10 @@ const SettingScreen = () => {
             Log out
           </Text>
         </TouchableOpacity>
-        {/* <FlatList
-          style={styles.coursesList}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={data}
-          keyExtractor={item => item.id}
-          renderItem={({item}) => (
-            <CourseItem
-              key={item.key}
-              language={item.programLanguage}
-              title={item.title}
-              author={item.name}
-              rating={item.rate}
-              view={item.numofAttendants}
-              style={{marginRight: scale(20, 'w')}}
-              image={item.image}
-              onPress={() =>
-                navigation.navigate('CourseStack', {
-                  screen: 'CourseDetail',
-                  params: {item: item},
-                })
-              }
-            />
-          )}
-        /> */}
+      
       </View>
     );
   };
-
-  // async function joinedMyCourse(curEmail) {
-  //   const courseRef = firebase.firestore().collection('courses');
-  //   const courseSnapshot = await courseRef.get();
-  //   const courseData = courseSnapshot.docs.map(doc => ({
-  //     id: doc.id,
-  //     ...doc.data(),
-  //   }));
-
-  //   const authorRef = firebase.firestore().collection('users');
-  //   const authorSnapshot = await authorRef.get();
-  //   const authorData = authorSnapshot.docs.map(doc => doc.data());
-
-  //   const studyRef = firebase.firestore().collection('study');
-  //   const studySnapshot = await studyRef.get();
-  //   const studyData = studySnapshot.docs.map(doc => ({
-  //     id: doc.id,
-  //     ...doc.data(),
-  //   }));
-
-  //   const joinedData = studyData
-  //     .filter(firstItem => firstItem.student === curEmail)
-  //     .map(firstItem => {
-  //       const secondItem = courseData.find(
-  //         item =>
-  //           item.author === firstItem.courseAuthor &&
-  //           item.title === firstItem.courseTitle,
-  //       );
-
-  //       const thirdItem = authorData.find(
-  //         item => item.email === secondItem.author,
-  //       );
-
-  //       return {...firstItem, ...secondItem, ...thirdItem};
-  //     });
-
-  //   return joinedData;
-  // }
-
-  // async function joinedMyCourse2(curEmail) {
-  //   const courseRef = firebase.firestore().collection('courses');
-  //   const courseSnapshot = await courseRef.get();
-  //   const courseData = courseSnapshot.docs.map(doc => ({
-  //     id: doc.id,
-  //     ...doc.data(),
-  //   }));
-
-  //   const authorRef = firebase.firestore().collection('users');
-  //   const authorSnapshot = await authorRef.get();
-  //   const authorData = authorSnapshot.docs.map(doc => doc.data());
-
-  //   const joinedData = courseData
-  //     .filter(item => item.author === curEmail)
-  //     .map(firstItem => {
-  //       const secondItem = authorData.find(
-  //         item => item.email === firstItem.author,
-  //       );
-
-  //       return {...firstItem, ...secondItem};
-  //     });
-
-  //   return joinedData;
-  // }
-
-  // async function joinedCourse() {
-  //   //const navigation = useNavigation();
-  //   const courseRef = firebase.firestore().collection('courses');
-  //   const courseSnapshot = await courseRef.get();
-  //   const courseData = courseSnapshot.docs.map(doc => ({
-  //     id: doc.id,
-  //     ...doc.data(),
-  //   }));
-
-  //   const authorRef = firebase.firestore().collection('users');
-  //   const authorSnapshot = await authorRef.get();
-  //   const authorData = authorSnapshot.docs.map(doc => doc.data());
-
-  //   const joinedData = courseData.map(firstItem => {
-  //     const secondItem = authorData.find(
-  //       item => item.email === firstItem.author,
-  //     );
-
-  //     return {...firstItem, ...secondItem};
-  //   });
-
-  //   return joinedData;
-  // }
-
-  useEffect(() => {
-    firebase
-      .firestore()
-      .collection('users')
-      .doc(firebase.auth().currentUser.uid)
-      .get()
-      .then(snapshot => {
-        if (snapshot.exists) {
-          setName(snapshot.data());
-        } else {
-          console.log('User does not exist');
-        }
-      });
-  }, []);
-
-  async function joinedMyCourses() {
-    const courseRef = firebase.firestore().collection('courses');
-    const courseSnapshot = await courseRef.get();
-    const courseData = courseSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    const authorRef = firebase.firestore().collection('users');
-    const authorSnapshot = await authorRef.get();
-    const authorData = authorSnapshot.docs.map(doc => doc.data());
-
-    const joinedData = courseData
-      .filter(filter => filter.author === name.email)
-      .map(firstItem => {
-        const secondItem = authorData.find(
-          item => item.email === firstItem.author,
-        );
-        return {...firstItem, ...secondItem};
-      });
-
-    return joinedData;
-  }
-
-  useEffect(() => {
-    async function getData() {
-      const myCourses = await joinedMyCourses();
-      setData(myCourses);
-    }
-
-    getData();
-  }, [data]);
 
   const handleSignOut = () => {
     firebase
@@ -257,50 +111,10 @@ const SettingScreen = () => {
       .catch(error => alert(error.message));
   };
 
-  // const [profile, setProfile] = useState('');
-
-  // useEffect(() => {
-  //   firebase
-  //     .firestore()
-  //     .collection('users')
-  //     .doc(firebase.auth().currentUser.uid)
-  //     .get()
-  //     .then(snapshot => {
-  //       if (snapshot.exists) {
-  //         setProfile(snapshot.data());
-  //       } else {
-  //         console.log('User does not exist');
-  //       }
-  //     });
-  //   }, [name.email]);
-
-  //   useEffect(() => {
-  //       async function getData() {
-  //         if (name.job === 'Student') {
-  //           const myCourse = (await joinedMyCourse(name.email)).slice(0, 5);
-  //           setMyCourse(myCourse);
-  //         } else {
-  //           const myCourse = (await joinedMyCourse2(name.email)).slice(0, 5);
-  //           setMyCourse(myCourse);
-  //         }
-  //       }
-
-  //       getData();
-  //     }, [myCourse]);
-
-  //     useEffect(() => {
-  //       async function getData() {
-  //         const newCourse = (await joinedCourse())
-  //           .sort((a, b) => b.openDate - a.openDate)
-  //           .slice(0, 5);
-  //         setNewCourse(newCourse);
-  //       }
-
-  //       getData();
-  //     }, [newCourse]);
 
   return (
     <SafeAreaView style={styles.container}>
+    {console.log('name1',name)}
       <View style={styles.backContainer}>{/* <BackButton type={1}/> */}</View>
       <View style={styles.titleContainer}>
         <Text style={styles.title}>Setting</Text>
@@ -312,11 +126,16 @@ const SettingScreen = () => {
         <View style={styles.accountContent}>
           <View style={{flex: 3}}>
             <View style={styles.avtFrame}>
-              {name.ava === '' ? (
-                <Image source={IMG_AVT} style={styles.avt} />
-              ) : (
+              {/* {name.ava !== '' && name ? (
                 <Image source={{uri: name.ava}} style={styles.avt} />
-              )}
+              ) : (
+                <Image source={IMG_AVT} style={styles.avt} />
+              )} */}
+              {name ? (
+                name.ava !== '' ? 
+                <Image source={{uri: name.ava}} style={styles.avt} /> :
+                <Image source={IMG_AVT} style={styles.avt} />
+              ) : null}
             </View>
           </View>
           <View style={{flex: 5, padding: scale(20, 'w')}}>
@@ -331,149 +150,16 @@ const SettingScreen = () => {
           </View>
         </View>
       </View>
-      {/* <View style={styles.settingContainer} >
-                <View style={styles.settingLabel}>
-                    <Text style={styles.label}>Setting</Text>
-                </View>
-
-                <View style={[styles.settingContent, {display: 'flex'}]}>
-                    <TouchableOpacity style={styles.settingItem}>
-                        <View style={{flex: 2.5}}>
-                            <View style={[styles.icFrame, {backgroundColor: CUSTOM_COLORS.FrenchViolet}]}>
-                                <IC_Language/>
-                            </View>
-                        </View>
-                        <View style={{flex: 6}}>
-                            <View style={{    
-                                width: '100%',
-                                height: scale(36, 'w'),
-                                display: 'flex', 
-                                justifyContent: 'center', 
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                paddingLeft: scale(10, 'w'),
-                                paddingRight: scale(10, 'w')}}>
-                                    <View style={{flex: 1}}>
-                                        <Text style={styles.itemText}>Language</Text>
-                                    </View>
-                                    <View style={{flex: 1, alignItems: 'flex-end'}}>
-                                        <Text style={{fontSize: scale(14, 'w')}}>English</Text>
-                                    </View>
-                            </View>
-                        </View>
-                        <View style={{flex: 1.5, padding: scale(10, 'w')}}>
-                            <View style={{width: '100%', height: scale(36-14, 'w'), justifyContent: 'center'}}>
-                                <IC_RightArrow type={1}/>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                    
-
-                    <TouchableOpacity style={styles.settingItem}>
-                        <View style={{flex: 2.5}}>
-                            <View style={[styles.icFrame, {backgroundColor: CUSTOM_COLORS.PictionBlue}]}>
-                                <IC_Notification/>
-                            </View>
-                        </View>
-                            <View style={{flex: 6}}>
-                                <View style={{    
-                                    width: '100%',
-                                    height: scale(36, 'w'),
-                                    display: 'flex', 
-                                    justifyContent: 'center', 
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    paddingLeft: scale(10, 'w'),
-                                    paddingRight: scale(10, 'w')}}>
-                                        <View style={{flex: 1}}>
-                                            <Text style={styles.itemText}>Notification</Text>
-                                        </View>
-                                </View>
-                            </View>
-                            <View style={{flex: 1.5, padding: scale(10, 'w')}}>
-                                <View style={{width: '100%', height: scale(36-14, 'w'), justifyContent: 'center'}}>
-                                    <IC_RightArrow type={1}/>
-                                </View>
-                            </View>
-                    </TouchableOpacity>
-
-                    <View style={styles.settingItem}>
-                        <View style={{flex: 2.5}}>
-                            <View style={[styles.icFrame, {backgroundColor: CUSTOM_COLORS.stateBlue}]}>
-                                <IC_Moon/>
-                            </View>
-                        </View>
-                            <View style={{flex: 6}}>
-                                <View style={{    
-                                    width: '100%',
-                                    height: scale(36, 'w'),
-                                    display: 'flex', 
-                                    justifyContent: 'center', 
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    paddingLeft: scale(10, 'w'),
-                                    paddingRight: scale(10, 'w')}}>
-                                        <View style={{flex: 1}}>
-                                            <Text style={styles.itemText}>Dark Mode</Text>
-                                        </View>
-                                </View>
-                            </View>
-                            <View style={{flex: 1.5, padding: scale(10, 'w')}}>
-                                <View style={{width: '100%', height: scale(36-14, 'w'), justifyContent: 'center'}}>
-                                </View>
-                            </View>
-                    </View>
-
-                    <TouchableOpacity style={styles.settingItem}>
-                        <View style={{flex: 2.5}}>
-                            <View style={[styles.icFrame, {backgroundColor: CUSTOM_COLORS.Aquamarine}]}>
-                                <IC_Help/>
-                            </View>
-                        </View>
-                            <View style={{flex: 6}}>
-                                <View style={{    
-                                    width: '100%',
-                                    height: scale(36, 'w'),
-                                    display: 'flex', 
-                                    justifyContent: 'center', 
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    paddingLeft: scale(10, 'w'),
-                                    paddingRight: scale(10, 'w')}}>
-                                        <View style={{flex: 1}}>
-                                            <Text style={styles.itemText}>Notification</Text>
-                                        </View>
-                                </View>
-                            </View>
-                            <View style={{flex: 1.5, padding: scale(10, 'w')}}>
-                                <View style={{width: '100%', height: scale(36-14, 'w'), justifyContent: 'center'}}>
-                                    <IC_RightArrow type={1}/>
-                                </View>
-                            </View>
-                    </TouchableOpacity>
-                </View>
-            </View> */}
       <View style={{flex: 3, padding: scale(20, 'w')}}>
-        <ScrollView showsVerticalScrollIndicator={false}>
+      <View>
           {renderCourses()}
-        </ScrollView>
       </View>
-      {/* <View style={styles.logOutContainer}> */}
-      {/* <TouchableOpacity
-          onPress={handleSignOut}
-          style={{
-            flex: 6,
-            padding: scale(10, 'w'),
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'row',
-          }}>
-          <Text style={styles.logouttext}>Log Out </Text>
-          <IC_LOGOUT></IC_LOGOUT>
-        </TouchableOpacity> */}
+      </View>
+    
 
       <View style={{flex: 2.8, alignSelf: 'flex-end'}}>
-        <IMG_LOGOUTBACKGROUND />
+        {/* <IMG_LOGOUTBACKGROUND /> */}
+        <Image source={IMG_LOGOUTBACKGROUND}/>
       </View>
       {/* </View> */}
       {/* <View style={{height: scale(100, 'h')}} /> */}

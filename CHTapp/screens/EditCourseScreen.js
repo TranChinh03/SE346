@@ -16,7 +16,7 @@ import React, {Component, useState, useEffect} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import scale from '../src/constants/responsive';
 import {assets} from '../react-native.config';
-import {IMG_BG1, IMG_CPP, IMG_TODOBG1} from '../src/assets/img';
+import {IMG_BG1, IMG_COURSEDEFAULT, IMG_CPP, IMG_TODOBG1} from '../src/assets/img';
 import BackButton from '../src/components/backButton';
 import ListItemCustom from '../src/components/ListItemCustom';
 import CUSTOM_FONTS from '../src/constants/fonts';
@@ -181,7 +181,7 @@ const EditCourseScreen = ({route}) => {
                 />
               ) : preItem.image === '' ? (
                 <Image
-                  source={IMG_CPP}
+                  source={IMG_COURSEDEFAULT}
                   style={styles.imgThumnail}
                   resizeMode="cover"
                 />

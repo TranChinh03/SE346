@@ -19,4 +19,7 @@ export {default as IMG_BG1} from './BG1.png';
 export {default as IMG_CSHARP} from './csharp_img.jpg';
 export {default as IMG_PYTHON} from './python_img.jpg';
 export {default as IMG_RUBY} from './ruby_img.jpg';
+export {default as IMG_LOGOUTBACKGROUND} from './IMG_LOGOUTBACKGROUND.png';
+export {default as IMG_LESSONDEFAULT} from './LessonDefault.png';
+export {default as IMG_COURSEDEFAULT} from './ImageDefault.png';
 

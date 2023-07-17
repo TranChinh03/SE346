@@ -20,11 +20,15 @@ import BtnDelete from '../src/components/BtnDelete';
 import ItemMeeting from '../src/components/ItemMeeting';
 import {firebase} from '../configs/FirebaseConfig';
 import {useNavigation, useNavigationState} from '@react-navigation/native';
+import moment from 'moment'
+
 
 const MeetingScreen = () => {
   const [data, setData] = useState('');
 
   const [name, setName] = useState('');
+
+  // const [date, setDate] = useState(null)
 
   const [link, setLink] = useState('');
 
@@ -56,6 +60,9 @@ const MeetingScreen = () => {
       });
   }, []);
 
+
+
+
   useEffect(() => {
     async function getData() {
       const newCourse = await joinedCourse();
@@ -63,7 +70,7 @@ const MeetingScreen = () => {
     }
 
     getData();
-  }, [name.email, data]);
+  }, [name, data]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -90,7 +97,7 @@ const MeetingScreen = () => {
               <ItemMeeting
                 meetingName={item.title}
                 time={item.time}
-                date={item.date}
+                date={moment(item.date).format('DD/MM/YYYY')}
                 courseName={item.subject}
                 lectureName={item.host}
                 link={item.joinUrl}

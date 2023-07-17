@@ -26,6 +26,7 @@ import {firebase} from '../configs/FirebaseConfig';
 import DropDownPicker from 'react-native-dropdown-picker';
 import DatePicker from 'react-native-date-picker';
 import {IC_Calendar} from '../src/assets/iconsvg';
+import moment from 'moment';
 
 const CreateMeeting = () => {
   const [shouldShow, setShouldShow] = useState(false);
@@ -97,7 +98,7 @@ const CreateMeeting = () => {
       if (
         name !== '' &&
         time !== '' &&
-        date !== '' &&
+        date !== null &&
         course !== '' &&
         link !== '' &&
         language !== ''
@@ -199,7 +200,7 @@ const CreateMeeting = () => {
             <TouchableOpacity
               style={styles.conDate}
               onPress={() => setOpen(true)}>
-              <Text style={styles.txtDate}>{date.toDateString()}</Text>
+              <Text style={styles.txtDate}>{moment(date).format('DD/MM/YYYY')}</Text>
               <IC_Calendar
                 stroke={CUSTOM_COLORS.usBlue}
                 style={{alignSelf: 'center'}}

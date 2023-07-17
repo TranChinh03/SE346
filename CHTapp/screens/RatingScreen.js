@@ -16,6 +16,7 @@ import CUSTOM_FONTS from '../src/constants/fonts';
 import scale from '../src/constants/responsive';
 import {
   IMG_AVT,
+  IMG_COURSEDEFAULT,
   IMG_CPP,
   IMG_CPPBACKGROUND,
   IMG_CSHARP,
@@ -134,7 +135,7 @@ const now = firebase.firestore.Timestamp.now();
           <View style={styles.conImg}>
             {item.image === '' ? (
               <Image
-                source={IMG_CPPBACKGROUND}
+                source={IMG_COURSEDEFAULT}
                 resizeMode="contain"
                 style={styles.img}
               />
