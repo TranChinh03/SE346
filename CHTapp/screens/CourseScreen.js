@@ -28,11 +28,10 @@ const CourseScreen = ({route}) => {
   const [myCourses, setMyCourses] = useState([]);
   const [favorite, setFavorite] = useState([]);
   const [name, setName] = useState('');
-  const [curAccount, setCurAccount] = useState('')
+  const [curAccount, setCurAccount] = useState('');
 
   const navigation = useNavigation();
 
-  
   useEffect(() => {
     firebase
       .firestore()
@@ -79,12 +78,9 @@ const CourseScreen = ({route}) => {
       ...doc.data(),
     }));
 
-
-
     const authorRef = firebase.firestore().collection('users');
     const authorSnapshot = await authorRef.get();
     const authorData = authorSnapshot.docs.map(doc => doc.data());
-
 
     const joinedData = courseData
       .filter(filter => filter.author === name.email)
@@ -128,18 +124,19 @@ const CourseScreen = ({route}) => {
           const secondItem = courseData.find(
             item =>
               item.title === firstItem.courseTitle &&
-              item.author === firstItem.courseAuthor
+              item.author === firstItem.courseAuthor,
           );
-          const thirdItem = authorData.find(item => item.email === secondItem.author);
-          return { ...firstItem, ...secondItem, ...thirdItem };
+          const thirdItem = authorData.find(
+            item => item.email === secondItem.author,
+          );
+          return {...firstItem, ...secondItem, ...thirdItem};
         });
-        return favoriteCourse;
+      return favoriteCourse;
     } else {
-      console.log("Don't have filerUser")
+      console.log("Don't have filerUser");
     }
 
     return;
-
 
     // const joinedData = userData
     //   .filter(filter => filter.email === curEmail)
@@ -158,8 +155,8 @@ const CourseScreen = ({route}) => {
     //             item => item.email === secondItem.author
     //           )
     //         }
-    //       }); 
-    //       return {...firstItem, ...secondItem, ...thirdItem}; 
+    //       });
+    //       return {...firstItem, ...secondItem, ...thirdItem};
     //     }
     //     else {
     //       return;
@@ -180,7 +177,6 @@ const CourseScreen = ({route}) => {
   //     fetchData();
   //   }, [])
   // );
-
 
   useEffect(() => {
     async function getData() {
@@ -214,7 +210,7 @@ const CourseScreen = ({route}) => {
       <FlatList
         numColumns={2}
         columnWrapperStyle={{justifyContent: 'space-between'}}
-        data={data}      
+        data={data}
         renderItem={({item, index}) => {
           return (
             <CourseItem
@@ -235,11 +231,9 @@ const CourseScreen = ({route}) => {
         }}
         ItemSeparatorComponent={() => <View style={{height: scale(20, 'h')}} />}
         showsVerticalScrollIndicator={false}
-        keyExtractor={item => item.id} ></FlatList>
+        keyExtractor={item => item.id}></FlatList>
     );
   };
-
-
 
   const renderMyCourses = () => {
     return currentPage === 'AllCourses'
@@ -334,7 +328,7 @@ export default CourseScreen;
 const styles = StyleSheet.create({
   container: {
     height: '100%',
-    backgroundColor: CUSTOM_COLORS.white
+    backgroundColor: CUSTOM_COLORS.white,
   },
   image: {
     flex: 1,
@@ -414,7 +408,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'flex-end',
-    bottom: scale(100, 'h'),
+    bottom: scale(50, 'h'),
     right: scale(35, 'w'),
     flexDirection: 'row',
     elevation: 7,

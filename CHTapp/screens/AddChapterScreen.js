@@ -73,6 +73,16 @@ const AddChapterScreen = ({route}) => {
 
   const [name, setName] = useState('');
 
+  const backButtonAlert = () =>
+    Alert.alert('Warning', 'Changes that you made may not be save', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'Leave & Discard', onPress: () => navigation.goBack()},
+    ]);
+
   useEffect(() => {
     firebase
       .firestore()
@@ -322,7 +332,7 @@ const AddChapterScreen = ({route}) => {
     <SafeAreaView style={styles.container}>
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          <BackButton onPress={() => navigation.goBack()} />
+          <BackButton onPress={backButtonAlert} />
           <Text style={styles.txtHeader}>Add Chapter</Text>
         </View>
       </ImageBackground>

@@ -34,12 +34,22 @@ const EditChapterScreen = ({route}) => {
   const [title, setTitle] = useState('');
   const [name, setName] = useState('');
 
+  const backButtonAlert = () =>
+    Alert.alert('Warning', 'Changes that you made may not be save', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'Leave & Discard', onPress: () => navigation.goBack()},
+    ]);
+
   useEffect(() => {
     LessonList().then(data => setLessons(data));
   }, [preItem.title, preItem.courseAuthor, lessons]);
 
   useEffect(() => {
-    console.log('title', title)
+    console.log('title', title);
   }, [title]);
 
   useEffect(() => {
@@ -52,7 +62,7 @@ const EditChapterScreen = ({route}) => {
         if (snapshot.exists) {
           setName(snapshot.data());
           setTitle(preItem.title);
-          console.log('1', title)
+          console.log('1', title);
         } else {
           console.log('User does not exist');
         }
@@ -60,7 +70,10 @@ const EditChapterScreen = ({route}) => {
   }, [preItem.title]);
 
   async function LessonList() {
-    const lessonRef = firebase.firestore().collection('lessons').orderBy('openDate');
+    const lessonRef = firebase
+      .firestore()
+      .collection('lessons')
+      .orderBy('openDate');
     const lessonSnapshot = await lessonRef.get();
     const lessonData = lessonSnapshot.docs.map(doc => ({
       id: doc.id,
@@ -115,38 +128,39 @@ const EditChapterScreen = ({route}) => {
                 }
               });
 
+            firebase
+              .firestore()
+              .collection('courses')
+              .where('title', '==', preItem.courseTitle)
+              .where('author', '==', preItem.courseAuthor)
+              .get()
+              .then(querrySnapshot => {
+                if (!querrySnapshot.empty) {
+                  const documentId = querrySnapshot.docs[0].id;
+                  const data = querrySnapshot.docs[0].data();
+                  preItem.image = data.image;
+                  preItem.language = data.language;
+                  preItem.description = data.description;
+                  preItem.openDate = data.openDate;
+                  preItem.programLanguage = data.programLanguage;
+                  preItem.rate = data.rate;
 
-              firebase
-                .firestore()
-                .collection('courses')
-                .where('title', '==', preItem.courseTitle)
-                .where('author', '==', preItem.courseAuthor)
-                .get()
-                .then(querrySnapshot => {
-                  if (!querrySnapshot.empty) {
-                    const documentId = querrySnapshot.docs[0].id;
-                    const data = querrySnapshot.docs[0].data()
-                    preItem.image = data.image
-                    preItem.language = data.language
-                    preItem.description = data.description
-                    preItem.openDate = data.openDate
-                    preItem.programLanguage = data.programLanguage
-                    preItem.rate = data.rate
+                  const now = firebase.firestore.Timestamp.now();
+                  preItem.title = preItem.courseTitle;
+                  preItem.author = preItem.courseAuthor;
+                  preItem.lastUpdate = now;
 
-              const now = firebase.firestore.Timestamp.now();
-              preItem.title = preItem.courseTitle
-              preItem.author = preItem.courseAuthor
-              preItem.lastUpdate = now
-              
-              console.log('preItem after editing chapter', preItem)
-            navigation.navigate('CourseDetail', {preItem: preItem})
-            Alert.alert('Edit chapter sucessfully!');
-          } else {
-            Alert.alert('Please fill full enough information!');
+                  console.log('preItem after editing chapter', preItem);
+                  navigation.navigate('CourseDetail', {preItem: preItem});
+                  Alert.alert('Edit chapter sucessfully!');
+                } else {
+                  Alert.alert('Please fill full enough information!');
+                }
+              });
           }
         });
     }
-  })}};
+  };
 
   const data = [
     {id: 'content1', type: 'content1'},
@@ -213,10 +227,12 @@ const EditChapterScreen = ({route}) => {
           <Text style={styles.txtChapter}>Lesson</Text>
           <TouchableOpacity
             style={styles.conAddLesson}
-            onPress={() => navigation.navigate('CourseStack', {
-              screen: 'AddLessonScreen2',
-              params: {preItem: preItem},
-            })}>
+            onPress={() =>
+              navigation.navigate('CourseStack', {
+                screen: 'AddLessonScreen2',
+                params: {preItem: preItem},
+              })
+            }>
             <Text style={styles.txtInfo}>Add Lesson</Text>
             <IC_RightArrow2 />
           </TouchableOpacity>
@@ -262,21 +278,22 @@ const EditChapterScreen = ({route}) => {
     <SafeAreaView style={styles.container}>
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          <BackButton onPress={() => navigation.goBack()} />
+          <BackButton onPress={backButtonAlert} />
           <Text style={styles.txtHeader}>Edit Chapter</Text>
         </View>
       </ImageBackground>
-      <Text style={[styles.txtChapter,{ marginLeft: scale(35, 'w')}]}>Chapter name</Text>
-          <TextInput
-            multiline
-            style={styles.txbChapterName}
-            onChangeText={myTitle => {
-              console.log('onChangeText called with:', myTitle);
-              setTitle(myTitle);
-            }}
-          >
-            {preItem.title}
-          </TextInput>
+      <Text style={[styles.txtChapter, {marginLeft: scale(35, 'w')}]}>
+        Chapter name
+      </Text>
+      <TextInput
+        multiline
+        style={styles.txbChapterName}
+        onChangeText={myTitle => {
+          console.log('onChangeText called with:', myTitle);
+          setTitle(myTitle);
+        }}>
+        {preItem.title}
+      </TextInput>
       <View style={styles.content}>
         <FlatList
           data={data}
@@ -286,11 +303,7 @@ const EditChapterScreen = ({route}) => {
         />
       </View>
 
-      <BtnTick
-        onPress={() => (
-          updateChapter()
-        )}
-      />
+      <BtnTick onPress={() => updateChapter()} />
     </SafeAreaView>
   );
 };
@@ -368,7 +381,7 @@ const styles = StyleSheet.create({
     color: CUSTOM_COLORS.usBlue,
     fontSize: scale(17, 'w'),
     padding: scale(15, 'w'),
-    marginLeft: scale(20, 'w')
+    marginLeft: scale(20, 'w'),
   },
   txtChapter: {
     color: CUSTOM_COLORS.usBlue,
