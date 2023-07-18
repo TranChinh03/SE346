@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator
 } from 'react-native';
 import React, {Component, useState, useEffect} from 'react';
 import {IMG_PROFILEBACKGROUND, IMG_AVT} from '../src/assets/img';
@@ -23,40 +24,74 @@ import { IC_LOGOUT } from '../src/assets/iconsvg';
 import { IMG_LOGOUTBACKGROUND } from '../src/assets/imgsvg';
 import CUSTOM_FONTS from '../src/constants/fonts';
 import BackButton from '../src/components/backButton';
+import { StackActions } from '@react-navigation/native';
 import { connectFirestoreEmulator } from 'firebase/firestore';
-
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
 
+  const [profile, setProfile] = useState('');
+const [date, setDate] = useState(null);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  firebase
+    .firestore()
+    .collection('users')
+    .doc(firebase.auth().currentUser.uid)
+    .get()
+    .then(snapshot => {
+      if (snapshot.exists) {
+        setProfile(snapshot.data());
+        console.log('profile', profile)
+      } else {
+        console.log('User does not exist');
+      }
+      setLoading(false)
+    });
+}, [profile]);
+
+useEffect(() => {
+  if (profile && profile.birthday) {
+    setDate(profile.birthday.toDate());
+  }
+}, [profile]);
 
   const handleSignOut = () => {
     firebase.auth()
       .signOut()
       .then(() => {
-        navigation.replace("Loading")
+        navigation.replace("Login1")
       })
       .catch(error => alert(error.message))
   }
 
-  const [profile, setProfile] = useState('');
+  // const handleSignOut = () => {
+  //   firebase.auth()
+  //     .signOut()
+  //     .then(() => {
+  //       navigation.dispatch(
+  //         StackActions.replace('Login', {
+  //           // Optional: Pass any additional parameters that you need
+  //         }),
+  //         {
+  //           target: 'AppStack', // Replace 'AuthStack' with the name of the stack that contains the "Login" screen
+  //         }
+  //       );
+  //     })
+  //     .catch(error => alert(error.message))
+  // }
 
 
-  useEffect(() => {
-    firebase
-      .firestore()
-      .collection('users')
-      .doc(firebase.auth().currentUser.uid)
-      .get()
-      .then(snapshot => {
-        if (snapshot.exists) {
-          setProfile(snapshot.data());
-        } else {
-          console.log('User does not exist');
-        }
-      });
-  });
 
+
+
+
+  // const date = profile.birthday.toDate();
+  // const formattedDate = date.toLocaleDateString('en-GB');
+  if(loading) {
+    return <ActivityIndicator/>
+  }
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.bgContainer}>
@@ -78,14 +113,16 @@ const ProfileScreen = () => {
       <View style={styles.contentContainer}>
         <View style={styles.avtContainer}>
           <View style={styles.avtFrame}>
-          {profile.ava === '' ? 
+          {profile ? (
+            profile.ava === '' ?
             <Image
               source={IMG_AVT}
               style={styles.avt}/>
           : 
           <Image
               source={{uri: profile.ava}}
-              style={styles.avt}/>
+              style={styles.avt}/> ) 
+          : null
           }
 
           </View>
@@ -148,7 +185,7 @@ const ProfileScreen = () => {
             <View style={styles.contentRow}>
               <TextDisplayBox
                 label="Date of birth"
-                text={profile.birthday}
+                text={date.toLocaleDateString('en-GB')}
               />
             </View>
             {/* <View style={styles.contentRow}>

@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import React, {Component, useState, useEffect} from 'react';
 import {IMG_PROFILEBACKGROUND, IMG_AVT, IMG_CPP} from '../src/assets/img';
@@ -35,15 +36,17 @@ import storage from '@react-native-firebase/storage';
 import CUSTOM_SIZES from '../src/constants/size';
 import DatePicker from 'react-native-date-picker';
 import CUSTOM_FONTS from '../src/constants/fonts';
+import { format } from 'date-fns'
+import moment from 'moment';
 
 const ProfileEditScreen = () => {
   const [profile, setProfile] = useState('');
   const [name, setName] = useState('');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState(null);
   const [open, setOpen] = useState(false);
   // const [lastName, setLastName] = useState('');
   // const [firstName, setFirstName] = useState('');
-  const [birthday, setBirthday] = useState('');
+  const [birthday, setBirthday] = useState(new Date());
   // const [job, setJob] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -62,15 +65,22 @@ const ProfileEditScreen = () => {
       .then(snapshot => {
         if (snapshot.exists) {
           setProfile(snapshot.data());
-          setName(profile.name);
-          setBirthday(profile.birthday);
-          setEmail(profile.email);
-          setPhone(profile.phone);
+
         } else {
           console.log('User does not exist');
         }
       });
   }, []);
+
+  useEffect(() => {
+    if (profile) {
+      setName(profile.name);
+      setBirthday(profile.birthday);
+      setDate(profile.birthday.toDate().toLocaleString('en-GB'))
+      setEmail(profile.email);
+      setPhone(profile.phone);
+    }
+  }, [profile]);
 
   const backButtonAlert = () =>
     Alert.alert('Warning', 'Changes that you made may not be save', [
@@ -118,24 +128,9 @@ const ProfileEditScreen = () => {
       .collection('users')
       .doc(firebase.auth().currentUser.uid)
       .update(updateData);
-
-    if (profile.job === 'Student') {
-      firebase
-        .firestore()
-        .collection('study')
-        .where('student', '==', profile.email)
-        .get()
-        .then(querrySnapshot => {
-          if (!querrySnapshot.empty) {
-            const documentId = querrySnapshot.docs[0].id;
-            firebase
-              .firestore()
-              .collection('study')
-              .doc(documentId)
-              .update({student: email});
-          }
-        });
-    } else {
+    
+      console.log(profile.email)
+      console.log('email', email)
       firebase
         .firestore()
         .collection('courses')
@@ -151,7 +146,6 @@ const ProfileEditScreen = () => {
               .update({author: email});
           }
         });
-    }
   };
 
   const handleButtonPress = () => {
@@ -204,8 +198,13 @@ const ProfileEditScreen = () => {
     }
   };
 
+  if (!profile || !profile.birthday || !birthday) {
+    return <ActivityIndicator/>; // Render nothing if the profile object or its birthday property is undefined or null
+  }
+
   return (
     <SafeAreaView style={styles.container}>
+        {console.log('profile', profile)}
       <View style={styles.bgContainer}>
         <ImageBackground
           source={IMG_PROFILEBACKGROUND}
@@ -245,11 +244,11 @@ const ProfileEditScreen = () => {
             onPress={() => handleButtonPress()}>
             {imageUri ? (
               <Image style={styles.avt} source={{uri: imageUri}} />
-            ) : profile.ava === '' ? (
-              <Image style={styles.avt} source={IMG_AVT} />
-            ) : (
+            ) : profile ? (
+              profile.ava === '' ?
+              <Image style={styles.avt} source={IMG_AVT} /> :
               <Image style={styles.avt} source={{uri: profile.ava}} />
-            )}
+            ) : null}
           </TouchableOpacity>
           <View style={styles.frameCamera}>
             <IC_Camera2 style={styles.camera} />
@@ -337,7 +336,7 @@ const ProfileEditScreen = () => {
             <TouchableOpacity
               style={styles.conDate}
               onPress={() => setOpen(true)}>
-              <Text style={styles.txtDate}>{profile.birthday}</Text>
+              <Text style={styles.txtDate}>{moment(birthday).format('DD/MM/YYYY')}</Text>
               <IC_Calendar
                 stroke={CUSTOM_COLORS.primary}
                 style={{alignSelf: 'center'}}
@@ -351,6 +350,7 @@ const ProfileEditScreen = () => {
               onConfirm={date => {
                 setOpen(false);
                 setBirthday(date);
+                // setDate(date.toDate().toLocaleString())
               }}
               onCancel={() => {
                 setOpen(false);
@@ -361,13 +361,13 @@ const ProfileEditScreen = () => {
             </View> */}
           </View>
 
-          <View style={{display: 'flex', flexDirection: 'row'}}>
+          {/* <View style={{display: 'flex', flexDirection: 'row'}}>
             <TextInputDisplayBox
               label="Email"
               text={profile.email}
               onChangeText={myEmail => setEmail(myEmail)}
             />
-          </View>
+          </View> */}
 
           <View style={{display: 'flex', flexDirection: 'row'}}>
             <TextInputDisplayBox

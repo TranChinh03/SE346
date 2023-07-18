@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import scale from '../constants/responsive';
 import CUSTOM_FONTS from '../constants/fonts';
 import CUSTOM_COLORS from '../constants/colors';
-import {IMG_COURSEBACKGROUND, IMG_CPPBACKGROUND} from '../assets/img';
+import {IMG_COURSEBACKGROUND, IMG_COURSEDEFAULT, IMG_CPPBACKGROUND} from '../assets/img';
 import {IMG_CPP} from '../assets/img';
 import {IC_Star} from '../assets/iconsvg';
 
@@ -26,7 +26,7 @@ export default class ItemSearchCourse extends Component {
           </View>
           {this.props.image === '' ? (
             <Image
-              source={IMG_CPP}
+              source={IMG_COURSEDEFAULT}
               resizeMode="contain"
               style={styles.imgCourse}
             />
