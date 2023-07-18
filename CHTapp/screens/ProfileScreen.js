@@ -57,14 +57,14 @@ useEffect(() => {
   }
 }, [profile]);
 
-  const handleSignOut = () => {
-    firebase.auth()
-      .signOut()
-      .then(() => {
-        navigation.replace("Login1")
-      })
-      .catch(error => alert(error.message))
-  }
+const handleSignOut = () => {
+  firebase.auth()
+    .signOut()
+    .then(() => {
+      navigation.replace("Loading");
+    })
+    .catch(error => alert(error.message))
+}
 
   // const handleSignOut = () => {
   //   firebase.auth()

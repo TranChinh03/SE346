@@ -106,7 +106,7 @@ const SettingScreen = () => {
       .auth()
       .signOut()
       .then(() => {
-        navigation.replace('Login');
+        navigation.replace('Loading');
       })
       .catch(error => alert(error.message));
   };

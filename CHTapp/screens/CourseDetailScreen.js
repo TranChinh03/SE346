@@ -578,7 +578,7 @@ const CourseDetailScreen = ({route}) => {
         <View style={styles.container1}>
           <View style={styles.conOperator}>
             <BackButton
-              onPress={() => navigation.navigate('Course')}
+              onPress={() => navigation.goBack()}
               type={1}
             />
             <TouchableOpacity
