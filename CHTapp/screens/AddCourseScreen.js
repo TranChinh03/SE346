@@ -30,11 +30,10 @@ import LessonBoxAdd from '../src/components/LessonBoxAdd';
 import {useNavigation} from '@react-navigation/native';
 import BtnDelete from '../src/components/BtnDelete';
 import BtnTick from '../src/components/BtnTick';
-import {firebase} from '../configs/FirebaseConfig'
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker'
-import {utils} from '@react-native-firebase/app'
-import storage from '@react-native-firebase/storage'
-
+import {firebase} from '../configs/FirebaseConfig';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {utils} from '@react-native-firebase/app';
+import storage from '@react-native-firebase/storage';
 
 const AddCourseScreen = ({route}) => {
   const {txtHeader} = route.params;
@@ -51,12 +50,12 @@ const AddCourseScreen = ({route}) => {
     {label: 'C++', value: 'C++'},
     {label: 'JavaScript', value: 'Javascript'},
   ]);
-  
+
   const [items, setItems] = useState([
     {label: 'English', value: 'English'},
     {label: 'VietNamese', value: 'Vietnamese'},
   ]);
-  
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [meetingLink, setMeetingLink] = useState('');
@@ -64,9 +63,19 @@ const AddCourseScreen = ({route}) => {
 
   const [myProgramLanguage, setMyProgramLanguage] = useState('');
 
-  const [name, setName] = useState('')
+  const [name, setName] = useState('');
 
-  const [imageUri, setImageUri] = useState('')
+  const [imageUri, setImageUri] = useState('');
+
+  const backButtonAlert = () =>
+    Alert.alert('Warning', 'Changes that you made may not be save', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'Leave & Discard', onPress: () => navigation.goBack()},
+    ]);
 
   const handleButtonPress = () => {
     const options = {
@@ -76,14 +85,14 @@ const AddCourseScreen = ({route}) => {
       maxWidth: 200,
     };
 
-    launchImageLibrary(options, (response) => {
+    launchImageLibrary(options, response => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
       } else {
         setImageUri(response.assets[0].uri);
-        console.log('imageUri', imageUri)
+        console.log('imageUri', imageUri);
       }
     });
   };
@@ -93,12 +102,14 @@ const AddCourseScreen = ({route}) => {
       try {
         const reference = storage().ref(`images/${Date.now()}.jpg`);
         const task = reference.putFile(imageUri);
-        task.on('state_changed', (snapshot) => {
+        task.on('state_changed', snapshot => {
           console.log(
-            `${(snapshot.bytesTransferred / snapshot.totalBytes) * 100}% completed`
+            `${
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            }% completed`,
           );
         });
-  
+
         await task;
         const url = await reference.getDownloadURL();
         console.log('Image uploaded to Firebase storage:', url);
@@ -114,22 +125,21 @@ const AddCourseScreen = ({route}) => {
         Alert.alert(error.message);
       }
     } else {
-      return imageUri
+      return imageUri;
     }
   };
 
-  
   // const handleUpload = async () => {
   //   if (imageUri) {
   //     try {
   //       // Read the file data from the local file URI
   //       const fileData = await RNFS.readFile(imageUri, 'base64');
   //       const fileBlob = new Blob([fileData], { type: 'image/jpg' });
-  
+
   //       // Create a reference to the storage path
   //       const storage = getStorage();
   //       const storageRef = ref(storage, `images/${Date.now()}.jpg`);
-  
+
   //       // Upload the file
   //       await uploadBytes(storageRef, fileBlob);
   //       console.log('File uploaded successfully!');
@@ -139,14 +149,15 @@ const AddCourseScreen = ({route}) => {
   //   }
   // };
 
-
   const renderItem = ({item}) => {
     if (item.type === 'content1') {
       return (
         <View>
           <Text style={styles.txtTiltle}>Thumbnail</Text>
           <View style={styles.vwThumnail}>
-            <TouchableOpacity style={styles.btnThumnail} onPress={handleButtonPress}>
+            <TouchableOpacity
+              style={styles.btnThumnail}
+              onPress={handleButtonPress}>
               <IC_Camera style={styles.icCamera} />
               <Text style={styles.txtThumnail}>Upload from your device</Text>
             </TouchableOpacity>
@@ -156,7 +167,9 @@ const AddCourseScreen = ({route}) => {
                     source={IMG_CPP}
                     resizeMode="cover"
                   /> */}
-                  {imageUri && <Image source={{ uri: imageUri }} style={styles.imgThumnail} />}
+              {imageUri && (
+                <Image source={{uri: imageUri}} style={styles.imgThumnail} />
+              )}
             </View>
           </View>
           <Text style={styles.txtTiltle}>Title</Text>
@@ -171,13 +184,11 @@ const AddCourseScreen = ({route}) => {
             onChangeText={myDescription =>
               setDescription(myDescription)
             }></TextInput>
-                      <Text style={styles.txtTiltle}>Meeting Link</Text>
+          <Text style={styles.txtTiltle}>Meeting Link</Text>
           <TextInput
             multiline
             style={styles.txtInput}
-            onChangeText={myLink =>
-              setMeetingLink(myLink)
-            }></TextInput>
+            onChangeText={myLink => setMeetingLink(myLink)}></TextInput>
           <Text style={styles.txtTiltle}>Program Language</Text>
         </View>
       );
@@ -343,16 +354,20 @@ const AddCourseScreen = ({route}) => {
 
   const addCourse = async () => {
     try {
-       if(description !== '' && title !== '' && language !== '' && programLanguage !== '')
-       {
+      if (
+        description !== '' &&
+        title !== '' &&
+        language !== '' &&
+        programLanguage !== ''
+      ) {
         const imageUrl = await handleUpload();
 
-        console.log('imageUrl', imageUrl)
-        console.log('description', description)
-        console.log('title', title)
-        console.log('programLanguage', programLanguage)
-        console.log('meetingLink', meetingLink)
-    
+        console.log('imageUrl', imageUrl);
+        console.log('description', description);
+        console.log('title', title);
+        console.log('programLanguage', programLanguage);
+        console.log('meetingLink', meetingLink);
+
         // Add a new course document to the 'courses' collection
         await firebase.firestore().collection('courses').add({
           author: name.email,
@@ -367,24 +382,22 @@ const AddCourseScreen = ({route}) => {
           image: imageUrl,
           meeting: meetingLink,
         });
-    
+
         Alert.alert('Add Course Successfully!');
         navigation.navigate('Course', {item: 'AllCourses'});
-       }
-       else {
+      } else {
         Alert.alert('Please fill full information!');
-       }
+      }
     } catch (error) {
       console.log('Error adding course:', error);
     }
   };
 
-
   return (
     <SafeAreaView style={styles.container}>
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          <BackButton onPress={() => navigation.goBack()} />
+          <BackButton onPress={backButtonAlert} />
           <Text style={styles.txtHeader}>{txtHeader}</Text>
         </View>
       </ImageBackground>

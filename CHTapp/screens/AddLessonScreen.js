@@ -73,6 +73,15 @@ const AddLessonScreen = () => {
 
   const [name, setName] = useState('');
 
+  const backButtonAlert = () =>
+    Alert.alert('Warning', 'Changes that you made may not be save', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'Leave & Discard', onPress: () => navigation.goBack()},
+    ]);
 
   useEffect(() => {
     firebase
@@ -483,7 +492,6 @@ const AddLessonScreen = () => {
     }
   }
 
-
   async function deleteDocument1(value2) {
     try {
       //let index = 0;
@@ -657,7 +665,7 @@ const AddLessonScreen = () => {
     <SafeAreaView style={styles.container}>
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          <BackButton onPress={() => navigation.goBack()} />
+          <BackButton onPress={backButtonAlert} />
           <Text style={styles.txtHeader}>Add Lesson</Text>
         </View>
       </ImageBackground>
