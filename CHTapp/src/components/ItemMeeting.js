@@ -5,8 +5,24 @@ import CUSTOM_COLORS from '../constants/colors';
 import CUSTOM_SIZES from '../constants/size';
 import CUSTOM_FONTS from '../constants/fonts';
 import {Button} from 'react-native-paper';
+import { Link } from '@react-navigation/native';
 
 export default class ItemMeeting extends Component {
+
+  handlePress = async () => {
+    try {
+      const supported = await Linking.canOpenURL(this.props.link);
+      console.log('props.link', this.props.link);
+      console.log('supported', supported);
+
+      await Linking.openURL(this.props.link)
+
+    } catch (error) {
+      // console.error('An error occurred while checking if the URL can be opened:', error);
+      Alert.alert('This link is wrong!');
+    }
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -26,7 +42,7 @@ export default class ItemMeeting extends Component {
               <Text>{this.props.link}</Text>
             </View> */}
             <View style={styles.conBtn}>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 onPress={async () => {
                 const supported = await Linking.canOpenURL(this.props.link);
                 
@@ -34,12 +50,17 @@ export default class ItemMeeting extends Component {
 
                 if (supported) {
                   {console.log('item.joinUrl',this.props.link)}
-                  Linking.openURL(this.props.link);
+                  await Linking.openURL(this.props.link);
                 } else {
                   Alert.alert('This link is wrong!');
                 }
               }}
               style={styles.btnJoin}>
+                <Text style={styles.txtJoin}>Join</Text>
+              </TouchableOpacity> */}
+              <TouchableOpacity
+                onPress={this.handlePress}
+                style={styles.btnJoin}>
                 <Text style={styles.txtJoin}>Join</Text>
               </TouchableOpacity>
               <TouchableOpacity
