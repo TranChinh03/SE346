@@ -31,6 +31,7 @@ import moment from 'moment';
 const CreateMeeting = () => {
   const [shouldShow, setShouldShow] = useState(false);
   const [open, setOpen] = useState(false);
+  const [open2, setOpen2] = useState(false);
   const [value, setValue] = useState('');
   const [open1, setOpen1] = useState(false);
   const [value1, setValue1] = useState('');
@@ -200,8 +201,10 @@ const CreateMeeting = () => {
               onChangeText={date => setDate(date)}></TextInput> */}
             <TouchableOpacity
               style={styles.conDate}
-              onPress={() => setOpen(true)}>
-              <Text style={styles.txtDate}>{moment(date).format('DD/MM/YYYY')}</Text>
+              onPress={() => setOpen2(true)}>
+              <Text style={styles.txtDate}>
+                {moment(date).format('DD/MM/YYYY')}
+              </Text>
               <IC_Calendar
                 stroke={CUSTOM_COLORS.usBlue}
                 style={{alignSelf: 'center'}}
@@ -217,7 +220,7 @@ const CreateMeeting = () => {
                 setDate(date);
               }}
               onCancel={() => {
-                setOpen(false);
+                setOpen2(false);
               }}
             />
           </View>

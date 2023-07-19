@@ -69,6 +69,16 @@ const EditCourseScreen = ({route}) => {
   const [imageUri, setImageUri] = useState(null);
   const [chapters, setChapters] = useState([]);
 
+  const backButtonAlert = () =>
+    Alert.alert('Warning', 'Changes that you made may not be save', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'Leave & Discard', onPress: () => navigation.goBack()},
+    ]);
+
   useEffect(() => {
     ChapterList().then(data => setChapters(data));
   }, [preItem.title, preItem.author]);
@@ -124,7 +134,10 @@ const EditCourseScreen = ({route}) => {
   };
 
   async function ChapterList() {
-    const chapeterRef = firebase.firestore().collection('chapters').orderBy('openDate');
+    const chapeterRef = firebase
+      .firestore()
+      .collection('chapters')
+      .orderBy('openDate');
     const chapterSnapshot = await chapeterRef.get();
     const chapterData = chapterSnapshot.docs.map(doc => ({
       id: doc.id,
@@ -268,10 +281,12 @@ const EditCourseScreen = ({route}) => {
 
           <TouchableOpacity
             style={styles.conAddLesson}
-            onPress={() => navigation.navigate('CourseStack', {
-              screen: 'AddChapterScreen2',
-              params: {preItem: preItem}
-            })}>
+            onPress={() =>
+              navigation.navigate('CourseStack', {
+                screen: 'AddChapterScreen2',
+                params: {preItem: preItem},
+              })
+            }>
             <Text style={styles.txtInfo}>Add Chapter</Text>
             <IC_RightArrow2 />
           </TouchableOpacity>
@@ -336,8 +351,8 @@ const EditCourseScreen = ({route}) => {
           if (!querrySnapshot.empty) {
             const documentId = querrySnapshot.docs[0].id;
             if (imageUrl) {
-              preItem.image = imageUrl
-              console.log('preItem.image', preItem.image)
+              preItem.image = imageUrl;
+              console.log('preItem.image', preItem.image);
               console.log('Hi');
               firebase
                 .firestore()
@@ -351,7 +366,7 @@ const EditCourseScreen = ({route}) => {
                   lastUpdate: now,
                   image: imageUrl,
                 });
-            }else {
+            } else {
               console.log('Hello1');
               firebase
                 .firestore()
@@ -461,16 +476,15 @@ const EditCourseScreen = ({route}) => {
           });
         });
 
-        preItem.title = title
-        preItem.description = description,
-        preItem.language = language,
-        preItem.programLanguage = myProgramLanguage
+      preItem.title = title;
+      (preItem.description = description),
+        (preItem.language = language),
+        (preItem.programLanguage = myProgramLanguage);
 
-        navigation.navigate('CourseStack', {
-          screen: 'CourseDetail',
-          params: {preItem: preItem},
-        });
-        
+      navigation.navigate('CourseStack', {
+        screen: 'CourseDetail',
+        params: {preItem: preItem},
+      });
     } else {
       Alert.alert('Please fill full enough information!');
     }
@@ -480,7 +494,7 @@ const EditCourseScreen = ({route}) => {
     <SafeAreaView style={styles.container}>
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          <BackButton onPress={() => navigation.goBack()} />
+          <BackButton onPress={backButtonAlert} />
           <Text style={styles.txtHeader}>Edit course</Text>
         </View>
       </ImageBackground>

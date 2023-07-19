@@ -63,6 +63,16 @@ const AddChapterScreen2 = ({route}) => {
     {label: '20', value: '20'},
   ]);
 
+  const backButtonAlert = () =>
+    Alert.alert('Warning', 'Changes that you made may not be save', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'Leave & Discard', onPress: () => navigation.goBack()},
+    ]);
+
   const [course, setCourse] = useState([]);
 
   const [title, setTitle] = useState('');
@@ -300,7 +310,7 @@ const AddChapterScreen2 = ({route}) => {
     <SafeAreaView style={styles.container}>
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          <BackButton onPress={() => navigation.goBack()} />
+          <BackButton onPress={backButtonAlert} />
           <Text style={styles.txtHeader}>Add Chapter</Text>
         </View>
       </ImageBackground>

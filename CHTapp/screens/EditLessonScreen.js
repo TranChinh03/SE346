@@ -37,7 +37,7 @@ import {utils} from '@react-native-firebase/app';
 import storage from '@react-native-firebase/storage';
 // import RNFetchBlob from 'rn-fetch-blob'
 import {PermissionsAndroid} from 'react-native';
-import { preset } from '../jest.config';
+import {preset} from '../jest.config';
 
 var titles = [
   'Python.pdf',
@@ -82,7 +82,7 @@ const EditLessonScreen = ({route}) => {
   const [course, setCourse] = useState([]);
   const [files, setFiles] = useState([]);
   const [documents, setDocuments] = useState([]);
-  const [tests, setTests] = useState([])
+  const [tests, setTests] = useState([]);
 
   const [documents1, setDocuments1] = useState([]);
   const [title, setTitle] = useState('');
@@ -97,20 +97,31 @@ const EditLessonScreen = ({route}) => {
   const [refreshMaterial, setRefreshMaterial] = useState(false);
   const [refreshTests, setRefreshTests] = useState(false);
 
-  useEffect(() => {
-    firebase.firestore().collection('users')
-    .doc(firebase.auth().currentUser.uid).get()
-    .then((snapshot) => {
-      if(snapshot.exists)
+  const backButtonAlert = () =>
+    Alert.alert('Warning', 'Changes that you made may not be save', [
       {
-        setName(snapshot.data())
-        setTitle(preItem.lessonTitle)
-      }
-      else {
-        console.log('User does not exist')
-      }
-    })
-  }, [])
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'Leave & Discard', onPress: () => navigation.goBack()},
+    ]);
+
+  useEffect(() => {
+    firebase
+      .firestore()
+      .collection('users')
+      .doc(firebase.auth().currentUser.uid)
+      .get()
+      .then(snapshot => {
+        if (snapshot.exists) {
+          setName(snapshot.data());
+          setTitle(preItem.lessonTitle);
+        } else {
+          console.log('User does not exist');
+        }
+      });
+  }, []);
 
   async function MaterialList() {
     const lessonRef = firebase.firestore().collection('lessons');
@@ -120,17 +131,16 @@ const EditLessonScreen = ({route}) => {
       ...doc.data(),
     }));
 
-    const joinedData = lessonData
-      .filter(
-        filter =>
-          filter.courseAuthor === preItem.courseAuthor &&
-          filter.courseTitle === preItem.courseTitle &&
-          filter.chapterTitle === preItem.chapterTitle &&
-          filter.lessonTitle === preItem.lessonTitle
-      )
-    const finalData = 
-      joinedData[0].files
-      .map((file) => firebase.storage().refFromURL(file))
+    const joinedData = lessonData.filter(
+      filter =>
+        filter.courseAuthor === preItem.courseAuthor &&
+        filter.courseTitle === preItem.courseTitle &&
+        filter.chapterTitle === preItem.chapterTitle &&
+        filter.lessonTitle === preItem.lessonTitle,
+    );
+    const finalData = joinedData[0].files.map(file =>
+      firebase.storage().refFromURL(file),
+    );
     return finalData;
   }
 
@@ -142,39 +152,40 @@ const EditLessonScreen = ({route}) => {
       ...doc.data(),
     }));
 
-    const joinedData = lessonData
-      .filter(
-        filter =>
-          filter.courseAuthor === preItem.courseAuthor &&
-          filter.courseTitle === preItem.courseTitle &&
-          filter.chapterTitle === preItem.chapterTitle &&
-          filter.lessonTitle === preItem.lessonTitle
-      )
+    const joinedData = lessonData.filter(
+      filter =>
+        filter.courseAuthor === preItem.courseAuthor &&
+        filter.courseTitle === preItem.courseTitle &&
+        filter.chapterTitle === preItem.chapterTitle &&
+        filter.lessonTitle === preItem.lessonTitle,
+    );
 
-      console.log('joinedData', joinedData)
-    if(joinedData[0].tests || joinedData[0].tests.length !== 0 && joinedData[0].tests[0]!== null){
-      console.log("Hello1")
-      const finalData = 
-      joinedData[0].tests
-      .map((file) => firebase.storage().refFromURL(file))
+    console.log('joinedData', joinedData);
+    if (
+      joinedData[0].tests ||
+      (joinedData[0].tests.length !== 0 && joinedData[0].tests[0] !== null)
+    ) {
+      console.log('Hello1');
+      const finalData = joinedData[0].tests.map(file =>
+        firebase.storage().refFromURL(file),
+      );
 
       return finalData;
     }
-    console.log("Hello2")
+    console.log('Hello2');
     return;
-
   }
 
   useEffect(() => {
-    MaterialList().then(data => setMaterials(data))
-  }, [materials])
+    MaterialList().then(data => setMaterials(data));
+  }, [materials]);
 
   useEffect(() => {
-    TestList().then(data => setTests(data))
-  }, [tests])
+    TestList().then(data => setTests(data));
+  }, [tests]);
 
-  const handleDelete = (item) => {
-    console.log('item', item)
+  const handleDelete = item => {
+    console.log('item', item);
     Alert.alert(
       'Delete Material',
       'Are you sure you want to delete this material?',
@@ -187,51 +198,50 @@ const EditLessonScreen = ({route}) => {
         {
           text: 'OK',
           onPress: () => {
-
             const storageRef = item;
             storageRef
               .getDownloadURL()
-              .then((url) => {
-                console.log('url', url)
+              .then(url => {
+                console.log('url', url);
                 firebase
-                .firestore()
-                .collection('lessons')
-                .where('courseTitle', '==', preItem.courseTitle)
-                .where('courseAuthor', '==', preItem.courseAuthor)
-                .where('chapterTitle', '==', preItem.chapterTitle)
-                .where('lessonTitle', '==', preItem.lessonTitle)
-                .get().then((querrySnapshot) => {
-                  if(!querrySnapshot.empty)
-                  {
-                    querrySnapshot.forEach((doc) => {
-                      const documentId1 = doc.id
-                      firebase
-                      .firestore()
-                      .collection('lessons')
-                      .doc(documentId1)
-                      .update({
-                        files: firebase.firestore.FieldValue.arrayRemove(url)
-                      })
-                      .then(() => {
-                        Alert.alert('File is deleted!')
-                      })
-                    })
-                  }
-                })
+                  .firestore()
+                  .collection('lessons')
+                  .where('courseTitle', '==', preItem.courseTitle)
+                  .where('courseAuthor', '==', preItem.courseAuthor)
+                  .where('chapterTitle', '==', preItem.chapterTitle)
+                  .where('lessonTitle', '==', preItem.lessonTitle)
+                  .get()
+                  .then(querrySnapshot => {
+                    if (!querrySnapshot.empty) {
+                      querrySnapshot.forEach(doc => {
+                        const documentId1 = doc.id;
+                        firebase
+                          .firestore()
+                          .collection('lessons')
+                          .doc(documentId1)
+                          .update({
+                            files:
+                              firebase.firestore.FieldValue.arrayRemove(url),
+                          })
+                          .then(() => {
+                            Alert.alert('File is deleted!');
+                          });
+                      });
+                    }
+                  });
               })
-              .catch((error) => {
-                console.log(error.message)
+              .catch(error => {
+                console.log(error.message);
               });
           },
         },
       ],
-      { cancelable: false }
+      {cancelable: false},
     );
-  }
+  };
 
-
-  const handleDelete1 = (item) => {
-    console.log('item', item)
+  const handleDelete1 = item => {
+    console.log('item', item);
     Alert.alert(
       'Delete Material',
       'Are you sure you want to delete this material?',
@@ -244,48 +254,47 @@ const EditLessonScreen = ({route}) => {
         {
           text: 'OK',
           onPress: () => {
-
             const storageRef = item;
             storageRef
               .getDownloadURL()
-              .then((url) => {
-                console.log('url', url)
+              .then(url => {
+                console.log('url', url);
                 firebase
-                .firestore()
-                .collection('lessons')
-                .where('courseTitle', '==', preItem.courseTitle)
-                .where('courseAuthor', '==', preItem.courseAuthor)
-                .where('chapterTitle', '==', preItem.chapterTitle)
-                .where('lessonTitle', '==', preItem.lessonTitle)
-                .get().then((querrySnapshot) => {
-                  if(!querrySnapshot.empty)
-                  {
-                    querrySnapshot.forEach((doc) => {
-                      const documentId1 = doc.id
-                      firebase
-                      .firestore()
-                      .collection('lessons')
-                      .doc(documentId1)
-                      .update({
-                        tests: firebase.firestore.FieldValue.arrayRemove(url)
-                      })
-                      .then(() => {
-                        Alert.alert('File is deleted!')
-                      })
-                    })
-                  }
-                })
+                  .firestore()
+                  .collection('lessons')
+                  .where('courseTitle', '==', preItem.courseTitle)
+                  .where('courseAuthor', '==', preItem.courseAuthor)
+                  .where('chapterTitle', '==', preItem.chapterTitle)
+                  .where('lessonTitle', '==', preItem.lessonTitle)
+                  .get()
+                  .then(querrySnapshot => {
+                    if (!querrySnapshot.empty) {
+                      querrySnapshot.forEach(doc => {
+                        const documentId1 = doc.id;
+                        firebase
+                          .firestore()
+                          .collection('lessons')
+                          .doc(documentId1)
+                          .update({
+                            tests:
+                              firebase.firestore.FieldValue.arrayRemove(url),
+                          })
+                          .then(() => {
+                            Alert.alert('File is deleted!');
+                          });
+                      });
+                    }
+                  });
               })
-              .catch((error) => {
-                console.log(error.message)
+              .catch(error => {
+                console.log(error.message);
               });
           },
         },
       ],
-      { cancelable: false }
+      {cancelable: false},
     );
-  }
-
+  };
 
   const renderItem = ({item}) => {
     if (item.type === 'content1') {
@@ -295,16 +304,13 @@ const EditLessonScreen = ({route}) => {
           <TextInput
             multiline
             style={styles.txtInput}
-            onChangeText={myTitle => setTitle(myTitle)}
-          >{preItem.lessonTitle}</TextInput>
+            onChangeText={myTitle => setTitle(myTitle)}>
+            {preItem.lessonTitle}
+          </TextInput>
         </View>
       );
     } else if (item.type === 'dropdown') {
-      return (
-        <View>
-         
-        </View>
-      );
+      return <View></View>;
     } else {
       return (
         <View>
@@ -315,12 +321,24 @@ const EditLessonScreen = ({route}) => {
               numColumns={1}
               data={materials}
               renderItem={({item, index}) => {
-                return <ItemPdf title={item.name} onPress={() => handleDelete(item)}/>;
+                return (
+                  <ItemPdf
+                    title={item.name}
+                    onPress={() => handleDelete(item)}
+                  />
+                );
               }}
             />
           </View>
-          <View style={{marginLeft: scale(15, 'w'), flexDirection: 'row', marginTop: scale(10,'w')}}>
-            <TouchableOpacity style={styles.fixedButton} onPress={()=> pickDocument()}>
+          <View
+            style={{
+              marginLeft: scale(15, 'w'),
+              flexDirection: 'row',
+              marginTop: scale(10, 'w'),
+            }}>
+            <TouchableOpacity
+              style={styles.fixedButton}
+              onPress={() => pickDocument()}>
               <Text style={styles.start}>+</Text>
             </TouchableOpacity>
             <FlatList
@@ -329,7 +347,12 @@ const EditLessonScreen = ({route}) => {
               data={documents}
               extraData={refreshMaterial}
               renderItem={({item, index}) => {
-                return <ItemPdf title={item.name} onPress={() => deleteDocument(item.name)}/>;
+                return (
+                  <ItemPdf
+                    title={item.name}
+                    onPress={() => deleteDocument(item.name)}
+                  />
+                );
               }}
             />
           </View>
@@ -340,12 +363,24 @@ const EditLessonScreen = ({route}) => {
               numColumns={1}
               data={tests}
               renderItem={({item, index}) => {
-                return <ItemPdf title={item.name} onPress={() => handleDelete1(item)}/>;
+                return (
+                  <ItemPdf
+                    title={item.name}
+                    onPress={() => handleDelete1(item)}
+                  />
+                );
               }}
             />
           </View>
-          <View style={{marginLeft: scale(15, 'w'), flexDirection: 'row', marginTop: scale(10,'w')}}>
-            <TouchableOpacity style={styles.fixedButton} onPress={()=> pickDocument1()}>
+          <View
+            style={{
+              marginLeft: scale(15, 'w'),
+              flexDirection: 'row',
+              marginTop: scale(10, 'w'),
+            }}>
+            <TouchableOpacity
+              style={styles.fixedButton}
+              onPress={() => pickDocument1()}>
               <Text style={styles.start}>+</Text>
             </TouchableOpacity>
             <FlatList
@@ -354,14 +389,19 @@ const EditLessonScreen = ({route}) => {
               data={documents1}
               extraData={refreshTests}
               renderItem={({item, index}) => {
-                return <ItemPdf title={item.name} onPress={() => deleteDocument1(item.name)}/>;
+                return (
+                  <ItemPdf
+                    title={item.name}
+                    onPress={() => deleteDocument1(item.name)}
+                  />
+                );
               }}
             />
           </View>
           <View style={{marginBottom: scale(30, 'h')}}></View>
           <View style={styles.space}>
-              <View style={[styles.space]}></View>
-           </View>
+            <View style={[styles.space]}></View>
+          </View>
         </View>
       );
     }
@@ -617,63 +657,56 @@ const EditLessonScreen = ({route}) => {
     const fileUrls = await handleUpload();
     const fileUrls1 = await handleUpload1();
 
-    if(title !== '') {
+    if (title !== '') {
       firebase
-      .firestore()
-      .collection('lessons')
-      .where('lessonTitle', '==', preItem.lessonTitle)
-      .where('courseTitle', '==', preItem.courseTitle)
-      .where('courseAuthor', '==', preItem.courseAuthor)
-      .where('chapterTitle', '==', preItem.chapterTitle)
-      .get().then((querrySnapshot) => {
-        if(!querrySnapshot.empty)
-        {
-          console.log('1')
-          const documentId = querrySnapshot.docs[0].id
-          firebase
-          .firestore()
-          .collection('lessons')
-          .doc(documentId)
-          .update({
-            lessonTitle: title,
-            files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
-            tests: firebase.firestore.FieldValue.arrayUnion(...fileUrls1),
-          })
-
-        }
-
-      })
-
-    
+        .firestore()
+        .collection('lessons')
+        .where('lessonTitle', '==', preItem.lessonTitle)
+        .where('courseTitle', '==', preItem.courseTitle)
+        .where('courseAuthor', '==', preItem.courseAuthor)
+        .where('chapterTitle', '==', preItem.chapterTitle)
+        .get()
+        .then(querrySnapshot => {
+          if (!querrySnapshot.empty) {
+            console.log('1');
+            const documentId = querrySnapshot.docs[0].id;
+            firebase
+              .firestore()
+              .collection('lessons')
+              .doc(documentId)
+              .update({
+                lessonTitle: title,
+                files: firebase.firestore.FieldValue.arrayUnion(...fileUrls),
+                tests: firebase.firestore.FieldValue.arrayUnion(...fileUrls1),
+              });
+          }
+        });
 
       firebase
-      .firestore()
-      .collection('courses')
-      .where('title', '==', preItem.courseTitle)
-      .where('author', '==', preItem.courseAuthor)
-      .get().then((querrySnapshot) => {
-        if(!querrySnapshot.empty)
-        {
-          console.log('Da vao day!')
-          const data = querrySnapshot.docs[0].data()
-          preItem.language = data.language
-          preItem.lastUpdate = now,
-          preItem.description = data.description,
-          preItem.programLanguage = data.programLanguage
-          preItem.image = data.image
-          
-          preItem.title = preItem.courseTitle
-          preItem.author = preItem.courseAuthor
-    
-          console.log('preItem after edit lessons', preItem)
-    
-    
-          navigation.navigate('CourseDetail', {preItem: preItem})
-          Alert.alert('Edit Lesson Successfully!');
-        }
-      })
+        .firestore()
+        .collection('courses')
+        .where('title', '==', preItem.courseTitle)
+        .where('author', '==', preItem.courseAuthor)
+        .get()
+        .then(querrySnapshot => {
+          if (!querrySnapshot.empty) {
+            console.log('Da vao day!');
+            const data = querrySnapshot.docs[0].data();
+            preItem.language = data.language;
+            (preItem.lastUpdate = now),
+              (preItem.description = data.description),
+              (preItem.programLanguage = data.programLanguage);
+            preItem.image = data.image;
 
+            preItem.title = preItem.courseTitle;
+            preItem.author = preItem.courseAuthor;
 
+            console.log('preItem after edit lessons', preItem);
+
+            navigation.navigate('CourseDetail', {preItem: preItem});
+            Alert.alert('Edit Lesson Successfully!');
+          }
+        });
     } else {
       Alert.alert('Please fill full enough information!');
     }
@@ -681,10 +714,10 @@ const EditLessonScreen = ({route}) => {
 
   return (
     <SafeAreaView style={styles.container}>
-    {console.log('preItemEditLesson', preItem)}
+      {console.log('preItemEditLesson', preItem)}
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          <BackButton onPress={() => navigation.goBack()} />
+          <BackButton onPress={backButtonAlert} />
           <Text style={styles.txtHeader}>Edit Lesson</Text>
         </View>
       </ImageBackground>
@@ -698,7 +731,7 @@ const EditLessonScreen = ({route}) => {
 
       <BtnTick
         onPress={() => {
-          editLesson()
+          editLesson();
         }}
       />
     </SafeAreaView>
