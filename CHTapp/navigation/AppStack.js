@@ -391,7 +391,7 @@ export default function AppStack() {
   return (
     <Stack.Navigator initialRouteName="Login1" options={{headerShown: false}}>
       <Stack.Screen
-        name="Login1"
+        name="Login"
         component={LoginScreen}
         options={{headerShown: false}}
       />

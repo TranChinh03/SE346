@@ -24,7 +24,7 @@ import moment from 'moment'
 
 
 const MeetingScreen = () => {
-  const [data, setData] = useState('');
+  const [data, setData] = useState([]);
 
   const [name, setName] = useState('');
 
@@ -97,7 +97,7 @@ const MeetingScreen = () => {
               <ItemMeeting
                 meetingName={item.title}
                 time={item.time}
-                date={moment(item.date).format('DD/MM/YYYY')}
+                date={item.date.toDate().toLocaleDateString('en-GB')}
                 courseName={item.subject}
                 lectureName={item.host}
                 link={item.joinUrl}

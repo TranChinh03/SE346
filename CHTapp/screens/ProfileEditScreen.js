@@ -75,8 +75,8 @@ const ProfileEditScreen = () => {
   useEffect(() => {
     if (profile) {
       setName(profile.name);
-      setBirthday(profile.birthday);
-      setDate(profile.birthday.toDate().toLocaleString('en-GB'))
+      setBirthday(profile.birthday.toDate());
+      // setDate(profile.birthday.toDate().toLocaleString('en-GB'))
       setEmail(profile.email);
       setPhone(profile.phone);
     }
@@ -346,7 +346,7 @@ const ProfileEditScreen = () => {
               modal
               mode="date"
               open={open}
-              date={new Date()}
+              date={birthday}
               onConfirm={date => {
                 setOpen(false);
                 setBirthday(date);

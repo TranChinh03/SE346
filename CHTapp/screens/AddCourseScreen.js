@@ -184,11 +184,13 @@ const AddCourseScreen = ({route}) => {
             onChangeText={myDescription =>
               setDescription(myDescription)
             }></TextInput>
-          <Text style={styles.txtTiltle}>Meeting Link</Text>
+                      {/* <Text style={styles.txtTiltle}>Meeting Link</Text>
           <TextInput
             multiline
             style={styles.txtInput}
-            onChangeText={myLink => setMeetingLink(myLink)}></TextInput>
+            onChangeText={myLink =>
+              setMeetingLink(myLink)
+            }></TextInput> */}
           <Text style={styles.txtTiltle}>Program Language</Text>
         </View>
       );
@@ -362,11 +364,11 @@ const AddCourseScreen = ({route}) => {
       ) {
         const imageUrl = await handleUpload();
 
-        console.log('imageUrl', imageUrl);
-        console.log('description', description);
-        console.log('title', title);
-        console.log('programLanguage', programLanguage);
-        console.log('meetingLink', meetingLink);
+        console.log('imageUrl', imageUrl)
+        console.log('description', description)
+        console.log('title', title)
+        console.log('programLanguage', programLanguage)
+        // console.log('meetingLink', meetingLink)
 
         // Add a new course document to the 'courses' collection
         await firebase.firestore().collection('courses').add({
@@ -380,7 +382,7 @@ const AddCourseScreen = ({route}) => {
           openDate: now,
           lastUpdate: now,
           image: imageUrl,
-          meeting: meetingLink,
+          // meeting: meetingLink,
         });
 
         Alert.alert('Add Course Successfully!');

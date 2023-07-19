@@ -112,6 +112,7 @@ const CreateMeeting = () => {
           time: time,
           title: name,
           subject: language,
+          course: course,
         });
 
         Alert.alert('Add Meeting Successfully!');
@@ -212,10 +213,10 @@ const CreateMeeting = () => {
             <DatePicker
               modal
               mode="date"
-              open={open2}
+              open={open1}
               date={date}
               onConfirm={date => {
-                setOpen2(false);
+                setOpen1(false);
                 setDate(date);
               }}
               onCancel={() => {
