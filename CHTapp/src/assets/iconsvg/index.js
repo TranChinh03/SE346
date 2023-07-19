@@ -31,3 +31,4 @@ export {default as IC_Course2} from './IC_Course2';
 export {default as IC_RightArrowLine} from './IC_RightArrowLine';
 export {default as IC_AddCourse} from './IC_AddCourse';
 export {default as IC_Calendar} from './IC_Calendar';
+export {default as IC_Clock} from './IC_Clock';

@@ -1,22 +1,27 @@
-import {Text, StyleSheet, View, TouchableOpacity, Linking, Alert} from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Linking,
+  Alert,
+} from 'react-native';
 import React, {Component} from 'react';
 import scale from '../constants/responsive';
 import CUSTOM_COLORS from '../constants/colors';
 import CUSTOM_SIZES from '../constants/size';
 import CUSTOM_FONTS from '../constants/fonts';
 import {Button} from 'react-native-paper';
-import { Link } from '@react-navigation/native';
+import {Link} from '@react-navigation/native';
 
 export default class ItemMeeting extends Component {
-
   handlePress = async () => {
     try {
       const supported = await Linking.canOpenURL(this.props.link);
       console.log('props.link', this.props.link);
       console.log('supported', supported);
 
-      await Linking.openURL(this.props.link)
-
+      await Linking.openURL(this.props.link);
     } catch (error) {
       // console.error('An error occurred while checking if the URL can be opened:', error);
       Alert.alert('This link is wrong!');
@@ -25,24 +30,34 @@ export default class ItemMeeting extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <View style={styles.content1}>
-          <Text style={styles.txtMeetingName}>{this.props.meetingName}</Text>
+      <View>
+        <View style={{flexDirection: 'row', marginLeft: 20}}>
           <Text style={styles.txtTime}>
-            {this.props.date} {this.props.time}
+            {this.props.time.substring(16, 21)}
           </Text>
+          <Text style={styles.txtTime}>{this.props.date}</Text>
         </View>
-        <View style={styles.content2}>
-          <Text style={styles.txtTitle}>{this.props.courseName}</Text>
-          <View style={styles.container3}>
-            <View style={styles.conLec}>
-              <Text style={styles.txtTitle2}>{this.props.lectureName}</Text>
-            </View>
-            {/* <View style={styles.txtTitle2}>
+        <View style={styles.container}>
+          <View style={styles.content1}>
+            <Text style={styles.txtMeetingName} numberOfLines={1}>
+              {this.props.meetingName}
+            </Text>
+          </View>
+          <View style={styles.content2}>
+            <Text style={styles.txtTitle} numberOfLines={1}>
+              {this.props.courseName}
+            </Text>
+            <View style={styles.container3}>
+              <View style={styles.conLec}>
+                <Text style={styles.txtTitle2} numberOfLines={1}>
+                  {this.props.lectureName}
+                </Text>
+              </View>
+              {/* <View style={styles.txtTitle2}>
               <Text>{this.props.link}</Text>
             </View> */}
-            <View style={styles.conBtn}>
-              {/* <TouchableOpacity
+              <View style={styles.conBtn}>
+                {/* <TouchableOpacity
                 onPress={async () => {
                 const supported = await Linking.canOpenURL(this.props.link);
                 
@@ -58,23 +73,30 @@ export default class ItemMeeting extends Component {
               style={styles.btnJoin}>
                 <Text style={styles.txtJoin}>Join</Text>
               </TouchableOpacity> */}
-              <TouchableOpacity
-                onPress={this.handlePress}
-                style={styles.btnJoin}>
-                <Text style={styles.txtJoin}>Join</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() =>
-                  Linking.openURL(
-                    `mailto:demo@example.com?subject=Invitation Mail&body=You have invited to the meeting: ${this.props.link}`,
-                  )
-                }
-                style={styles.btnInvite}>
-                <Text style={styles.txtJoin}>Invite</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={this.handlePress}
+                  style={styles.btnJoin}>
+                  <Text style={styles.txtJoin}>Join</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>
+                    Linking.openURL(
+                      `mailto:demo@example.com?subject=Invitation Mail&body=You have invited to the meeting: ${this.props.link}`,
+                    )
+                  }
+                  style={styles.btnInvite}>
+                  <Text style={styles.txtJoin}>Invite</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
+
+        <TouchableOpacity
+          onPress={this.props.onPressDel}
+          style={styles.btnDelete}>
+          <Text style={styles.txtJoin}>Delete</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -86,7 +108,8 @@ const styles = StyleSheet.create({
     width: scale(325, 'w'),
     borderWidth: 1,
     borderColor: CUSTOM_COLORS.stateBlue,
-    marginVertical: scale(20, 'h'),
+    marginTop: scale(5, 'h'),
+    marginBottom: scale(20, 'h'),
     alignSelf: 'center',
     borderRadius: scale(15, 'w'),
   },
@@ -114,15 +137,16 @@ const styles = StyleSheet.create({
     color: CUSTOM_COLORS.stateBlue,
     marginLeft: scale(10, 'w'),
     marginTop: scale(10, 'w'),
+    width: scale(300, 'w'),
   },
   txtTime: {
-    fontSize: CUSTOM_SIZES.medium,
+    fontSize: CUSTOM_SIZES.small,
     fontFamily: CUSTOM_FONTS.regular,
     color: CUSTOM_COLORS.stateBlue,
     //marginLeft: scale(10, 'w'),
     marginRight: scale(10, 'w'),
     marginTop: scale(10, 'w'),
-    alignItems: 'flex-end',
+    alignSelf: 'flex-end',
   },
   txtTitle: {
     fontSize: CUSTOM_SIZES.medium,
@@ -130,7 +154,7 @@ const styles = StyleSheet.create({
     color: CUSTOM_COLORS.stateBlue,
     marginLeft: scale(10, 'w'),
     marginRight: scale(10, 'w'),
-    //marginTop: scale(10, 'w'),
+    marginTop: scale(10, 'w'),
     alignItems: 'center',
   },
   txtTitle2: {
@@ -149,6 +173,7 @@ const styles = StyleSheet.create({
     borderRadius: scale(10, 'w'),
     justifyContent: 'center',
     margin: scale(5, 'w'),
+    //marginRight: scale(15, 'w'),
   },
   btnInvite: {
     height: scale(40, 'h'),
@@ -157,6 +182,16 @@ const styles = StyleSheet.create({
     borderRadius: scale(10, 'w'),
     justifyContent: 'center',
     margin: scale(5, 'w'),
+    //marginHorizontal: scale(20, 'w'),
+  },
+  btnDelete: {
+    height: scale(40, 'h'),
+    width: scale(95, 'w'),
+    backgroundColor: CUSTOM_COLORS.sunsetOrange,
+    borderRadius: scale(10, 'w'),
+    justifyContent: 'center',
+    marginRight: scale(2, 'w'),
+    alignSelf: 'flex-end',
   },
   txtJoin: {
     color: 'white',
