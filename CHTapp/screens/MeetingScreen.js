@@ -146,6 +146,7 @@ const MeetingScreen = () => {
                 lectureName={item.host}
                 link={item.joinUrl}
                 hostEmail={item.hostEmail}
+                user={name.name}
                 onPressDel={() => handleDelete(item)}
               />
             );

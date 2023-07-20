@@ -81,7 +81,20 @@ export default class ItemMeeting extends Component {
                 <TouchableOpacity
                   onPress={() =>
                     Linking.openURL(
-                      `mailto:demo@example.com?subject=Invitation Mail&body=You have invited to the meeting: ${this.props.link}`,
+                      `mailto:?subject=Join Our Meeting: [${this.props.meetingName}]
+                      &
+                      body=
+                      Dear ..., \n
+                      I hope this email finds you well. I am writing to extend a warm invitation to join us for an meeting "${this.props.meetingName}" at CHTapp. \n
+                      Meeting Details: \n
+                      Date: ${this.props.date} \n
+                      Time: ${this.props.time} \n
+                      Link: ${this.props.link} \n
+                      Course: ${this.props.courseName} \n
+                      Lecturer: ${this.props.lectureName} \n
+                      Thank you for considering our invitation. We look forward to having you join us for this meeting \n\n
+                      Best regards, \n\n
+                      ${this.props.user},
                     )
                   }
                   style={styles.btnInvite}>
