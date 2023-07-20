@@ -45,49 +45,51 @@ const MeetingScreen = () => {
   }
 
   const handleDelete = item => {
-    Alert.alert(
-      'Delete Meeting',
-      'Are you sure you want to delete this meeting?',
-      [
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
-        },
-        {
-          text: 'OK',
-          onPress: () => {
-            firebase
-              .firestore()
-              .collection('meetings')
-              .where('course', '==', item.course)
-              .where('date', '==', item.date)
-              .where('host', '==', item.host)
-              .where('joinUrl', '==', item.joinUrl)
-              .where('subject', '==', item.language)
-              .where('time', '==', item.time)
-              .where('title', '==', item.title)
-              .get()
-              .then(querrySnapshot => {
-                if (!querrySnapshot.empty) {
-                  querrySnapshot.forEach(doc => {
-                    const documentId1 = doc.id;
-                    firebase
-                      .firestore()
-                      .collection('meetings')
-                      .doc(documentId1)
-                      .delete()
-                      .then(() => {
-                        console.log('Meeting is deleted!');
-                      });
-                  });
-                }
-              });
+    if (item.hostEmail === name.email) {
+      Alert.alert(
+        'Delete Meeting',
+        'Are you sure you want to delete this meeting?',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
           },
-        },
-      ],
-      {cancelable: false},
-    );
+          {
+            text: 'OK',
+            onPress: () => {
+              firebase
+                .firestore()
+                .collection('meetings')
+                .where('course', '==', item.course)
+                .where('date', '==', item.date)
+                .where('host', '==', item.host)
+                .where('joinUrl', '==', item.joinUrl)
+                .where('language', '==', item.language)
+                .where('time', '==', item.time)
+                .where('title', '==', item.title)
+                .get()
+                .then(querrySnapshot => {
+                  if (!querrySnapshot.empty) {
+                    querrySnapshot.forEach(doc => {
+                      const documentId1 = doc.id;
+                      firebase
+                        .firestore()
+                        .collection('meetings')
+                        .doc(documentId1)
+                        .delete()
+                        .then(() => {
+                          Alert.alert('Meeting is deleted!');
+                        });
+                    });
+                  }
+                });
+            },
+          },
+        ],
+        {cancelable: false},
+      );
+    } else Alert.alert("You don't have permission to delete this meeting!");
   };
 
   useEffect(() => {
@@ -143,6 +145,7 @@ const MeetingScreen = () => {
                 courseName={item.course}
                 lectureName={item.host}
                 link={item.joinUrl}
+                hostEmail={item.hostEmail}
                 onPressDel={() => handleDelete(item)}
               />
             );

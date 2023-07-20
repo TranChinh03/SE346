@@ -16,7 +16,9 @@ export default class BtnDelete extends Component {
     return (
       <SafeAreaView>
         <View style={styles.container}>
-          <TouchableOpacity style={styles.btnBorder} onPress={this.props.onPress}>
+          <TouchableOpacity
+            style={styles.btnBorder}
+            onPress={this.props.onPress}>
             <Text style={styles.txtDelete}>-</Text>
           </TouchableOpacity>
         </View>
@@ -31,7 +33,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     // /backgroundColor: 'pink',
     marginVertical: scale(7, 'h'),
-    marginLeft: scale(10, 'w')
+    marginLeft: scale(10, 'w'),
   },
   btnBorder: {
     height: scale(35, 'h'),
