@@ -36,24 +36,30 @@ export class LessonBox2 extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <TouchableOpacity style={styles.container1} onPress={this.props.onPress}>
-        <TouchableOpacity style={styles.playIcon} onPress={this.props.onPress}>
-          <Image source={IC_PLAYCIRCLE}></Image>
+        <TouchableOpacity
+          style={styles.container1}
+          onPress={this.props.onPress}>
+          <TouchableOpacity
+            style={styles.playIcon}
+            onPress={this.props.onPress}>
+            <Image source={IC_PLAYCIRCLE}></Image>
+          </TouchableOpacity>
+          <View style={styles.textContainer}>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title} numberOfLines={1}>
+                {this.props.title}
+              </Text>
+              <Text style={styles.duration}>{this.props.time}</Text>
+            </View>
+            <View style={styles.docsContainer}>
+              <Text style={styles.docs}>PDF</Text>
+              <Text style={[styles.docs, {marginLeft: scale(30, 'w')}]}>
+                Test
+              </Text>
+            </View>
+          </View>
         </TouchableOpacity>
-        <View style={styles.textContainer}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>{this.props.title}</Text>
-            <Text style={styles.duration}>{this.props.time}</Text>
-          </View>
-          <View style={styles.docsContainer}>
-            <Text style={styles.docs}>PDF</Text>
-            <Text style={[styles.docs, {marginLeft: scale(30, 'w')}]}>
-              Test
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-      <BtnDelete onPress = {this.props.onDeletedPress}/>
+        <BtnDelete onPress={this.props.onDeletedPress} />
       </View>
     );
   }
@@ -62,7 +68,6 @@ export class LessonBox2 extends Component {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-
   },
   container1: {
     flexDirection: 'row',
@@ -85,7 +90,7 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    //alignItems: 'baseline',
     //justifyContent: 'space-around',
   },
   title: {

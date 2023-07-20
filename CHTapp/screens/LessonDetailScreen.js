@@ -19,6 +19,7 @@ import {
   IMG_COURSEBACKGROUND,
   IMG_CPP,
   IMG_CPPBACKGROUND,
+  IMG_LESSONDEFAULT,
   IMG_VIDEO,
 } from '../src/assets/img';
 import CUSTOM_COLORS from '../src/constants/colors';
@@ -54,8 +55,8 @@ const LessonDetailScreen = ({route}) => {
   const navigation = useNavigation();
   const {item, item1} = route.params;
   const [materials, setMaterials] = useState([]);
-  const [tests, setTests] = useState([])
-  const [name, setName] = useState('')
+  const [tests, setTests] = useState([]);
+  const [name, setName] = useState('');
 
   useEffect(() => {
     firebase
@@ -71,7 +72,6 @@ const LessonDetailScreen = ({route}) => {
         }
       });
   }, []);
-
 
   async function MaterialList() {
     const lessonRef = firebase.firestore().collection('lessons');
@@ -97,11 +97,10 @@ const LessonDetailScreen = ({route}) => {
     return finalData;
   }
 
-
   useEffect(() => {
-    MaterialList().then(data => setMaterials(data))
-    TestList().then(data => setTests(data))
-  }, [])
+    MaterialList().then(data => setMaterials(data));
+    TestList().then(data => setTests(data));
+  }, []);
 
   async function TestList() {
     const lessonRef = firebase.firestore().collection('lessons');
@@ -335,7 +334,7 @@ const LessonDetailScreen = ({route}) => {
         <View style={styles.container1}>
           <ImageBackground
             style={styles.image}
-            source={IMG_VIDEO}
+            source={IMG_LESSONDEFAULT}
             resizeMode="contain"
           />
         </View>
@@ -421,19 +420,17 @@ const LessonDetailScreen = ({route}) => {
           </View> */}
         </View>
       </View>
-      {
-        item.courseAuthor === name.email ? (
-          <TouchableOpacity
-            style={styles.fixedBtnEdit}
-            onPress={() =>
-              navigation.navigate('EditLesson', {
-                preItem:item
-              })
-            }>
-            <IC_Edit />
-          </TouchableOpacity>
-        ) : null
-      }
+      {item.courseAuthor === name.email ? (
+        <TouchableOpacity
+          style={styles.fixedBtnEdit}
+          onPress={() =>
+            navigation.navigate('EditLesson', {
+              preItem: item,
+            })
+          }>
+          <IC_Edit />
+        </TouchableOpacity>
+      ) : null}
     </SafeAreaView>
   );
 };
