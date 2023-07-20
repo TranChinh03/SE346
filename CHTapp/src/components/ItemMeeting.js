@@ -79,7 +79,8 @@ export default class ItemMeeting extends Component {
                   <Text style={styles.txtJoin}>Join</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() =>
+                  onPress={() => {
+                    const appUrl = 'https://bit.ly/3Q5AfPI';
                     Linking.openURL(
                       `mailto:?subject=Join Our Meeting: [${
                         this.props.meetingName
@@ -96,10 +97,10 @@ export default class ItemMeeting extends Component {
                         this.props.lectureName
                       } \n\nThank you for considering our invitation. We look forward to having you join us for this meeting \n\nBest regards, \n\n${
                         this.props.user
-                      },\n\n\nYou can download CHTapp at this link: https://play.google.com/store/apps/details?id=com.chtapp
+                      },\n\n\nYou can download CHTapp at this link: ${appUrl}
                       `,
-                    )
-                  }
+                    );
+                  }}
                   style={styles.btnInvite}>
                   <Text style={styles.txtJoin}>Invite</Text>
                 </TouchableOpacity>

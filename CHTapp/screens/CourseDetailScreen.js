@@ -294,7 +294,9 @@ const CourseDetailScreen = ({route}) => {
           <Text style={[styles.normalText2, {fontWeight: '500'}]}>
             Chapter {index + 1}:{' '}
           </Text>
-          <Text style={styles.normalText2}>{chapter.title}</Text>
+          <Text style={styles.normalText3} numberOfLines={1}>
+            {chapter.title}
+          </Text>
         </View>
         <FlatList
           data={chapterLessons}
@@ -577,10 +579,7 @@ const CourseDetailScreen = ({route}) => {
       return (
         <View style={styles.container1}>
           <View style={styles.conOperator}>
-            <BackButton
-              onPress={() => navigation.goBack()}
-              type={1}
-            />
+            <BackButton onPress={() => navigation.goBack()} type={1} />
             <TouchableOpacity
               onPress={() => {
                 setFavorite(!favorite), updateFavor();
@@ -824,6 +823,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: scale(10, 'h'),
     alignItems: 'center',
+    flexWrap: 'nowrap',
   },
   ratingNum: {
     fontSize: scale(16, 'w'),
@@ -865,6 +865,12 @@ const styles = StyleSheet.create({
   normalText2: {
     color: CUSTOM_COLORS.black,
     fontSize: scale(16, 'w'),
+  },
+  normalText3: {
+    color: CUSTOM_COLORS.black,
+    fontSize: scale(16, 'w'),
+    width: scale(220, 'w'),
+    marginLeft: scale(10, 'w'),
   },
   lessonContainer: {
     height: scale(580, 'h'),

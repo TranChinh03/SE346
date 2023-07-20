@@ -168,7 +168,9 @@ const EditCourseScreen = ({route}) => {
             <Text style={[styles.normalText2, {fontWeight: '500'}]}>
               Chapter {index + 1}:{' '}
             </Text>
-            <Text style={styles.normalText2}>{chapter.title}</Text>
+            <Text style={styles.normalText3} numberOfLines={1}>
+              {chapter.title}
+            </Text>
           </View>
         </TouchableOpacity>
         <View style={styles.containerDel}>
@@ -775,6 +777,12 @@ const styles = StyleSheet.create({
     fontSize: CUSTOM_SIZES.medium,
     textDecorationLine: 'underline',
   },
+  normalText3: {
+    color: CUSTOM_COLORS.black,
+    fontSize: scale(16, 'w'),
+    width: scale(220, 'w'),
+    marginLeft: scale(10, 'w'),
+  },
   conAddLesson: {
     height: scale(60, 'h'),
     width: scale(320, 'w'),
@@ -782,7 +790,7 @@ const styles = StyleSheet.create({
     borderWidth: scale(1, 'w'),
     borderRadius: scale(15, 'w'),
     borderColor: CUSTOM_COLORS.usBlue,
-    alignSelf: 'flex-start',
+    //alignSelf: 'flex-start',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: scale(15, 'w'),
