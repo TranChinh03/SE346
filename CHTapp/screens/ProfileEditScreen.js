@@ -251,9 +251,11 @@ const ProfileEditScreen = () => {
               )
             ) : null}
           </TouchableOpacity>
-          <View style={styles.frameCamera}>
+          <TouchableOpacity
+            style={styles.frameCamera}
+            onPress={() => handleButtonPress()}>
             <IC_Camera2 style={styles.camera} />
-          </View>
+          </TouchableOpacity>
         </View>
         {/* <View style={styles.nameContainer}>
           <View style={styles.nameFrame}>
