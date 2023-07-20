@@ -62,7 +62,10 @@ const CreateMeeting = () => {
         onPress: () => console.log('Cancel Pressed'),
         style: 'cancel',
       },
-      {text: 'Leave & Discard', onPress: () => navigation.goBack()},
+      {
+        text: 'Leave & Discard',
+        onPress: () => navigation.navigate('YourMeeting'),
+      },
     ]);
 
   useEffect(() => {
@@ -356,7 +359,7 @@ const CreateMeeting = () => {
     <SafeAreaView style={styles.container}>
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          <BackButton onPress={() => backButtonAlert} />
+          <BackButton onPress={() => backButtonAlert()} />
           <Text style={styles.txtHeader}>Create Meeting</Text>
         </View>
       </ImageBackground>
