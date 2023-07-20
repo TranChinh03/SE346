@@ -6,7 +6,7 @@ import {
   ImageBackground,
   FlatList,
   TouchableOpacity,
-  Alert
+  Alert,
 } from 'react-native';
 import React, {Component, useState, useEffect} from 'react';
 import BackButton from '../src/components/backButton';
@@ -20,8 +20,7 @@ import BtnDelete from '../src/components/BtnDelete';
 import ItemMeeting from '../src/components/ItemMeeting';
 import {firebase} from '../configs/FirebaseConfig';
 import {useNavigation, useNavigationState} from '@react-navigation/native';
-import moment from 'moment'
-
+import moment from 'moment';
 
 const MeetingScreen = () => {
   const [data, setData] = useState([]);
@@ -45,6 +44,52 @@ const MeetingScreen = () => {
     return meetingData;
   }
 
+  const handleDelete = item => {
+    Alert.alert(
+      'Delete Meeting',
+      'Are you sure you want to delete this meeting?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            firebase
+              .firestore()
+              .collection('meetings')
+              .where('course', '==', item.course)
+              .where('date', '==', item.date)
+              .where('host', '==', item.host)
+              .where('joinUrl', '==', item.joinUrl)
+              .where('subject', '==', item.language)
+              .where('time', '==', item.time)
+              .where('title', '==', item.title)
+              .get()
+              .then(querrySnapshot => {
+                if (!querrySnapshot.empty) {
+                  querrySnapshot.forEach(doc => {
+                    const documentId1 = doc.id;
+                    firebase
+                      .firestore()
+                      .collection('meetings')
+                      .doc(documentId1)
+                      .delete()
+                      .then(() => {
+                        console.log('Meeting is deleted!');
+                      });
+                  });
+                }
+              });
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  };
+
   useEffect(() => {
     firebase
       .firestore()
@@ -59,9 +104,6 @@ const MeetingScreen = () => {
         }
       });
   }, []);
-
-
-
 
   useEffect(() => {
     async function getData() {
@@ -96,11 +138,12 @@ const MeetingScreen = () => {
             return (
               <ItemMeeting
                 meetingName={item.title}
-                time={item.time}
+                time={item.time.toDate().toString()}
                 date={item.date.toDate().toLocaleDateString('en-GB')}
-                courseName={item.subject}
+                courseName={item.course}
                 lectureName={item.host}
                 link={item.joinUrl}
+                onPressDel={() => handleDelete(item)}
               />
             );
           }}

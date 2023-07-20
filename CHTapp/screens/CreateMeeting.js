@@ -25,15 +25,16 @@ import {useNavigation} from '@react-navigation/native';
 import {firebase} from '../configs/FirebaseConfig';
 import DropDownPicker from 'react-native-dropdown-picker';
 import DatePicker from 'react-native-date-picker';
-import {IC_Calendar} from '../src/assets/iconsvg';
+import {IC_Calendar, IC_Clock} from '../src/assets/iconsvg';
 import moment from 'moment';
 
 const CreateMeeting = () => {
   const [shouldShow, setShouldShow] = useState(false);
   const [open, setOpen] = useState(false);
-  const [open2, setOpen2] = useState(false);
-  const [value, setValue] = useState('');
   const [open1, setOpen1] = useState(false);
+  const [open2, setOpen2] = useState(false);
+  const [open3, setOpen3] = useState(false);
+  const [value, setValue] = useState('');
   const [value1, setValue1] = useState('');
   const [course, setCourse] = useState('');
   const [language, setLanguage] = useState('');
@@ -43,11 +44,16 @@ const CreateMeeting = () => {
 
   const [name, setName] = useState('');
   // const [meetingName, setMeetingName] = useState('')
-  const [time, setTime] = useState('');
+  const [time, setTime] = useState(new Date());
   const [date, setDate] = useState(new Date());
   const [link, setLink] = useState('');
 
   const navigation = useNavigation();
+
+  const [items, setItems] = useState([
+    {label: 'English', value: 'English'},
+    {label: 'VietNamese', value: 'Vietnamese'},
+  ]);
 
   useEffect(() => {
     firebase
@@ -98,7 +104,7 @@ const CreateMeeting = () => {
     try {
       if (
         name !== '' &&
-        time !== '' &&
+        time !== null &&
         date !== null &&
         course !== '' &&
         link !== '' &&
@@ -111,7 +117,7 @@ const CreateMeeting = () => {
           joinUrl: link,
           time: time,
           title: name,
-          subject: language,
+          language: language,
           course: course,
         });
 
@@ -189,9 +195,38 @@ const CreateMeeting = () => {
 
           <View>
             <Text style={styles.txtTiltle}>Time</Text>
-            <TextInput
+            {/* <TextInput
               style={styles.txtInput}
-              onChangeText={time => setTime(time)}></TextInput>
+              onChangeText={time => setTime(time)}></TextInput> */}
+            <TouchableOpacity
+              style={styles.conDate}
+              onPress={() => setOpen1(true)}>
+              <Text style={styles.txtDate}>
+                {/* {moment(time).toLocaleString(navigator.language, 'en-US', {
+                  timeZone: 'Asia/Barnaul',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })} */}
+                {moment(time).format('hh:mm A')}
+              </Text>
+              <IC_Clock
+                stroke={CUSTOM_COLORS.Grape}
+                style={{alignSelf: 'center'}}
+              />
+            </TouchableOpacity>
+            <DatePicker
+              modal
+              mode="time"
+              open={open1}
+              date={time}
+              onConfirm={time => {
+                setOpen1(false);
+                setTime(time);
+              }}
+              onCancel={() => {
+                setOpen1(false);
+              }}
+            />
           </View>
 
           <View>
@@ -206,17 +241,17 @@ const CreateMeeting = () => {
                 {moment(date).format('DD/MM/YYYY')}
               </Text>
               <IC_Calendar
-                stroke={CUSTOM_COLORS.usBlue}
+                stroke={CUSTOM_COLORS.Grape}
                 style={{alignSelf: 'center'}}
               />
             </TouchableOpacity>
             <DatePicker
               modal
               mode="date"
-              open={open1}
+              open={open2}
               date={date}
               onConfirm={date => {
-                setOpen1(false);
+                setOpen2(false);
                 setDate(date);
               }}
               onCancel={() => {
@@ -227,9 +262,37 @@ const CreateMeeting = () => {
 
           <View>
             <Text style={styles.txtTiltle}>Language</Text>
-            <TextInput
+            {/* <TextInput
               style={styles.txtInput}
-              onChangeText={language => setLanguage(language)}></TextInput>
+              onChangeText={language => setLanguage(language)}></TextInput> */}
+
+            <View style={styles.conDropDown}>
+              <DropDownPicker
+                style={styles.dropDown}
+                textStyle={styles.txtDropDown}
+                dropDownDirection="TOP"
+                dropDownContainerStyle={styles.condropdown2}
+                open={open3}
+                value={language}
+                items={items}
+                setOpen={setOpen3}
+                setValue={setLanguage}
+                setItems={setMyCourse}
+                multiple={false}
+                mode="BADGE"
+                badgeDotColors={['#e76f51', '#00b4d8']}
+                onChangeValue={value => {
+                  // Find the selected item
+                  const selectedItem = myCourse.find(
+                    item => item.value === value,
+                  );
+                  // Set the myCourse state to the label of the selected item
+                  if (selectedItem) {
+                    setLanguage(selectedItem.label);
+                  }
+                }}
+              />
+            </View>
           </View>
         </View>
       );
@@ -365,7 +428,7 @@ const styles = StyleSheet.create({
   txtTiltle: {
     fontSize: CUSTOM_SIZES.large,
     fontFamily: CUSTOM_FONTS.medium,
-    color: CUSTOM_COLORS.usBlue,
+    color: CUSTOM_COLORS.Grape,
     marginLeft: scale(30, 'w'),
     marginTop: scale(50, 'h'),
     marginBottom: scale(10, 'h'),
@@ -373,28 +436,28 @@ const styles = StyleSheet.create({
   txtInput: {
     height: scale(85, 'h'),
     width: scale(320, 'w'),
-    borderColor: CUSTOM_COLORS.usBlue,
+    borderColor: CUSTOM_COLORS.Grape,
     borderWidth: scale(0.75, 'w'),
     borderRadius: scale(15, 'w'),
     alignSelf: 'center',
     justifyContent: 'flex-start',
     //numberOfLines: 2,
     textAlignVertical: 'top',
-    color: CUSTOM_COLORS.usBlue,
+    color: CUSTOM_COLORS.Grape,
     fontSize: CUSTOM_SIZES.large,
     padding: scale(15, 'w'),
   },
   txtInput2: {
     height: scale(115, 'h'),
     width: scale(320, 'w'),
-    borderColor: CUSTOM_COLORS.usBlue,
+    borderColor: CUSTOM_COLORS.Grape,
     borderWidth: scale(0.75, 'w'),
     borderRadius: scale(15, 'w'),
     alignSelf: 'center',
     justifyContent: 'flex-start',
     //numberOfLines: 2,
     textAlignVertical: 'top',
-    color: CUSTOM_COLORS.usBlue,
+    color: CUSTOM_COLORS.Grape,
     fontSize: CUSTOM_SIZES.large,
     padding: scale(15, 'w'),
   },
@@ -406,16 +469,18 @@ const styles = StyleSheet.create({
     //marginLeft: scale(15, 'w'),
   },
   dropDown: {
-    borderColor: CUSTOM_COLORS.usBlue,
-    //color: CUSTOM_COLORS.usBlue,
+    borderColor: CUSTOM_COLORS.Grape,
+    //color: CUSTOM_COLORS.Grape,
     //width: '80%',
     borderRadius: scale(15, 'w'),
+    backgroundColor: 'white',
+    zIndex: 1,
   },
   txtDropDown: {
-    color: CUSTOM_COLORS.usBlue,
+    color: CUSTOM_COLORS.Grape,
     fontSize: CUSTOM_SIZES.medium,
     fontFamily: CUSTOM_FONTS.regular,
-    backgroundColor: 'transparent',
+    //backgroundColor: 'white',
   },
   // conDropDown: {
   //   height: scale(45, 'h'),
@@ -425,16 +490,17 @@ const styles = StyleSheet.create({
   //   //marginLeft: scale(15, 'w'),
   // },
   condropdown2: {
-    borderColor: CUSTOM_COLORS.usBlue,
+    borderColor: CUSTOM_COLORS.Grape,
     fontSize: CUSTOM_SIZES.medium,
     fontFamily: CUSTOM_FONTS.regular,
+    backgroundColor: 'white',
   },
   space: {
     height: scale(200, 'h'),
     // backgroundColor: 'pink',
   },
   conDate: {
-    borderColor: CUSTOM_COLORS.usBlue,
+    borderColor: CUSTOM_COLORS.Grape,
     borderWidth: scale(0.75, 'w'),
     height: scale(50, 'w'),
     width: scale(200, 'w'),
@@ -444,7 +510,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   txtDate: {
-    color: CUSTOM_COLORS.usBlue,
+    color: CUSTOM_COLORS.Grape,
     alignSelf: 'center',
     fontSize: CUSTOM_SIZES.medium,
     fontFamily: CUSTOM_FONTS.regular,
