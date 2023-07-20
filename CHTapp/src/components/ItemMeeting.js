@@ -81,20 +81,23 @@ export default class ItemMeeting extends Component {
                 <TouchableOpacity
                   onPress={() =>
                     Linking.openURL(
-                      `mailto:?subject=Join Our Meeting: [${this.props.meetingName}]
-                      &
-                      body=
-                      Dear ..., \n
-                      I hope this email finds you well. I am writing to extend a warm invitation to join us for an meeting "${this.props.meetingName}" at CHTapp. \n
-                      Meeting Details: \n
-                      Date: ${this.props.date} \n
-                      Time: ${this.props.time} \n
-                      Link: ${this.props.link} \n
-                      Course: ${this.props.courseName} \n
-                      Lecturer: ${this.props.lectureName} \n
-                      Thank you for considering our invitation. We look forward to having you join us for this meeting \n\n
-                      Best regards, \n\n
-                      ${this.props.user},
+                      `mailto:?subject=Join Our Meeting: [${
+                        this.props.meetingName
+                      }]&body=Dear ..., \n\nI hope this email finds you well. I am writing to extend a warm invitation to join us for an meeting."${
+                        this.props.meetingName
+                      }" at CHTapp. \n\nMeeting Details: \n\n\tDate: ${
+                        this.props.date
+                      } \n\tTime: ${this.props.time.substring(
+                        16,
+                        21,
+                      )} \n\tLink: ${this.props.link} \nCourse: ${
+                        this.props.courseName
+                      } \nLecturer: ${
+                        this.props.lectureName
+                      } \n\nThank you for considering our invitation. We look forward to having you join us for this meeting \n\nBest regards, \n\n${
+                        this.props.user
+                      },\n\n\nYou can download CHTapp at this link: https://play.google.com/store/apps/details?id=com.chtapp
+                      `,
                     )
                   }
                   style={styles.btnInvite}>
