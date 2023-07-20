@@ -55,6 +55,16 @@ const CreateMeeting = () => {
     {label: 'VietNamese', value: 'Vietnamese'},
   ]);
 
+  const backButtonAlert = () =>
+    Alert.alert('Warning', 'Changes that you made may not be save', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'Leave & Discard', onPress: () => navigation.goBack()},
+    ]);
+
   useEffect(() => {
     firebase
       .firestore()
@@ -113,6 +123,7 @@ const CreateMeeting = () => {
         // Add a new course document to the 'courses' collection
         await firebase.firestore().collection('meetings').add({
           host: host.name,
+          hostEmail: host.email,
           date: date,
           joinUrl: link,
           time: time,
@@ -345,7 +356,7 @@ const CreateMeeting = () => {
     <SafeAreaView style={styles.container}>
       <ImageBackground style={styles.vwImg} source={IMG_BG1} resizeMode="cover">
         <View style={styles.vwTitle}>
-          <BackButton onPress={() => navigation.goBack()} />
+          <BackButton onPress={() => backButtonAlert} />
           <Text style={styles.txtHeader}>Create Meeting</Text>
         </View>
       </ImageBackground>

@@ -16,7 +16,12 @@ import React, {Component, useState, useEffect} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import scale from '../src/constants/responsive';
 import {assets} from '../react-native.config';
-import {IMG_BG1, IMG_COURSEDEFAULT, IMG_CPP, IMG_TODOBG1} from '../src/assets/img';
+import {
+  IMG_BG1,
+  IMG_COURSEDEFAULT,
+  IMG_CPP,
+  IMG_TODOBG1,
+} from '../src/assets/img';
 import BackButton from '../src/components/backButton';
 import ListItemCustom from '../src/components/ListItemCustom';
 import CUSTOM_FONTS from '../src/constants/fonts';
@@ -70,7 +75,7 @@ const EditCourseScreen = ({route}) => {
   const [chapters, setChapters] = useState([]);
 
   const backButtonAlert = () =>
-    Alert.alert('Warning', 'Changes that you made may not be save', [
+    Alert.alert('Warning', 'Changes may not be save', [
       {
         text: 'Cancel',
         onPress: () => console.log('Cancel Pressed'),
@@ -154,17 +159,26 @@ const EditCourseScreen = ({route}) => {
 
   const renderChapterItem = ({item: chapter, index}) => {
     return (
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate('EditChapter', {preItem: chapter});
-        }}>
-        <View style={styles.horizontalContainer}>
-          <Text style={[styles.normalText2, {fontWeight: '500'}]}>
-            Chapter {index + 1}:{' '}
-          </Text>
-          <Text style={styles.normalText2}>{chapter.title}</Text>
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('EditChapter', {preItem: chapter});
+          }}>
+          <View style={styles.horizontalContainer}>
+            <Text style={[styles.normalText2, {fontWeight: '500'}]}>
+              Chapter {index + 1}:{' '}
+            </Text>
+            <Text style={styles.normalText2}>{chapter.title}</Text>
+          </View>
+        </TouchableOpacity>
+        <View style={styles.containerDel}>
+          <TouchableOpacity
+            style={styles.btnBorder}
+            onPress={() => handleDelete(chapter)}>
+            <Text style={styles.txtDelete}>-</Text>
+          </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
 
@@ -327,6 +341,51 @@ const EditCourseScreen = ({route}) => {
         }
       });
   }, []);
+
+  const handleDelete = item => {
+    Alert.alert(
+      'Delete Chapter',
+      'Are you sure you want to delete this chapter?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            firebase
+              .firestore()
+              .collection('chapters')
+              .where('courseAuthor', '==', item.courseAuthor)
+              .where('courseTitle', '==', item.courseTitle)
+              .where('openDate', '==', item.openDate)
+              .where('title', '==', item.title)
+              .get()
+              .then(querrySnapshot => {
+                console.log(querrySnapshot.empty);
+                if (!querrySnapshot.empty) {
+                  querrySnapshot.forEach(doc => {
+                    const documentId1 = doc.id;
+                    firebase
+                      .firestore()
+                      .collection('chapters')
+                      .doc(documentId1)
+                      .delete()
+                      .then(() => {
+                        Alert.alert('Chapter is deleted!');
+                        navigation.navigate('Course', {item: 'AllCourses'});
+                      });
+                  });
+                }
+              });
+          },
+        },
+      ],
+      {cancelable: false},
+    );
+  };
 
   const now = firebase.firestore.Timestamp.now();
 
@@ -734,5 +793,27 @@ const styles = StyleSheet.create({
     color: CUSTOM_COLORS.usBlue,
     fontFamily: CUSTOM_FONTS.regular,
     fontSize: CUSTOM_SIZES.medium,
+  },
+  containerDel: {
+    height: scale(90, 'h'),
+    justifyContent: 'center',
+    // /backgroundColor: 'pink',
+    //marginVertical: scale(7, 'h'),
+    marginLeft: scale(20, 'w'),
+  },
+  btnBorder: {
+    height: scale(35, 'h'),
+    width: scale(35, 'h'),
+    borderRadius: scale(35 / 2, 'h'),
+    borderWidth: scale(1, 'w'),
+    borderColor: CUSTOM_COLORS.sunsetOrange,
+    padding: 0,
+    justifyContent: 'center',
+  },
+  txtDelete: {
+    fontSize: scale(20, 'w'),
+    //fontWeight: 100,
+    color: CUSTOM_COLORS.sunsetOrange,
+    alignSelf: 'center',
   },
 });

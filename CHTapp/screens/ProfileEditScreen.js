@@ -36,7 +36,7 @@ import storage from '@react-native-firebase/storage';
 import CUSTOM_SIZES from '../src/constants/size';
 import DatePicker from 'react-native-date-picker';
 import CUSTOM_FONTS from '../src/constants/fonts';
-import { format } from 'date-fns'
+import {format} from 'date-fns';
 import moment from 'moment';
 
 const ProfileEditScreen = () => {
@@ -65,7 +65,6 @@ const ProfileEditScreen = () => {
       .then(snapshot => {
         if (snapshot.exists) {
           setProfile(snapshot.data());
-
         } else {
           console.log('User does not exist');
         }
@@ -128,24 +127,24 @@ const ProfileEditScreen = () => {
       .collection('users')
       .doc(firebase.auth().currentUser.uid)
       .update(updateData);
-    
-      console.log(profile.email)
-      console.log('email', email)
-      firebase
-        .firestore()
-        .collection('courses')
-        .where('author', '==', profile.email)
-        .get()
-        .then(querrySnapshot => {
-          if (!querrySnapshot.empty) {
-            const documentId = querrySnapshot.docs[0].id;
-            firebase
-              .firestore()
-              .collection('courses')
-              .doc(documentId)
-              .update({author: email});
-          }
-        });
+
+    console.log(profile.email);
+    console.log('email', email);
+    firebase
+      .firestore()
+      .collection('courses')
+      .where('author', '==', profile.email)
+      .get()
+      .then(querrySnapshot => {
+        if (!querrySnapshot.empty) {
+          const documentId = querrySnapshot.docs[0].id;
+          firebase
+            .firestore()
+            .collection('courses')
+            .doc(documentId)
+            .update({author: email});
+        }
+      });
   };
 
   const handleButtonPress = () => {
@@ -199,12 +198,12 @@ const ProfileEditScreen = () => {
   };
 
   if (!profile || !profile.birthday || !birthday) {
-    return <ActivityIndicator/>; // Render nothing if the profile object or its birthday property is undefined or null
+    return <ActivityIndicator />; // Render nothing if the profile object or its birthday property is undefined or null
   }
 
   return (
     <SafeAreaView style={styles.container}>
-        {console.log('profile', profile)}
+      {console.log('profile', profile)}
       <View style={styles.bgContainer}>
         <ImageBackground
           source={IMG_PROFILEBACKGROUND}
@@ -245,9 +244,11 @@ const ProfileEditScreen = () => {
             {imageUri ? (
               <Image style={styles.avt} source={{uri: imageUri}} />
             ) : profile ? (
-              profile.ava === '' ?
-              <Image style={styles.avt} source={IMG_AVT} /> :
-              <Image style={styles.avt} source={{uri: profile.ava}} />
+              profile.ava === '' ? (
+                <Image style={styles.avt} source={IMG_AVT} />
+              ) : (
+                <Image style={styles.avt} source={{uri: profile.ava}} />
+              )
             ) : null}
           </TouchableOpacity>
           <View style={styles.frameCamera}>
@@ -336,7 +337,9 @@ const ProfileEditScreen = () => {
             <TouchableOpacity
               style={styles.conDate}
               onPress={() => setOpen(true)}>
-              <Text style={styles.txtDate}>{moment(birthday).format('DD/MM/YYYY')}</Text>
+              <Text style={styles.txtDate}>
+                {moment(birthday).format('DD/MM/YYYY')}
+              </Text>
               <IC_Calendar
                 stroke={CUSTOM_COLORS.primary}
                 style={{alignSelf: 'center'}}
@@ -530,7 +533,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   txtDate: {
-    color: CUSTOM_COLORS.primary,
+    //color: CUSTOM_COLORS.primary,
     alignSelf: 'center',
     fontSize: CUSTOM_SIZES.medium,
     fontFamily: CUSTOM_FONTS.regular,
